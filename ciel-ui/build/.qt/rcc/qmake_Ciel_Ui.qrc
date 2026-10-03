@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/qt/qml/Ciel/Ui">
-    <file alias="qmldir">/home/k/projects/ciel/ciel-ui/build/Ciel/Ui/qmldir</file>
-  </qresource>
-</RCC>
-

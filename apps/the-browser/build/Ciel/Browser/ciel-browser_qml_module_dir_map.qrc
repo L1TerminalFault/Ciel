@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file alias="/qt/qml/Ciel/Browser">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser</file>
-
-  </qresource>
-</RCC>

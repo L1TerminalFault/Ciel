@@ -1,6 +1,0 @@
-set(__QT_DEPLOY_TARGET_ciel-test_FILE /home/k/projects/ciel/ciel-ui/build/test/ciel-test)
-set(__QT_DEPLOY_TARGET_ciel-test_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_ciel-ui_FILE /home/k/projects/ciel/ciel-ui/build/libciel-ui.so)
-set(__QT_DEPLOY_TARGET_ciel-ui_TYPE SHARED_LIBRARY)
-set(__QT_DEPLOY_TARGET_ciel-uiplugin_FILE /home/k/projects/ciel/ciel-ui/build/Ciel/Ui/libciel-uiplugin.so)
-set(__QT_DEPLOY_TARGET_ciel-uiplugin_TYPE MODULE_LIBRARY)

@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/">
-    <file alias="/qt/qml/Ciel/TaskMonitor">/home/k/projects/ciel/apps/task-monitor/build/Ciel/TaskMonitor</file>
-
-  </qresource>
-</RCC>

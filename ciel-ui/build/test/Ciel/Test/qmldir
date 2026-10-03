@@ -1,6 +1,0 @@
-module Ciel.Test
-typeinfo ciel-test.qmltypes
-prefer :/qt/qml/Ciel/Test/
-Main 1.0 Main.qml
-depends QtQuick
-

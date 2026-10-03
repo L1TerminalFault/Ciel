@@ -1,6 +1,0 @@
-<RCC>
-  <qresource prefix="/ciel/ui/shaders">
-    <file alias="shaders/squircle.frag.qsb">/home/k/projects/ciel/ciel-ui/build/.qsb/shaders/squircle.frag.qsb</file>
-  </qresource>
-</RCC>
-

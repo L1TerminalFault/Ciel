@@ -1,7 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/k/projects/ciel/system-daemon/build/cmake_install.cmake"
-	],
-	"Parallel" : false
-}

@@ -1,8 +1,0 @@
-{
-	"InstallScripts" : 
-	[
-		"/home/k/projects/ciel/ciel-ui/build/cmake_install.cmake",
-		"/home/k/projects/ciel/ciel-ui/build/test/cmake_install.cmake"
-	],
-	"Parallel" : false
-}
