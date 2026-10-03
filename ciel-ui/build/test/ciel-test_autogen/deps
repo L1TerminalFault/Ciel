@@ -1,0 +1,7 @@
+ciel-test_autogen/timestamp: \
+	/home/k/projects/ciel/ciel-ui/test/CMakeLists.txt \
+	/home/k/projects/ciel/ciel-ui/test/main.cpp \
+	/usr/lib/cmake/Qt6Core/Qt6CoreConfigureFileTemplate.in \
+	/usr/lib/cmake/Qt6Qml/Qt6QmlModuleDirMappingTemplate.qrc.in \
+	/usr/lib/cmake/Qt6Qml/Qt6qmldirTemplate.cmake.in \
+	/usr/bin/cmake

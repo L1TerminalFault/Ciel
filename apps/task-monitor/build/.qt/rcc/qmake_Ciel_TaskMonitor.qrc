@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/qt/qml/Ciel/TaskMonitor">
+    <file alias="qmldir">/home/k/projects/ciel/apps/task-monitor/build/Ciel/TaskMonitor/qmldir</file>
+  </qresource>
+</RCC>
+

@@ -1,0 +1,1671 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "ciel-task-monitor"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_directories",
+			"target_link_libraries",
+			"set_target_properties",
+			"include",
+			"find_package",
+			"set_property",
+			"__find_dependency_common",
+			"find_dependency",
+			"_qt_internal_find_third_party_dependencies",
+			"_qt_internal_find_qt_dependencies",
+			"add_dependencies",
+			"_qt_internal_qml_copy_files_to_build_dir",
+			"qt6_add_qml_module",
+			"qt_add_qml_module",
+			"_qt_internal_write_deferred_qmlls_build_ini_file",
+			"_qt_internal_target_enable_qmlcachegen",
+			"qt6_target_qml_sources",
+			"add_custom_command",
+			"_qt_internal_create_moc_command",
+			"qt6_generate_moc",
+			"qt6_add_dbus_interface",
+			"qt_add_dbus_interface",
+			"_qt_internal_process_resource",
+			"qt6_add_resources",
+			"qt6_extract_metatypes",
+			"_qt_internal_qml_type_registration",
+			"_qt_internal_ensure_tooling_target",
+			"target_compile_definitions",
+			"target_include_directories",
+			"target_sources",
+			"__qt_propagate_generated_resource"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt",
+			"/usr/lib/cmake/Qt6Quick/Qt6QuickTargets.cmake",
+			"/usr/lib/cmake/Qt6Quick/Qt6QuickConfig.cmake",
+			"/usr/lib/cmake/Qt6/Qt6Config.cmake",
+			"/usr/share/cmake/Modules/FindOpenGL.cmake",
+			"/usr/lib/cmake/Qt6/FindWrapOpenGL.cmake",
+			"/usr/share/cmake/Modules/CMakeFindDependencyMacro.cmake",
+			"/usr/lib/cmake/Qt6/QtPublicDependencyHelpers.cmake",
+			"/usr/lib/cmake/Qt6Gui/Qt6GuiDependencies.cmake",
+			"/usr/lib/cmake/Qt6Gui/Qt6GuiConfig.cmake",
+			"/usr/lib/cmake/Qt6Qml/Qt6QmlTargets.cmake",
+			"/usr/lib/cmake/Qt6Qml/Qt6QmlConfig.cmake",
+			"/usr/lib/cmake/Qt6Quick/Qt6QuickDependencies.cmake",
+			"/usr/lib/cmake/Qt6Qml/Qt6QmlMacros.cmake",
+			"/usr/lib/cmake/Qt6Qml/Qt6QmlMacros.cmake:1185:EVAL",
+			"/usr/lib/cmake/Qt6Core/Qt6CoreMacros.cmake",
+			"/usr/lib/cmake/Qt6DBus/Qt6DBusMacros.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 27,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 46,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 50,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"file" : 3,
+				"parent" : 4
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 267,
+				"parent" : 5
+			},
+			{
+				"file" : 2,
+				"parent" : 6
+			},
+			{
+				"command" : 4,
+				"file" : 2,
+				"line" : 65,
+				"parent" : 7
+			},
+			{
+				"file" : 1,
+				"parent" : 8
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 70,
+				"parent" : 9
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 267,
+				"parent" : 5
+			},
+			{
+				"file" : 9,
+				"parent" : 11
+			},
+			{
+				"command" : 4,
+				"file" : 9,
+				"line" : 50,
+				"parent" : 12
+			},
+			{
+				"file" : 8,
+				"parent" : 13
+			},
+			{
+				"command" : 9,
+				"file" : 8,
+				"line" : 38,
+				"parent" : 14
+			},
+			{
+				"command" : 8,
+				"file" : 7,
+				"line" : 36,
+				"parent" : 15
+			},
+			{
+				"command" : 7,
+				"file" : 6,
+				"line" : 125,
+				"parent" : 16
+			},
+			{
+				"command" : 5,
+				"file" : 6,
+				"line" : 93,
+				"parent" : 17
+			},
+			{
+				"file" : 5,
+				"parent" : 18
+			},
+			{
+				"command" : 5,
+				"file" : 5,
+				"line" : 13,
+				"parent" : 19
+			},
+			{
+				"file" : 4,
+				"parent" : 20
+			},
+			{
+				"command" : 6,
+				"file" : 4,
+				"line" : 835,
+				"parent" : 21
+			},
+			{
+				"command" : 3,
+				"file" : 4,
+				"line" : 833,
+				"parent" : 21
+			},
+			{
+				"command" : 4,
+				"file" : 2,
+				"line" : 50,
+				"parent" : 7
+			},
+			{
+				"file" : 12,
+				"parent" : 24
+			},
+			{
+				"command" : 10,
+				"file" : 12,
+				"line" : 51,
+				"parent" : 25
+			},
+			{
+				"command" : 8,
+				"file" : 7,
+				"line" : 142,
+				"parent" : 26
+			},
+			{
+				"command" : 7,
+				"file" : 6,
+				"line" : 125,
+				"parent" : 27
+			},
+			{
+				"command" : 5,
+				"file" : 6,
+				"line" : 93,
+				"parent" : 28
+			},
+			{
+				"file" : 11,
+				"parent" : 29
+			},
+			{
+				"command" : 4,
+				"file" : 11,
+				"line" : 68,
+				"parent" : 30
+			},
+			{
+				"file" : 10,
+				"parent" : 31
+			},
+			{
+				"command" : 3,
+				"file" : 10,
+				"line" : 70,
+				"parent" : 32
+			},
+			{
+				"command" : 14,
+				"file" : 0,
+				"line" : 68,
+				"parent" : 0
+			},
+			{
+				"command" : 13,
+				"file" : 13,
+				"line" : 1513,
+				"parent" : 34
+			},
+			{
+				"command" : 12,
+				"file" : 13,
+				"line" : 1045,
+				"parent" : 35
+			},
+			{
+				"command" : 11,
+				"file" : 13,
+				"line" : 3229,
+				"parent" : 36
+			},
+			{
+				"command" : 12,
+				"file" : 13,
+				"line" : 1051,
+				"parent" : 35
+			},
+			{
+				"command" : 11,
+				"file" : 13,
+				"line" : 3229,
+				"parent" : 38
+			},
+			{
+				"file" : 0,
+				"line" : -1,
+				"parent" : 0
+			},
+			{
+				"command" : 15,
+				"file" : 14,
+				"line" : 1,
+				"parent" : 40
+			},
+			{
+				"command" : 11,
+				"file" : 13,
+				"line" : 1483,
+				"parent" : 41
+			},
+			{
+				"command" : 2,
+				"file" : 13,
+				"line" : 693,
+				"parent" : 35
+			},
+			{
+				"command" : 17,
+				"file" : 13,
+				"line" : 1035,
+				"parent" : 35
+			},
+			{
+				"command" : 16,
+				"file" : 13,
+				"line" : 3837,
+				"parent" : 44
+			},
+			{
+				"command" : 2,
+				"file" : 13,
+				"line" : 1981,
+				"parent" : 45
+			},
+			{
+				"command" : 22,
+				"file" : 0,
+				"line" : 22,
+				"parent" : 0
+			},
+			{
+				"command" : 21,
+				"file" : 16,
+				"line" : 66,
+				"parent" : 47
+			},
+			{
+				"command" : 20,
+				"file" : 16,
+				"line" : 47,
+				"parent" : 48
+			},
+			{
+				"command" : 19,
+				"file" : 15,
+				"line" : 158,
+				"parent" : 49
+			},
+			{
+				"command" : 18,
+				"file" : 15,
+				"line" : 138,
+				"parent" : 50
+			},
+			{
+				"command" : 24,
+				"file" : 13,
+				"line" : 962,
+				"parent" : 35
+			},
+			{
+				"command" : 23,
+				"file" : 15,
+				"line" : 419,
+				"parent" : 52
+			},
+			{
+				"command" : 18,
+				"file" : 15,
+				"line" : 2605,
+				"parent" : 53
+			},
+			{
+				"command" : 26,
+				"file" : 13,
+				"line" : 910,
+				"parent" : 35
+			},
+			{
+				"command" : 25,
+				"file" : 13,
+				"line" : 4208,
+				"parent" : 55
+			},
+			{
+				"command" : 18,
+				"file" : 15,
+				"line" : 1505,
+				"parent" : 56
+			},
+			{
+				"command" : 18,
+				"file" : 16,
+				"line" : 36,
+				"parent" : 48
+			},
+			{
+				"command" : 18,
+				"file" : 13,
+				"line" : 1952,
+				"parent" : 45
+			},
+			{
+				"command" : 18,
+				"file" : 13,
+				"line" : 4313,
+				"parent" : 55
+			},
+			{
+				"command" : 27,
+				"file" : 13,
+				"line" : 1031,
+				"parent" : 35
+			},
+			{
+				"command" : 11,
+				"file" : 13,
+				"line" : 3251,
+				"parent" : 61
+			},
+			{
+				"command" : 28,
+				"file" : 0,
+				"line" : 64,
+				"parent" : 0
+			},
+			{
+				"command" : 29,
+				"file" : 0,
+				"line" : 32,
+				"parent" : 0
+			},
+			{
+				"command" : 29,
+				"file" : 0,
+				"line" : 36,
+				"parent" : 0
+			},
+			{
+				"command" : 29,
+				"file" : 13,
+				"line" : 4383,
+				"parent" : 55
+			},
+			{
+				"command" : 29,
+				"file" : 13,
+				"line" : 4413,
+				"parent" : 55
+			},
+			{
+				"command" : 30,
+				"file" : 15,
+				"line" : 1613,
+				"parent" : 56
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 4374,
+				"parent" : 55
+			},
+			{
+				"command" : 31,
+				"file" : 15,
+				"line" : 2666,
+				"parent" : 53
+			},
+			{
+				"command" : 30,
+				"file" : 15,
+				"line" : 2206,
+				"parent" : 70
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 1009,
+				"parent" : 35
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 1980,
+				"parent" : 45
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3700,
+				"parent" : 44
+			},
+			{
+				"command" : 30,
+				"file" : 13,
+				"line" : 3914,
+				"parent" : 44
+			},
+			{
+				"command" : 24,
+				"file" : 13,
+				"line" : 4006,
+				"parent" : 44
+			},
+			{
+				"command" : 23,
+				"file" : 15,
+				"line" : 419,
+				"parent" : 88
+			},
+			{
+				"command" : 31,
+				"file" : 15,
+				"line" : 2666,
+				"parent" : 89
+			},
+			{
+				"command" : 30,
+				"file" : 15,
+				"line" : 2206,
+				"parent" : 90
+			},
+			{
+				"command" : 24,
+				"file" : 13,
+				"line" : 4060,
+				"parent" : 44
+			},
+			{
+				"command" : 23,
+				"file" : 15,
+				"line" : 419,
+				"parent" : 92
+			},
+			{
+				"command" : 31,
+				"file" : 15,
+				"line" : 2666,
+				"parent" : 93
+			},
+			{
+				"command" : 30,
+				"file" : 15,
+				"line" : 2206,
+				"parent" : 94
+			}
+		]
+	},
+	"codemodelVersion" : 
+	{
+		"major" : 2,
+		"minor" : 11
+	},
+	"compileDependencies" : 
+	[
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Core::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Gui::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Quick::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::DBus::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 43,
+			"id" : "Qt6::Qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 46,
+			"id" : "Qt6::Qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 46,
+			"id" : "Qt6::Core::@6890427a1f51a3e7e1df"
+		}
+	],
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -std=gnu++20"
+				},
+				{
+					"backtrace" : 3,
+					"fragment" : "-mno-direct-extern-access"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 63,
+					"define" : "CIEL_UI_IMPORT_PATH=\"/home/k/projects/ciel/apps/task-monitor/../../ciel-ui/build\""
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_CORE_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_DBUS_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_GUI_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_NETWORK_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_OPENGL_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_QMLINTEGRATION_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_QML_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "QT_QUICK_LIB"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/build/ciel-task-monitor_autogen/include"
+				},
+				{
+					"backtrace" : 64,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/../../system-daemon/include"
+				},
+				{
+					"backtrace" : 65,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/src"
+				},
+				{
+					"backtrace" : 65,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/src/process"
+				},
+				{
+					"backtrace" : 65,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/src/startup"
+				},
+				{
+					"backtrace" : 65,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/src/boot"
+				},
+				{
+					"backtrace" : 65,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/../../ciel-ui/include"
+				},
+				{
+					"backtrace" : 65,
+					"path" : "/home/k/projects/ciel/apps/task-monitor/build"
+				},
+				{
+					"backtrace" : 66,
+					"path" : "/home/k/projects/ciel/apps/task-monitor"
+				},
+				{
+					"backtrace" : 67,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtQml"
+				},
+				{
+					"backtrace" : 67,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6"
+				},
+				{
+					"backtrace" : 67,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtCore"
+				},
+				{
+					"backtrace" : 67,
+					"isSystem" : true,
+					"path" : "/usr/lib/qt6/mkspecs/linux-g++"
+				},
+				{
+					"backtrace" : 67,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtQmlIntegration"
+				},
+				{
+					"backtrace" : 67,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtNetwork"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtGui"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtQuick"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtOpenGL"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "/usr/include/qt6/QtDBus"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					3,
+					3
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				5,
+				6,
+				8,
+				10,
+				12,
+				14,
+				15,
+				17,
+				19,
+				21,
+				23,
+				25,
+				27,
+				28,
+				29
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 37,
+			"id" : "ciel-task-monitor_copy_qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 39,
+			"id" : "ciel-task-monitor_copy_res::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 42,
+			"id" : "generate_qmlls_build_ini_file::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "ciel-task-monitor_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 0,
+			"id" : "ciel-task-monitor_autogen::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "ciel-task-monitor::@6890427a1f51a3e7e1df",
+	"interfaceSources" : 
+	[
+		{
+			"isGenerated" : true,
+			"path" : "build/meta_types/qt6ciel-task-monitor_metatypes.json",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-L/home/k/projects/ciel/apps/task-monitor/../../ciel-ui/build",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/home/k/projects/ciel/apps/task-monitor/../../ciel-ui/build",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "-lciel-ui",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "/usr/lib/libQt6Quick.so.6.11.2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 10,
+				"fragment" : "/usr/lib/libQt6OpenGL.so.6.11.2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "/usr/lib/libQt6Gui.so.6.11.2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "/usr/lib/libQt6DBus.so.6.11.2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 22,
+				"fragment" : "/usr/lib/libGLX.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/lib/libOpenGL.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "/usr/lib/libQt6Qml.so.6.11.2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 33,
+				"fragment" : "/usr/lib/libQt6Network.so.6.11.2",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "/usr/lib/libQt6Core.so.6.11.2",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"linkLibraries" : 
+	[
+		{
+			"backtrace" : 3,
+			"fragment" : "ciel-ui"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Core::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Gui::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Quick::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::Qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 3,
+			"id" : "Qt6::DBus::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 43,
+			"id" : "Qt6::Qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 46,
+			"id" : "Qt6::Qml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 46,
+			"id" : "Qt6::Core::@6890427a1f51a3e7e1df"
+		}
+	],
+	"name" : "ciel-task-monitor",
+	"nameOnDisk" : "ciel-task-monitor",
+	"orderDependencies" : 
+	[
+		{
+			"backtrace" : 51,
+			"id" : "Qt6::moc::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 54,
+			"id" : "Qt6::rcc::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 57,
+			"id" : "Qt6::cmake_automoc_parser::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "Qt6::qdbuscpp2xml::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 58,
+			"id" : "Qt6::qdbusxml2cpp::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 59,
+			"id" : "Qt6::qmlcachegen::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 60,
+			"id" : "Qt6::qmltyperegistrar::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 62,
+			"id" : "ciel-task-monitor_tooling::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 42,
+			"id" : "generate_qmlls_build_ini_file::@6890427a1f51a3e7e1df"
+		},
+		{
+			"id" : "ciel-task-monitor_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 0,
+			"id" : "ciel-task-monitor_autogen::@6890427a1f51a3e7e1df"
+		}
+	],
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"interfaceSourceIndexes" : 
+			[
+				0
+			],
+			"name" : "Source Files\\Generated",
+			"sourceIndexes" : 
+			[
+				0,
+				30,
+				48,
+				49,
+				50,
+				51,
+				52,
+				53,
+				54
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				1,
+				2,
+				5,
+				6,
+				8,
+				10,
+				12,
+				14,
+				15,
+				17,
+				19,
+				21,
+				23,
+				25,
+				27,
+				28,
+				29
+			]
+		},
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				3,
+				7,
+				9,
+				11
+			]
+		},
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				4,
+				13,
+				16,
+				18,
+				20,
+				22,
+				24,
+				26
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				31,
+				32,
+				33,
+				34,
+				35,
+				36,
+				37,
+				38,
+				39,
+				40,
+				41,
+				42,
+				43,
+				44,
+				45,
+				46,
+				47
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/ciel-task-monitor_autogen/mocs_compilation.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
+			"compileGroupIndex" : 0,
+			"path" : "src/main.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/SystemStatsInterface.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"backtraces" : 
+			[
+				1
+			],
+			"isGenerated" : true,
+			"path" : "build/SystemStatsInterface.h",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 68,
+			"backtraces" : 
+			[
+				68
+			],
+			"isGenerated" : true,
+			"path" : "build/meta_types/qt6ciel-task-monitor_metatypes.json.gen",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 69,
+			"backtraces" : 
+			[
+				69
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/ciel-task-monitor_qmltyperegistrations.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 71,
+			"backtraces" : 
+			[
+				71
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.qt/rcc/qrc_qmake_Ciel_TaskMonitor.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 72,
+			"backtraces" : 
+			[
+				72
+			],
+			"path" : "src/process/ProcessTableModel.hpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 72,
+			"backtraces" : 
+			[
+				72
+			],
+			"compileGroupIndex" : 0,
+			"path" : "src/process/ProcessTableModel.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 72,
+			"backtraces" : 
+			[
+				72
+			],
+			"path" : "src/startup/StartupAppsModel.hpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 72,
+			"backtraces" : 
+			[
+				72
+			],
+			"compileGroupIndex" : 0,
+			"path" : "src/startup/StartupAppsModel.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 72,
+			"backtraces" : 
+			[
+				72
+			],
+			"path" : "src/boot/BootPerformanceModel.hpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 72,
+			"backtraces" : 
+			[
+				72
+			],
+			"compileGroupIndex" : 0,
+			"path" : "src/boot/BootPerformanceModel.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 73,
+			"backtraces" : 
+			[
+				73
+			],
+			"path" : "qml/Main.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 74,
+			"backtraces" : 
+			[
+				74
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qmlcache_loader.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 75,
+			"backtraces" : 
+			[
+				75
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_Main_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 76,
+			"backtraces" : 
+			[
+				76
+			],
+			"path" : "qml/ui/toolbar/Toolbar.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 77,
+			"backtraces" : 
+			[
+				77
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_toolbar_Toolbar_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 78,
+			"backtraces" : 
+			[
+				78
+			],
+			"path" : "qml/ui/ProcessView/ProcessView.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 79,
+			"backtraces" : 
+			[
+				79
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_ProcessView_ProcessView_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 80,
+			"backtraces" : 
+			[
+				80
+			],
+			"path" : "qml/ui/PerformanceView/PerformanceView.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 81,
+			"backtraces" : 
+			[
+				81
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_PerformanceView_PerformanceView_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 82,
+			"backtraces" : 
+			[
+				82
+			],
+			"path" : "qml/ui/StartupView/StartupView.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 83,
+			"backtraces" : 
+			[
+				83
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_StartupView_StartupView_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 84,
+			"backtraces" : 
+			[
+				84
+			],
+			"path" : "qml/ui/BootTimeView/BootTimeView.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 85,
+			"backtraces" : 
+			[
+				85
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_BootTimeView_BootTimeView_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 86,
+			"backtraces" : 
+			[
+				86
+			],
+			"path" : "qml/ui/SettingsView/SettingsView.qml",
+			"sourceGroupIndex" : 3
+		},
+		{
+			"backtrace" : 87,
+			"backtraces" : 
+			[
+				87
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_SettingsView_SettingsView_qml.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 91,
+			"backtraces" : 
+			[
+				91
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.qt/rcc/qrc_ciel-task-monitor_raw_qml_0.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 95,
+			"backtraces" : 
+			[
+				95
+			],
+			"compileGroupIndex" : 0,
+			"isGenerated" : true,
+			"path" : "build/.qt/rcc/qrc_ciel-task-monitor_raw_qml_0_extra_qmldirs.cpp",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/ciel-task-monitor_autogen/timestamp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/moc_SystemStatsInterface.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/SystemStatsInterface.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/meta_types/qt6ciel-task-monitor_metatypes.json.gen.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/ciel-task-monitor_qmltyperegistrations.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.qt/rcc/qrc_qmake_Ciel_TaskMonitor.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qmlcache_loader.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_Main_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_toolbar_Toolbar_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_ProcessView_ProcessView_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_PerformanceView_PerformanceView_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_StartupView_StartupView_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_BootTimeView_BootTimeView_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.rcc/qmlcache/ciel-task-monitor_qml_ui_SettingsView_SettingsView_qml.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.qt/rcc/qrc_ciel-task-monitor_raw_qml_0.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/.qt/rcc/qrc_ciel-task-monitor_raw_qml_0_extra_qmldirs.cpp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/ciel-task-monitor_autogen/timestamp.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 0,
+			"backtraces" : 
+			[
+				0
+			],
+			"isGenerated" : true,
+			"path" : "build/meta_types/ciel-task-monitor_json_file_list.txt.rule",
+			"sourceGroupIndex" : 4
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6core_metatypes.json",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6gui_metatypes.json",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6quick_metatypes.json",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6qml_metatypes.json",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6network_metatypes.json",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6opengl_metatypes.json",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 3,
+			"backtraces" : 
+			[
+				3
+			],
+			"path" : "/usr/lib/qt6/metatypes/qt6dbus_metatypes.json",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

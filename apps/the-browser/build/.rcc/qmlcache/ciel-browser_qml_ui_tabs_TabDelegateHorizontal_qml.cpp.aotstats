@@ -1,0 +1,775 @@
+{
+    "formatRevision": 1,
+    "modules": [
+        {
+            "moduleFiles": [
+                {
+                    "entries": [
+                        {
+                            "codegenResult": 0,
+                            "column": 38,
+                            "durationMicroseconds": 0,
+                            "functionName": "totalTabs",
+                            "line": 22,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 43,
+                            "durationMicroseconds": 0,
+                            "functionName": "staggerOffset",
+                            "line": 23,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "absWsDiff",
+                            "line": 24,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 33,
+                            "durationMicroseconds": 0,
+                            "functionName": "wsP",
+                            "line": 25,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 35,
+                            "durationMicroseconds": 0,
+                            "functionName": "wsDir",
+                            "line": 26,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "isCurrent",
+                            "line": 28,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "isHovered",
+                            "line": 29,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 43,
+                            "durationMicroseconds": 0,
+                            "functionName": "currentTabView",
+                            "line": 30,
+                            "message": "Cannot load property itemAt from TabDelegateHorizontal::views with type QVariant."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 40,
+                            "durationMicroseconds": 0,
+                            "functionName": "siteFavicon",
+                            "line": 31,
+                            "message": "Cannot load property engine from TabDelegateHorizontal::currentTabView with type QVariant."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 44,
+                            "durationMicroseconds": 0,
+                            "functionName": "displayTitle",
+                            "line": 38,
+                            "message": "Cannot generate efficient code for call to untyped JavaScript function"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 32,
+                            "durationMicroseconds": 0,
+                            "functionName": "targetWidth",
+                            "line": 48,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 38,
+                            "durationMicroseconds": 0,
+                            "functionName": "slotSpan",
+                            "line": 49,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 42,
+                            "durationMicroseconds": 0,
+                            "functionName": "isDragSource",
+                            "line": 66,
+                            "message": "Cannot load property dragSourceIndex from TabDelegateHorizontal::collisionHub with type QVariant."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 41,
+                            "durationMicroseconds": 0,
+                            "functionName": "targetShift",
+                            "line": 68,
+                            "message": "Cannot load property dragSourceIndex from TabDelegateHorizontal::collisionHub with type QVariant."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "onIndexChanged",
+                            "line": 87,
+                            "message": "Cannot retrieve a non-object type by ID: shiftSpringH"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "onTargetShiftChanged",
+                            "line": 97,
+                            "message": "Cannot load property dragSourceIndex from TabDelegateHorizontal::collisionHub with type QVariant."
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 8,
+                            "durationMicroseconds": 0,
+                            "functionName": "z",
+                            "line": 154,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 5,
+                            "durationMicroseconds": 0,
+                            "functionName": "requestClose",
+                            "line": 198,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 12,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 293,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 13,
+                            "durationMicroseconds": 0,
+                            "functionName": "height",
+                            "line": 294,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 17,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 112,
+                            "message": "Could not find property \"target\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 17,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 122,
+                            "message": "Could not find property \"target\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "onFinished",
+                            "line": 132,
+                            "message": "Could not find signal \"finished\"."
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 17,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 166,
+                            "message": "Cannot access value for name collisionHub"
+                        },
+                        {
+                            "codegenResult": 2,
+                            "column": 9,
+                            "durationMicroseconds": 0,
+                            "functionName": "onTabCollisionImpulse",
+                            "line": 167,
+                            "message": "Functions without type annotations won't be compiled"
+                        },
+                        {
+                            "codegenResult": 0,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "duration",
+                            "line": 185,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "script",
+                            "line": 188,
+                            "message": "Skipped code generation for binding for property of type QQmlScriptString; nothing to do."
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "script",
+                            "line": 194,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "onFinished",
+                            "line": 286,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "script",
+                            "line": 209,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 214,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 26,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 219,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 224,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 229,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 232,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 241,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 246,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 249,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 254,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 263,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 268,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "target",
+                            "line": 277,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 282,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "onCompleted",
+                            "line": 291,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 29,
+                            "durationMicroseconds": 0,
+                            "functionName": "verticalCenter",
+                            "line": 295,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 22,
+                            "durationMicroseconds": 0,
+                            "functionName": "cursorShape",
+                            "line": 324,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "onPressed",
+                            "line": 330,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "onPressed",
+                            "line": 330,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "onPositionChanged",
+                            "line": 338,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "onPositionChanged",
+                            "line": 338,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "onReleased",
+                            "line": 362,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 21,
+                            "durationMicroseconds": 0,
+                            "functionName": "onCanceled",
+                            "line": 392,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 322,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 16,
+                            "durationMicroseconds": 0,
+                            "functionName": "width",
+                            "line": 408,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 17,
+                            "durationMicroseconds": 0,
+                            "functionName": "height",
+                            "line": 409,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 18,
+                            "durationMicroseconds": 0,
+                            "functionName": "opacity",
+                            "line": 413,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "centerIn",
+                            "line": 410,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "xScale",
+                            "line": 432,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 25,
+                            "durationMicroseconds": 0,
+                            "functionName": "yScale",
+                            "line": 433,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "x",
+                            "line": 430,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "y",
+                            "line": 431,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "enabled",
+                            "line": 436,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "enabled",
+                            "line": 446,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "x",
+                            "line": 417,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "y",
+                            "line": 427,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 20,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 460,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 26,
+                            "durationMicroseconds": 0,
+                            "functionName": "borderWidth",
+                            "line": 461,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 26,
+                            "durationMicroseconds": 0,
+                            "functionName": "borderColor",
+                            "line": 462,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 22,
+                            "durationMicroseconds": 0,
+                            "functionName": "opacity",
+                            "line": 463,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 459,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 34,
+                            "durationMicroseconds": 0,
+                            "functionName": "type",
+                            "line": 468,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "fill",
+                            "line": 474,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 35,
+                            "durationMicroseconds": 0,
+                            "functionName": "alignment",
+                            "line": 482,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 31,
+                            "durationMicroseconds": 0,
+                            "functionName": "finished",
+                            "line": 492,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 493,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "visible",
+                            "line": 494,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "centerIn",
+                            "line": 485,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 31,
+                            "durationMicroseconds": 0,
+                            "functionName": "fillMode",
+                            "line": 504,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 29,
+                            "durationMicroseconds": 0,
+                            "functionName": "source",
+                            "line": 505,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "visible",
+                            "line": 506,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "centerIn",
+                            "line": 499,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "icon",
+                            "line": 511,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 27,
+                            "durationMicroseconds": 0,
+                            "functionName": "size",
+                            "line": 512,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 513,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "visible",
+                            "line": 514,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 39,
+                            "durationMicroseconds": 0,
+                            "functionName": "centerIn",
+                            "line": 510,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "text",
+                            "line": 519,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 24,
+                            "durationMicroseconds": 0,
+                            "functionName": "color",
+                            "line": 522,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 24,
+                            "durationMicroseconds": 0,
+                            "functionName": "elide",
+                            "line": 523,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 36,
+                            "durationMicroseconds": 0,
+                            "functionName": "verticalAlignment",
+                            "line": 524,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 30,
+                            "durationMicroseconds": 0,
+                            "functionName": "weight",
+                            "line": 521,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 23,
+                            "durationMicroseconds": 0,
+                            "functionName": "size",
+                            "line": 532,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 26,
+                            "durationMicroseconds": 0,
+                            "functionName": "visible",
+                            "line": 533,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 28,
+                            "durationMicroseconds": 0,
+                            "functionName": "onClicked",
+                            "line": 535,
+                            "message": ""
+                        },
+                        {
+                            "codegenResult": 1,
+                            "column": 35,
+                            "durationMicroseconds": 0,
+                            "functionName": "alignment",
+                            "line": 534,
+                            "message": ""
+                        }
+                    ],
+                    "filePath": "/home/k/projects/ciel/apps/the-browser/qml/ui/tabs/TabDelegateHorizontal.qml"
+                }
+            ],
+            "moduleId": "Ciel.Browser(ciel-browser)"
+        }
+    ]
+}

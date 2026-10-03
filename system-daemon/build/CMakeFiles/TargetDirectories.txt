@@ -1,0 +1,5 @@
+/home/k/projects/ciel/system-daemon/build/CMakeFiles/ciel-system-daemon.dir
+/home/k/projects/ciel/system-daemon/build/CMakeFiles/edit_cache.dir
+/home/k/projects/ciel/system-daemon/build/CMakeFiles/rebuild_cache.dir
+/home/k/projects/ciel/system-daemon/build/CMakeFiles/ciel-system-daemon_autogen_timestamp_deps.dir
+/home/k/projects/ciel/system-daemon/build/CMakeFiles/ciel-system-daemon_autogen.dir

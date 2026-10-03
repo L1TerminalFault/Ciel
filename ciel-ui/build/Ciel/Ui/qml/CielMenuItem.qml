@@ -1,0 +1,92 @@
+import QtQuick
+import QtQuick.Layouts
+import Ciel.Ui 1.0
+
+Item {
+    id: root
+
+    property string text: ""
+    property string icon: ""
+    property string shortcut: ""
+    property bool destructive: false
+    property bool enabled: true
+
+    signal triggered
+
+    implicitWidth: contentRow.implicitWidth + 20
+    implicitHeight: 32
+    width: parent ? parent.width : implicitWidth
+
+    readonly property bool isHovered: itemMouse.containsMouse && root.enabled
+
+    CielSquircle {
+        anchors.fill: parent
+        color: root.destructive ? Theme.border : Theme.background
+        borderWidth: 0
+        opacity: root.isHovered ? 0.75 : 0.0
+
+        Behavior on opacity {
+            CielSpring {
+                damping: 0.35
+                spring: 7.0
+                mass: 0.8
+                epsilon: 0.001
+            }
+        }
+    }
+
+    RowLayout {
+        id: contentRow
+        anchors.fill: parent
+        anchors.leftMargin: 10
+        anchors.rightMargin: 10
+        spacing: 8
+
+        CielIcon {
+            id: iconItem
+            icon: root.icon
+            size: Theme.SMALL
+            visible: root.icon.length > 0
+            color: root.destructive ? Theme.textPrimary : (root.enabled ? Theme.textPrimary : Theme.textSecondary)
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        Text {
+            text: root.text
+            font.pixelSize: 13
+            font.weight: Font.Normal
+            color: root.destructive ? Theme.textPrimary : (root.enabled ? Theme.textPrimary : Theme.textSecondary)
+            verticalAlignment: Text.AlignVCenter
+            Layout.fillWidth: true
+            elide: Text.ElideRight
+        }
+
+        Text {
+            text: root.shortcut
+            font.pixelSize: 11
+            color: Theme.textSecondary
+            visible: root.shortcut.length > 0
+            Layout.alignment: Qt.AlignVCenter
+        }
+    }
+
+    MouseArea {
+        id: itemMouse
+        anchors.fill: parent
+        hoverEnabled: true
+        cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: {
+            if (root.enabled) {
+                root.triggered();
+                var p = root.parent;
+                while (p) {
+                    if (p.dropdown) {
+                        p.dropdown.close();
+                        break;
+                    }
+                    p = p.parent;
+                }
+            }
+        }
+    }
+}

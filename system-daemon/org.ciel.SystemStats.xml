@@ -1,0 +1,44 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ciel.SystemStats">
+    <!-- CPU Overview -->
+    <property name="CpuModel" type="s" access="read"/>
+    <property name="CpuCores" type="u" access="read"/>
+    <property name="CpuUsage" type="d" access="read"/>
+    <property name="CpuTemp" type="d" access="read"/>
+    <property name="CpuFrequencyMHz" type="u" access="read"/>
+    <property name="PerCoreUsage" type="ad" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="DoubleList"/>
+    </property>
+
+    <!-- Memory Overview -->
+    <property name="RamTotalBytes" type="t" access="read"/>
+    <property name="RamUsedBytes" type="t" access="read"/>
+    <property name="RamUsagePercent" type="d" access="read"/>
+    <property name="SwapTotalBytes" type="t" access="read"/>
+    <property name="SwapUsedBytes" type="t" access="read"/>
+
+    <!-- Dynamic Hardware Arrays -->
+    <!-- GpuInfo: (id, name, usageRatio, tempC, vramUsed, vramTotal) -->
+    <property name="Gpus" type="a(ssddtt)" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="GpuList"/>
+    </property>
+
+    <!-- DiskInfo: (mountPoint, fsType, totalBytes, usedBytes, readSpeed, writeSpeed) -->
+    <property name="Disks" type="a(sstttt)" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="DiskList"/>
+    </property>
+
+    <!-- NetworkInfo: (interfaceName, isWireless, rxSpeed, txSpeed) -->
+    <property name="Networks" type="a(sbtt)" access="read">
+      <annotation name="org.qtproject.QtDBus.QtTypeName" value="NetworkList"/>
+    </property>
+
+    <!-- System Uptime -->
+    <property name="UptimeSeconds" type="t" access="read"/>
+
+    <!-- 1Hz Broadcast Signal for synchronized desktop UI updates -->
+    <signal name="StatsUpdated"/>
+  </interface>
+</node>

@@ -1,0 +1,13 @@
+--resource
+/home/k/projects/ciel/apps/task-monitor/build/.qt/rcc/qmake_Ciel_TaskMonitor.qrc
+--resource
+/home/k/projects/ciel/apps/task-monitor/build/.qt/rcc/ciel-task-monitor_raw_qml_0.qrc
+--resource
+/home/k/projects/ciel/apps/task-monitor/build/.qt/rcc/ciel-task-monitor_raw_qml_0_extra_qmldirs.qrc
+/qt/qml/Ciel/TaskMonitor/qml/Main.qml
+/qt/qml/Ciel/TaskMonitor/qml/ui/toolbar/Toolbar.qml
+/qt/qml/Ciel/TaskMonitor/qml/ui/ProcessView/ProcessView.qml
+/qt/qml/Ciel/TaskMonitor/qml/ui/PerformanceView/PerformanceView.qml
+/qt/qml/Ciel/TaskMonitor/qml/ui/StartupView/StartupView.qml
+/qt/qml/Ciel/TaskMonitor/qml/ui/BootTimeView/BootTimeView.qml
+/qt/qml/Ciel/TaskMonitor/qml/ui/SettingsView/SettingsView.qml

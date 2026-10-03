@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/">
+    <file alias="/qt/qml/Ciel/Test">/home/k/projects/ciel/ciel-ui/build/test/Ciel/Test</file>
+
+  </qresource>
+</RCC>

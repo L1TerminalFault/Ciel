@@ -1,0 +1,12 @@
+module Ciel.TaskMonitor
+typeinfo ciel-task-monitor.qmltypes
+prefer :/qt/qml/Ciel/TaskMonitor/
+Main 1.0 qml/Main.qml
+Toolbar 1.0 qml/ui/toolbar/Toolbar.qml
+ProcessView 1.0 qml/ui/ProcessView/ProcessView.qml
+PerformanceView 1.0 qml/ui/PerformanceView/PerformanceView.qml
+StartupView 1.0 qml/ui/StartupView/StartupView.qml
+BootTimeView 1.0 qml/ui/BootTimeView/BootTimeView.qml
+SettingsView 1.0 qml/ui/SettingsView/SettingsView.qml
+depends QtQuick
+

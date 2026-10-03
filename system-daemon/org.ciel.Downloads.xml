@@ -1,0 +1,59 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ciel.Downloads">
+    <method name="ResolveDestination">
+      <arg name="filename" type="s" direction="in"/>
+      <arg name="mime_type" type="s" direction="in"/>
+      <arg name="destination" type="s" direction="out"/>
+    </method>
+    <method name="GetCategoryInfo">
+      <arg name="filename" type="s" direction="in"/>
+      <arg name="mime_type" type="s" direction="in"/>
+      <arg name="info" type="a{sv}" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+    </method>
+    <method name="StartDownload">
+      <arg name="url" type="s" direction="in"/>
+      <arg name="custom_destination" type="s" direction="in"/>
+      <arg name="download_id" type="s" direction="out"/>
+    </method>
+    <method name="PauseDownload">
+      <arg name="download_id" type="s" direction="in"/>
+    </method>
+    <method name="ResumeDownload">
+      <arg name="download_id" type="s" direction="in"/>
+    </method>
+    <method name="CancelDownload">
+      <arg name="download_id" type="s" direction="in"/>
+    </method>
+    <method name="GetActiveDownloads">
+      <arg name="downloads" type="a{sv}" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+    </method>
+    <signal name="DownloadStarted">
+      <arg name="download_id" type="s"/>
+      <arg name="filename" type="s"/>
+      <arg name="destination" type="s"/>
+      <arg name="total_bytes" type="x"/>
+      <arg name="category" type="s"/>
+    </signal>
+    <signal name="DownloadProgress">
+      <arg name="download_id" type="s"/>
+      <arg name="bytes_received" type="x"/>
+      <arg name="total_bytes" type="x"/>
+      <arg name="speed_bytes_sec" type="d"/>
+      <arg name="segments" type="ad"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out4" value="QList&lt;double&gt;"/>
+    </signal>
+    <signal name="DownloadFinished">
+      <arg name="download_id" type="s"/>
+      <arg name="destination" type="s"/>
+      <arg name="category" type="s"/>
+    </signal>
+    <signal name="DownloadFailed">
+      <arg name="download_id" type="s"/>
+      <arg name="error_message" type="s"/>
+    </signal>
+  </interface>
+</node>

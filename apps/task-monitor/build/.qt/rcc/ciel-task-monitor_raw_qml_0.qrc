@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="/qt/qml/Ciel/TaskMonitor/">
+    <file alias="qml/Main.qml">/home/k/projects/ciel/apps/task-monitor/qml/Main.qml</file>
+    <file alias="qml/ui/toolbar/Toolbar.qml">/home/k/projects/ciel/apps/task-monitor/qml/ui/toolbar/Toolbar.qml</file>
+    <file alias="qml/ui/ProcessView/ProcessView.qml">/home/k/projects/ciel/apps/task-monitor/qml/ui/ProcessView/ProcessView.qml</file>
+    <file alias="qml/ui/PerformanceView/PerformanceView.qml">/home/k/projects/ciel/apps/task-monitor/qml/ui/PerformanceView/PerformanceView.qml</file>
+    <file alias="qml/ui/StartupView/StartupView.qml">/home/k/projects/ciel/apps/task-monitor/qml/ui/StartupView/StartupView.qml</file>
+    <file alias="qml/ui/BootTimeView/BootTimeView.qml">/home/k/projects/ciel/apps/task-monitor/qml/ui/BootTimeView/BootTimeView.qml</file>
+    <file alias="qml/ui/SettingsView/SettingsView.qml">/home/k/projects/ciel/apps/task-monitor/qml/ui/SettingsView/SettingsView.qml</file>
+  </qresource>
+</RCC>
+

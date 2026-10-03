@@ -1,0 +1,5 @@
+--resource
+/home/k/projects/ciel/ciel-ui/build/test/.qt/rcc/qmake_Ciel_Test.qrc
+--resource
+/home/k/projects/ciel/ciel-ui/build/test/.qt/rcc/ciel-test_raw_qml_0.qrc
+/qt/qml/Ciel/Test/Main.qml

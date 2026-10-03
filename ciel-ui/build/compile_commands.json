@@ -1,0 +1,302 @@
+[
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/ciel-ui_autogen/mocs_compilation.cpp.o -c /home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/mocs_compilation.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/mocs_compilation.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/ciel-ui_autogen/mocs_compilation.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/src/AppPaths.cpp.o -c /home/k/projects/ciel/ciel-ui/src/AppPaths.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/src/AppPaths.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/src/AppPaths.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/src/Theme.cpp.o -c /home/k/projects/ciel/ciel-ui/src/Theme.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/src/Theme.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/src/Theme.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/src/NotificationsModel.cpp.o -c /home/k/projects/ciel/ciel-ui/src/NotificationsModel.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/src/NotificationsModel.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/src/NotificationsModel.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/src/cielgraphview.cpp.o -c /home/k/projects/ciel/ciel-ui/src/cielgraphview.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/src/cielgraphview.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/src/cielgraphview.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/ThemeInterface.cpp.o -c /home/k/projects/ciel/ciel-ui/build/ThemeInterface.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/ThemeInterface.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/ThemeInterface.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/CielNotificationsInterface.cpp.o -c /home/k/projects/ciel/ciel-ui/build/CielNotificationsInterface.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/CielNotificationsInterface.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/CielNotificationsInterface.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_ciel_shaders.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_ciel_shaders.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_ciel_shaders.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_ciel_shaders.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/ciel-ui_qmltyperegistrations.cpp.o -c /home/k/projects/ciel/ciel-ui/build/ciel-ui_qmltyperegistrations.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/ciel-ui_qmltyperegistrations.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/ciel-ui_qmltyperegistrations.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_qmake_Ciel_Ui.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_qmake_Ciel_Ui.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_qmake_Ciel_Ui.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_qmake_Ciel_Ui.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qmlcache_loader.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qmlcache_loader.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qmlcache_loader.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qmlcache_loader.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSpring_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSpring_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSpring_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSpring_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSquircle_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSquircle_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSquircle_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSquircle_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSurface_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSurface_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSurface_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSurface_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielButton_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielButton_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielButton_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielButton_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielLoadingSpinner_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielLoadingSpinner_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielLoadingSpinner_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielLoadingSpinner_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielNavView_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielNavView_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielNavView_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielNavView_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielNavItem_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielNavItem_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielNavItem_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielNavItem_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSwitch_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSwitch_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSwitch_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSwitch_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielStackedBar_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielStackedBar_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielStackedBar_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielStackedBar_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielPopup_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielPopup_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielPopup_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielPopup_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielScrollView_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielScrollView_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielScrollView_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielScrollView_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSidebar_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSidebar_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSidebar_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSidebar_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielIconButton_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielIconButton_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielIconButton_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielIconButton_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSearch_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSearch_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSearch_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSearch_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielIcon_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielIcon_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielIcon_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielIcon_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielTable_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielTable_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielTable_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielTable_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielFocusWrapper_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielFocusWrapper_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielFocusWrapper_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielFocusWrapper_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielCheckTick_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielCheckTick_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielCheckTick_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielCheckTick_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsCard_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsCard_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsCard_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsCard_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsRow_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsRow_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsRow_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSettingsRow_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSeparator_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSeparator_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSeparator_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSeparator_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSub_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSub_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSub_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielMenuSub_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielMenuItem_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielMenuItem_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielMenuItem_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielMenuItem_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielDropDown_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielDropDown_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielDropDown_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielDropDown_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSegmentedProgressBar_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSegmentedProgressBar_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSegmentedProgressBar_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSegmentedProgressBar_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSelect_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSelect_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSelect_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSelect_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielCheckBox_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielCheckBox_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielCheckBox_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielCheckBox_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSlider_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSlider_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.rcc/qmlcache/ciel-ui_qml_CielSlider_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.rcc/qmlcache/ciel-ui_qml_CielSlider_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_ciel-ui_raw_qml_0.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_ciel-ui_raw_qml_0.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_ciel-ui_raw_qml_0.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_ciel-ui_raw_qml_0.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_ui_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-ui_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -I/home/k/projects/ciel/ciel-ui -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_ciel-ui_raw_qml_0_extra_qmldirs.cpp.o -c /home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_ciel-ui_raw_qml_0_extra_qmldirs.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/.qt/rcc/qrc_ciel-ui_raw_qml_0_extra_qmldirs.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-ui.dir/build/.qt/rcc/qrc_ciel-ui_raw_qml_0_extra_qmldirs.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_DEPRECATED_WARNINGS -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_PLUGIN -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_uiplugin_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-uiplugin_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-uiplugin.dir/ciel-uiplugin_autogen/mocs_compilation.cpp.o -c /home/k/projects/ciel/ciel-ui/build/ciel-uiplugin_autogen/mocs_compilation.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/ciel-uiplugin_autogen/mocs_compilation.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-uiplugin.dir/ciel-uiplugin_autogen/mocs_compilation.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_DEPRECATED_WARNINGS -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_PLUGIN -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -Dciel_uiplugin_EXPORTS -I/home/k/projects/ciel/ciel-ui/build/ciel-uiplugin_autogen/include -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -fPIC -mno-direct-extern-access -o CMakeFiles/ciel-uiplugin.dir/ciel-uiplugin_Ciel_UiPlugin.cpp.o -c /home/k/projects/ciel/ciel-ui/build/ciel-uiplugin_Ciel_UiPlugin.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/ciel-uiplugin_Ciel_UiPlugin.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/CMakeFiles/ciel-uiplugin.dir/ciel-uiplugin_Ciel_UiPlugin.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/ciel-test_autogen/mocs_compilation.cpp.o -c /home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/mocs_compilation.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/mocs_compilation.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/ciel-test_autogen/mocs_compilation.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/main.cpp.o -c /home/k/projects/ciel/ciel-ui/test/main.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/test/main.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/main.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/ciel-test_qmltyperegistrations.cpp.o -c /home/k/projects/ciel/ciel-ui/build/test/ciel-test_qmltyperegistrations.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/test/ciel-test_qmltyperegistrations.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/ciel-test_qmltyperegistrations.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/.qt/rcc/qrc_qmake_Ciel_Test.cpp.o -c /home/k/projects/ciel/ciel-ui/build/test/.qt/rcc/qrc_qmake_Ciel_Test.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/test/.qt/rcc/qrc_qmake_Ciel_Test.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/.qt/rcc/qrc_qmake_Ciel_Test.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/.rcc/qmlcache/ciel-test_qmlcache_loader.cpp.o -c /home/k/projects/ciel/ciel-ui/build/test/.rcc/qmlcache/ciel-test_qmlcache_loader.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/test/.rcc/qmlcache/ciel-test_qmlcache_loader.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/.rcc/qmlcache/ciel-test_qmlcache_loader.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/.rcc/qmlcache/ciel-test_Main_qml.cpp.o -c /home/k/projects/ciel/ciel-ui/build/test/.rcc/qmlcache/ciel-test_Main_qml.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/test/.rcc/qmlcache/ciel-test_Main_qml.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/.rcc/qmlcache/ciel-test_Main_qml.cpp.o"
+},
+{
+  "directory": "/home/k/projects/ciel/ciel-ui/build",
+  "command": "/usr/bin/c++ -DQT_CORE_LIB -DQT_DBUS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_OPENGL_LIB -DQT_QMLINTEGRATION_LIB -DQT_QML_LIB -DQT_QUICK_LIB -I/home/k/projects/ciel/ciel-ui/build/test/ciel-test_autogen/include -I/home/k/projects/ciel/ciel-ui/test -I/home/k/projects/ciel/ciel-ui/include -I/home/k/projects/ciel/ciel-ui/build -isystem /usr/include/qt6/QtQml -isystem /usr/include/qt6 -isystem /usr/include/qt6/QtCore -isystem /usr/lib/qt6/mkspecs/linux-g++ -isystem /usr/include/qt6/QtQmlIntegration -isystem /usr/include/qt6/QtNetwork -isystem /usr/include/qt6/QtQuick -isystem /usr/include/qt6/QtGui -isystem /usr/include/qt6/QtOpenGL -isystem /usr/include/qt6/QtDBus -g -std=gnu++20 -mno-direct-extern-access -o test/CMakeFiles/ciel-test.dir/.qt/rcc/qrc_ciel-test_raw_qml_0.cpp.o -c /home/k/projects/ciel/ciel-ui/build/test/.qt/rcc/qrc_ciel-test_raw_qml_0.cpp",
+  "file": "/home/k/projects/ciel/ciel-ui/build/test/.qt/rcc/qrc_ciel-test_raw_qml_0.cpp",
+  "output": "/home/k/projects/ciel/ciel-ui/build/test/CMakeFiles/ciel-test.dir/.qt/rcc/qrc_ciel-test_raw_qml_0.cpp.o"
+}
+]

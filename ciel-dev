@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -e
+
+CIEL_ROOT="/home/k/projects/ciel"
+DAEMON_DIR="$CIEL_ROOT/system-daemon"
+UI_DIR="$CIEL_ROOT/ciel-ui"
+BAR_DIR="$CIEL_ROOT/shell/bar"
+NOTIF_DIR="$CIEL_ROOT/shell/notifications"
+
+echo "==> [Ciel] Initializing desktop runtime environment..."
+
+# 1. Kill any competing or stale notification daemons
+echo "==> [Ciel] Releasing D-Bus endpoints..."
+killall mako dunst swaync fnott ciel-system-daemon qs 2>/dev/null || true
+systemctl --user stop mako.service dunst.service swaync.service 2>/dev/null || true
+sleep 0.2
+
+# 2. Incremental build check via ninja
+echo "==> [Ciel] Verifying build artifacts..."
+ninja -C "$DAEMON_DIR/build"
+ninja -C "$UI_DIR/build"
+
+# 3. Export library and QML module search paths
+export LD_LIBRARY_PATH="$UI_DIR/build:$LD_LIBRARY_PATH"
+export QML_IMPORT_PATH="$UI_DIR/build:$QML_IMPORT_PATH"
+
+# 4. Graceful cleanup trap: terminates background processes on Ctrl+C or exit
+cleanup() {
+  echo ""
+  echo "==> [Ciel] Shutting down desktop services..."
+  if [ -n "$NOTIF_PID" ] && kill -0 "$NOTIF_PID" 2>/dev/null; then
+    kill "$NOTIF_PID" 2>/dev/null || true
+  fi
+  if [ -n "$DAEMON_PID" ] && kill -0 "$DAEMON_PID" 2>/dev/null; then
+    kill "$DAEMON_PID" 2>/dev/null || true
+    wait "$DAEMON_PID" 2>/dev/null || true
+  fi
+  echo "==> [Ciel] Environment clean. Done."
+}
+trap cleanup EXIT INT TERM
+
+# 5. Start system-daemon in background
+echo "==> [Ciel] Starting ciel-system-daemon..."
+"$DAEMON_DIR/build/ciel-system-daemon" &
+DAEMON_PID=$!
+
+# Wait for daemon to claim D-Bus session names
+sleep 0.4
+
+# 6. Start Notification Overlay in background
+echo "==> [Ciel] Starting Notification Overlay..."
+cd "$NOTIF_DIR"
+qs -p NotificationOverlay.qml &
+NOTIF_PID=$!
+
+# 7. Start the Bar in foreground (Hot-reload active)
+echo "==> [Ciel] Starting Ciel Bar (Hot-reload active)..."
+echo "==> [Ciel] Press Ctrl+C at any time to cleanly stop all services."
+echo "------------------------------------------------------------"
+
+cd "$BAR_DIR"
+exec qs -p Bar.qml

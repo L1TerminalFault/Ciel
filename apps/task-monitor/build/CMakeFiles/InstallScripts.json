@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/k/projects/ciel/apps/task-monitor/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

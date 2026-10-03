@@ -1,0 +1,31 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ciel.Notifications">
+    <property name="DoNotDisturb" type="b" access="readwrite"/>
+    <property name="UnreadCount" type="u" access="read"/>
+
+    <method name="SetDoNotDisturb">
+      <arg name="enabled" type="b" direction="in"/>
+    </method>
+    <method name="ClearAll"/>
+    <method name="Dismiss">
+      <arg name="id" type="u" direction="in"/>
+    </method>
+
+    <signal name="NotificationAdded">
+      <arg name="id" type="u"/>
+      <arg name="appName" type="s"/>
+      <arg name="summary" type="s"/>
+      <arg name="body" type="s"/>
+      <arg name="appIcon" type="s"/>
+      <arg name="urgency" type="y"/>
+    </signal>
+    <signal name="NotificationRemoved">
+      <arg name="id" type="u"/>
+    </signal>
+    <signal name="UnreadCountChanged">
+      <arg name="count" type="u"/>
+    </signal>
+  </interface>
+</node>

@@ -1,0 +1,28 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="org.ciel.Theme">
+    <!-- Properties -->
+    <property name="DarkMode" type="b" access="readwrite"/>
+    <property name="AccentColor" type="s" access="readwrite"/>
+    <property name="ReducedMotion" type="b" access="readwrite"/>
+    
+    <!-- Methods -->
+    <method name="SetDarkMode">
+      <arg name="enabled" type="b" direction="in"/>
+    </method>
+    <method name="SetAccentColor">
+      <arg name="hexColor" type="s" direction="in"/>
+    </method>
+    <method name="SetReducedMotion">
+      <arg name="enabled" type="b" direction="in"/>
+    </method>
+
+    <!-- The broadcast signal: all apps update together -->
+    <signal name="ThemeChanged">
+      <arg name="darkMode" type="b"/>
+      <arg name="accentColor" type="s"/>
+      <arg name="reducedMotion" type="b"/>
+    </signal>
+  </interface>
+</node>

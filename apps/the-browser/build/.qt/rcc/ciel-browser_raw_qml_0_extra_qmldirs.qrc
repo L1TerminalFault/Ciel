@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="/qt/qml/Ciel/Browser/">
+    <file alias="qml/qmldir">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser/qml/qmldir</file>
+    <file alias="qml/ui/tabs/qmldir">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser/qml/ui/tabs/qmldir</file>
+    <file alias="qml/ui/navigation/qmldir">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser/qml/ui/navigation/qmldir</file>
+    <file alias="qml/ui/startpage/qmldir">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser/qml/ui/startpage/qmldir</file>
+    <file alias="qml/ui/downloads/qmldir">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser/qml/ui/downloads/qmldir</file>
+    <file alias="qml/ui/history/qmldir">/home/k/projects/ciel/apps/the-browser/build/Ciel/Browser/qml/ui/history/qmldir</file>
+  </qresource>
+</RCC>
+

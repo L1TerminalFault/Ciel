@@ -1,0 +1,36 @@
+module Ciel.Ui
+linktarget ciel-uiplugin
+optional plugin ciel-uiplugin
+classname Ciel_UiPlugin
+typeinfo ciel-ui.qmltypes
+prefer :/qt/qml/Ciel/Ui/
+CielSpring 1.0 qml/CielSpring.qml
+CielSquircle 1.0 qml/CielSquircle.qml
+CielSurface 1.0 qml/CielSurface.qml
+CielButton 1.0 qml/CielButton.qml
+CielLoadingSpinner 1.0 qml/CielLoadingSpinner.qml
+CielNavView 1.0 qml/CielNavView.qml
+CielNavItem 1.0 qml/CielNavItem.qml
+CielSwitch 1.0 qml/CielSwitch.qml
+CielStackedBar 1.0 qml/CielStackedBar.qml
+CielPopup 1.0 qml/CielPopup.qml
+CielScrollView 1.0 qml/CielScrollView.qml
+CielSidebar 1.0 qml/CielSidebar.qml
+CielIconButton 1.0 qml/CielIconButton.qml
+CielSearch 1.0 qml/CielSearch.qml
+CielIcon 1.0 qml/CielIcon.qml
+CielTable 1.0 qml/CielTable.qml
+CielFocusWrapper 1.0 qml/CielFocusWrapper.qml
+CielCheckTick 1.0 qml/CielCheckTick.qml
+CielSettingsCard 1.0 qml/CielSettingsCard.qml
+CielSettingsRow 1.0 qml/CielSettingsRow.qml
+CielMenuSeparator 1.0 qml/CielMenuSeparator.qml
+CielMenuSub 1.0 qml/CielMenuSub.qml
+CielMenuItem 1.0 qml/CielMenuItem.qml
+CielDropDown 1.0 qml/CielDropDown.qml
+CielSegmentedProgressBar 1.0 qml/CielSegmentedProgressBar.qml
+CielSelect 1.0 qml/CielSelect.qml
+CielCheckBox 1.0 qml/CielCheckBox.qml
+CielSlider 1.0 qml/CielSlider.qml
+depends QtQuick
+
