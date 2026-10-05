@@ -35,6 +35,19 @@ QString ProfileManager::profilePath() const { return m_profilePath; }
 
 Database *ProfileManager::database() { return &m_database; }
 
+QString ProfileManager::profilePathFor(const QString &profileId) const {
+    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
+           + QStringLiteral("/ciel/browser/profiles/") + profileId;
+}
+
+QString ProfileManager::webEngineStoragePathFor(const QString &profileId) const {
+    return profilePathFor(profileId) + QStringLiteral("/webengine");
+}
+
+QString ProfileManager::webEngineStoragePath() const {
+    return webEngineStoragePathFor(m_activeProfileId);
+}
+
 void ProfileManager::switchProfile(const QString &profileId) {
   if (m_activeProfileId == profileId && !m_currentSessionId.isEmpty()) {
     return;
@@ -45,10 +58,17 @@ void ProfileManager::switchProfile(const QString &profileId) {
     m_database.close();
   }
 
+    m_activeProfileId = profileId;
+    m_profilePath = profilePathFor(profileId);
+
+    QDir().mkpath(m_profilePath + QStringLiteral("/webengine"));
+    QDir().mkpath(m_profilePath + QStringLiteral("/webengine/cache"));
+
   m_activeProfileId = profileId;
-  m_profilePath =
-      QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-      QStringLiteral("/ciel/browser/profiles/") + profileId;
+  m_profilePath = profilePathFor(profileId);
+  // m_profilePath =
+  //     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+  //     QStringLiteral("/ciel/browser/profiles/") + profileId;
 
   QDir().mkpath(m_profilePath + QStringLiteral("/webengine"));
 
