@@ -15,10 +15,13 @@ qt_policy(SET QTP0004 NEW)
 
 qt_standard_project_setup()
 
-# Compile as SHARED so external runtimes like Quickshell can load the .so plugin
+file(GLOB_RECURSE UI_QML
+    RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}"
+    "qml/*.qml"
+)
+
 qt_add_library(ciel-ui SHARED)
 
-# D-Bus Proxies
 qt_add_dbus_interface(ciel-ui_THEME_DBUS
     org.ciel.Theme.xml
     ThemeInterface
@@ -80,34 +83,9 @@ qt_add_qml_module(ciel-ui
         src/NotificationsModel.cpp
         src/cielgraphview.cpp
     QML_FILES
-        qml/CielSpring.qml
-        qml/CielSquircle.qml
-        qml/CielSurface.qml
-        qml/CielButton.qml
-        qml/CielLoadingSpinner.qml
-        qml/CielNavView.qml
-        qml/CielNavItem.qml
-        qml/CielSwitch.qml
-        qml/CielStackedBar.qml
-        qml/CielPopup.qml
-        qml/CielScrollView.qml
-        qml/CielSidebar.qml
-        qml/CielIconButton.qml
-        qml/CielSearch.qml
-        qml/CielIcon.qml
-        qml/CielTable.qml
-        qml/CielFocusWrapper.qml
-        qml/CielCheckTick.qml
-        qml/CielSettingsCard.qml
-        qml/CielSettingsRow.qml
-        qml/CielMenuSeparator.qml
-        qml/CielMenuSub.qml
-        qml/CielMenuItem.qml
-        qml/CielDropDown.qml
-        qml/CielSegmentedProgressBar.qml
-        qml/CielSelect.qml
-        qml/CielCheckBox.qml
-        qml/CielSlider.qml)
+        ${UI_QML}
+)
 
 enable_testing()
 add_subdirectory(test)
+

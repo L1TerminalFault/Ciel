@@ -13,7 +13,7 @@ CielSurface {
 
     readonly property bool hasIcon: icon !== ""
     readonly property bool hasText: text !== ""
-    readonly property int hPadding: Theme.metrics.spacingLg
+    readonly property int hPadding: Theme.metrics.spacingMd
     readonly property real contentWidth: (hasIcon ? root.iconSize : 0) + (hasIcon && hasText ? 8 : 0) + (hasText ? label.implicitWidth : 0)
     readonly property real fullWidth: Math.max(implicitHeight, contentWidth + (hPadding * 2))
 
@@ -55,7 +55,7 @@ CielSurface {
                 return Theme.surfacePressed;
             if (hovered)
                 return Theme.surfaceHover;
-            return Theme.surface;
+            return Theme.background;
         } else {
             if (pressed)
                 return Theme.accentPressed;

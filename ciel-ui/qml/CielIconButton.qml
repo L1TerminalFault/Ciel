@@ -74,7 +74,7 @@ Item {
         id: bg
         anchors.fill: parent
         radius: root.buttonRadius
-        color: root.primary ? Theme.surface : Theme.surface
+        color: root.primary ? Theme.background : Theme.surface
 
         opacity: {
             if (root.active)
@@ -83,6 +83,8 @@ Item {
                 return 0.65;
             if (mouseArea.containsMouse)
                 return 0.38;
+            if(root.primary)
+                return 1.0;
             return 0.0;
         }
 

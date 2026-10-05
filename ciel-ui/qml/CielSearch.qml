@@ -10,6 +10,7 @@ Item {
     property string placeholder: "search"
     property alias inputField: inputField
     readonly property bool isInputActive: inputField.activeFocus
+    property bool isPrimary: false
     property var preContent: null
     property var postContent: null
 
@@ -39,7 +40,8 @@ Item {
     CielSquircle {
         id: baseBackground
         anchors.fill: parent
-        borderWidth: 1
+        color: root.isPrimary ? Theme.background : Theme.transparent
+        borderWidth: root.isPrimary ? 0 : 1
         borderColor: Theme.border
     }
 

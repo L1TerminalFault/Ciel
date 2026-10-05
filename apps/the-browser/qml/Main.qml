@@ -18,7 +18,7 @@ ApplicationWindow {
     minimumWidth: 640
     minimumHeight: 460
     visible: true
-    title: "Ciel Browser"
+    title: "Browser"
 
     color: Theme.background
 

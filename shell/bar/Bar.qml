@@ -222,7 +222,7 @@ PanelWindow {
     // Bar chassis: pure G2 continuous squircle backed by CielTheme
     CielSquircle {
         anchors.fill: parent
-        radius: parent.height * 0.38
+        radius: parent.height * 1
         color: Theme.surface
         borderColor: Theme.surfaceHover
         borderWidth: 1

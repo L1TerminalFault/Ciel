@@ -5,14 +5,24 @@ import Ciel.Ui
 Flickable {
     id: flick
 
+    property var orientation: undefined
+    property bool showScrollBar: true
+
     clip: true
     boundsBehavior: Flickable.StopAtBounds
-    flickableDirection: (flick.contentWidth > flick.width) ? Flickable.AutoFlickDirection : Flickable.VerticalFlick
+    flickableDirection: {
+        if (flick.orientation === Qt.Horizontal)
+            return Flickable.HorizontalFlick;
+        if (flick.orientation === Qt.Vertical)
+            return Flickable.VerticalFlick;
+        return (flick.contentWidth > flick.width) ? Flickable.AutoFlickDirection : Flickable.VerticalFlick;
+    }
     flickDeceleration: 580
     maximumFlickVelocity: 3600
 
     property real scrollBarGutter: 16
-    readonly property real availableWidth: Math.max(0, width - scrollBarGutter)
+    readonly property real availableWidth: (!flick.showScrollBar || flick.orientation === Qt.Horizontal) ? width : Math.max(0, width - scrollBarGutter)
+    readonly property real availableHeight: (!flick.showScrollBar || flick.orientation !== Qt.Horizontal) ? height : Math.max(0, height - scrollBarGutter)
 
     property color thumbColor: Theme.border
 
@@ -69,7 +79,7 @@ Flickable {
     }
 
     onContentYChanged: {
-        if (!flick.flicking)
+        if (!flick.flicking || flick.orientation === Qt.Horizontal)
             return;
         const maxScrollY = Math.max(0, flick.contentHeight - flick.height);
 
@@ -93,7 +103,7 @@ Flickable {
     }
 
     onContentXChanged: {
-        if (!flick.flicking)
+        if (!flick.flicking || flick.orientation === Qt.Vertical)
             return;
         const maxScrollX = Math.max(0, flick.contentWidth - flick.width);
         if (maxScrollX <= 0)
@@ -192,8 +202,8 @@ Flickable {
                         }
 
                         const dt = Math.max(0.016, (now - earliestTime) / 1000.0);
-                        const vx = maxScrollX > 0 ? (totalDx / dt) * 0.72 : 0;
-                        const vy = (totalDy / dt) * 0.72;
+                        const vx = (flick.orientation !== Qt.Vertical && maxScrollX > 0) ? (totalDx / dt) * 0.72 : 0;
+                        const vy = (flick.orientation !== Qt.Horizontal) ? (totalDy / dt) * 0.72 : 0;
 
                         if (Math.abs(vy) > 80 || Math.abs(vx) > 80) {
                             flick.cancelFlick();
@@ -214,7 +224,7 @@ Flickable {
                     flick.touchSamples.shift();
                 }
 
-                if (px.y !== 0) {
+                if (flick.orientation !== Qt.Horizontal && px.y !== 0) {
                     if (flick.contentY <= 0) {
                         if (px.y > 0 || flick.isTrackingOverscroll) {
                             flick.isTrackingOverscroll = true;
@@ -245,7 +255,7 @@ Flickable {
                     }
                 }
 
-                if (maxScrollX > 0 && px.x !== 0) {
+                if (flick.orientation !== Qt.Vertical && maxScrollX > 0 && px.x !== 0) {
                     if (flick.contentX <= 0) {
                         if (px.x > 0 || flick.isTrackingOverscroll) {
                             flick.isTrackingOverscroll = true;
@@ -270,11 +280,11 @@ Flickable {
                                 flick.overscrollX = Math.min(120.0, nextOverscrollX);
                             }
                         }
-                    } else if (flick.isTrackingOverscroll && maxScrollY <= 0) {
+                    } else if (flick.isTrackingOverscroll && (flick.orientation === Qt.Horizontal || maxScrollY <= 0)) {
                         flick.isTrackingOverscroll = false;
                         flick.overscrollX = 0.0;
                     }
-                } else {
+                } else if (flick.orientation === Qt.Vertical) {
                     flick.overscrollX = 0.0;
                 }
 
@@ -285,8 +295,9 @@ Flickable {
             event.accepted = true;
 
             const isHorizontalOnly = (flick.contentWidth > flick.width) && (flick.contentHeight <= flick.height);
+            const isHorizontal = flick.orientation === Qt.Horizontal || (flick.orientation !== Qt.Vertical && isHorizontalOnly);
 
-            if (isHorizontalOnly && maxScrollX > 0) {
+            if (isHorizontal && (maxScrollX > 0 || flick.orientation === Qt.Horizontal)) {
                 const rawDelta = ang.y !== 0 ? ang.y : ang.x;
                 const step = (rawDelta / 120.0) * flick.wheelStepSize;
                 const nextX = flick.targetContentX - step;
@@ -316,7 +327,7 @@ Flickable {
                     smoothX.to = nextX;
                     smoothX.start();
                 }
-            } else {
+            } else if (flick.orientation !== Qt.Horizontal) {
                 const rawDelta = ang.y !== 0 ? ang.y : ang.x;
                 const step = (rawDelta / 120.0) * flick.wheelStepSize;
                 const nextY = flick.targetContentY - step;
@@ -358,7 +369,7 @@ Flickable {
         anchors.bottom: flick.bottom
         anchors.right: flick.right
         anchors.rightMargin: 1
-        policy: flick.contentHeight > flick.height ? T.ScrollBar.AsNeeded : T.ScrollBar.AlwaysOff
+        policy: (!flick.showScrollBar || flick.orientation === Qt.Horizontal) ? T.ScrollBar.AlwaysOff : (flick.contentHeight > flick.height ? T.ScrollBar.AsNeeded : T.ScrollBar.AlwaysOff)
         interactive: true
         hoverEnabled: true
         width: 14
@@ -449,7 +460,13 @@ Flickable {
         anchors.right: flick.right
         anchors.bottom: flick.bottom
         anchors.bottomMargin: 1
-        policy: (flick.contentWidth > flick.width && flick.contentHeight <= flick.height) ? T.ScrollBar.AsNeeded : T.ScrollBar.AlwaysOff
+        policy: {
+            if (!flick.showScrollBar || flick.orientation === Qt.Vertical)
+                return T.ScrollBar.AlwaysOff;
+            if (flick.orientation === Qt.Horizontal)
+                return flick.contentWidth > flick.width ? T.ScrollBar.AsNeeded : T.ScrollBar.AlwaysOff;
+            return (flick.contentWidth > flick.width && flick.contentHeight <= flick.height) ? T.ScrollBar.AsNeeded : T.ScrollBar.AlwaysOff;
+        }
         interactive: true
         hoverEnabled: true
         height: 14
