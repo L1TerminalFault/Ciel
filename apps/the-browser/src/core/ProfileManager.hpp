@@ -42,6 +42,14 @@ public:
   Q_INVOKABLE bool isBookmarked(const QString &url);
   Q_INVOKABLE bool toggleBookmark(const QString &url, const QString &title);
 
+  Q_PROPERTY(QString profilePath READ profilePath NOTIFY activeProfileChanged)
+  Q_PROPERTY(QString webEngineStoragePath READ webEngineStoragePath NOTIFY activeProfileChanged)
+
+  Q_INVOKABLE QString profilePathFor(const QString &profileId) const;
+  Q_INVOKABLE QString webEngineStoragePathFor(const QString &profileId) const;
+
+  QString webEngineStoragePath() const;   // convenience for current profile
+
 signals:
   void activeProfileChanged();
   void visitRecorded(const QString &url, const QString &title,
