@@ -16,7 +16,6 @@ FileListModel::FileListModel(QObject *parent) : QAbstractListModel(parent) {
           &FileListModel::onLoadFinished);
   connect(m_loader, &DirectoryLoader::loadError, this,
           &FileListModel::onLoadError);
-  connect(&m_workerThread, &QThread::finished, m_loader, &QObject::deleteLater);
 
   m_workerThread.start();
 }

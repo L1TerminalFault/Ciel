@@ -49,6 +49,8 @@ public:
   int currentIndex() const;
   QString currentPath() const;
   Q_INVOKABLE void setCurrentPath(const QString &path);
+  Q_INVOKABLE void goUp();
+  Q_INVOKABLE void openFolder(const QString &folderName);
 
 signals:
   void currentTabIdChanged();

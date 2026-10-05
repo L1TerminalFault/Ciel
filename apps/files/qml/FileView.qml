@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Window
-import QtQuick.Controls
+import QtQuick.Controls as T
 import QtQuick.Layouts
 import Ciel.Ui
 import Ciel.Files
@@ -11,47 +11,58 @@ Item {
     height: parent ? parent.height : 0
 
     property int navigationIconSize: Theme.SMALL
+
     Rectangle {
         anchors.fill: parent
         color: Theme.surface
     }
-    CielFocusWrapper {
 
+    CielFocusWrapper {
         anchors.fill: parent
+
         ColumnLayout {
             anchors.fill: parent
             spacing: 0
+
             RowLayout {
                 Layout.fillWidth: true
                 Layout.fillHeight: false
                 Layout.margins: 13
                 Layout.preferredHeight: 36
                 spacing: 20
+
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: false
                     spacing: 12
+
                     CielIconButton {
                         icon: "arrow-left"
                         iconSize: root.navigationIconSize
                     }
+
                     CielIconButton {
                         icon: "arrow-right"
                         iconSize: root.navigationIconSize
                     }
+
                     CielIconButton {
                         icon: "arrow-up"
                         iconSize: root.navigationIconSize
+                        onClicked: TabManager.goUp()
                     }
+
                     CielIconButton {
                         icon: "arrows-clockwise"
                         iconSize: root.navigationIconSize
                     }
                 }
+
                 RowLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     spacing: 8
+
                     CielSquircle {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
@@ -70,21 +81,26 @@ Item {
                             ]
                         }
                     }
+
                     CielSearch {
                         Layout.fillHeight: true
                         isPrimary: true
                     }
                 }
             }
+
             CielSeparator {}
+
             RowLayout {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 spacing: 0
+
                 ColumnLayout {
                     Layout.fillHeight: true
                     Layout.preferredWidth: 300
                     Layout.margins: 8
+
                     Text {
                         text: "sidebar"
                     }
@@ -93,10 +109,12 @@ Item {
                 CielSeparator {
                     vertical: true
                 }
+
                 ColumnLayout {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     spacing: 0
+
                     RowLayout {
                         Layout.fillWidth: true
                         Layout.fillHeight: false
@@ -110,23 +128,24 @@ Item {
                             icon: "folder-plus"
                         }
                     }
+
                     CielSeparator {}
+
                     ColumnLayout {
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         Layout.rightMargin: 16
                         Layout.bottomMargin: 16
                         spacing: 0
+
                         CielSquircle {
                             Layout.fillHeight: true
                             Layout.fillWidth: true
                             color: Theme.transparent
 
-                            ListView {
+                            CielListView {
                                 id: fileList
                                 anchors.fill: parent
-                                clip: true
-
                                 model: FileListModel
 
                                 delegate: Item {
@@ -160,7 +179,6 @@ Item {
                                             }
 
                                             Text {
-                                                // Directory sizes are not computed recursively during listing
                                                 text: model.isDir ? "" : (model.size + " B")
                                                 color: Theme.textSecondary
                                                 Layout.preferredWidth: 80
@@ -173,12 +191,12 @@ Item {
                                             }
                                         }
                                     }
+
                                     MouseArea {
                                         anchors.fill: parent
                                         onDoubleClicked: {
                                             if (model.isDir) {
-                                                var separator = TabManager.currentPath.endsWith("/") ? "" : "/";
-                                                TabManager.setCurrentPath(TabManager.currentPath + separator + model.name);
+                                                TabManager.openFolder(model.name);
                                             }
                                         }
                                     }

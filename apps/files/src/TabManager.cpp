@@ -1,5 +1,7 @@
 #include "TabManager.hpp"
+#include <QDir>
 #include <QFileInfo>
+#include <qfileinfo.h>
 #include <qhashfunctions.h>
 #include <qqmlengine.h>
 #include <quuid.h>
@@ -162,4 +164,26 @@ void TabManager::closeTab(const QString &uuid) {
   emit currentTabIdChanged();
   emit currentIndexChanged();
   emit currentPathChanged();
+}
+
+void TabManager::goUp() {
+  int idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+
+  QString current = m_tabs[idx].path;
+  if (current == "/" || current.isEmpty())
+    return;
+
+  QString parentPath = QFileInfo(current).dir().absolutePath();
+  setCurrentPath(parentPath);
+}
+
+void TabManager::openFolder(const QString &folderName) {
+  int idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+
+  QString newPath = QDir(m_tabs[idx].path).filePath(folderName);
+  setCurrentPath(newPath);
 }
