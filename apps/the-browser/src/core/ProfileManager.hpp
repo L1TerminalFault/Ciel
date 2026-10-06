@@ -19,6 +19,7 @@ class ProfileManager : public QObject {
       QString activeProfileId READ activeProfileId NOTIFY activeProfileChanged)
   Q_PROPERTY(QString currentSessionId READ currentSessionId CONSTANT)
   Q_PROPERTY(QString profilePath READ profilePath NOTIFY activeProfileChanged)
+  Q_PROPERTY(QString webEngineStoragePath READ webEngineStoragePath NOTIFY activeProfileChanged)
 
 public:
   static ProfileManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
@@ -30,6 +31,8 @@ public:
   QString activeProfileId() const;
   QString currentSessionId() const;
   QString profilePath() const;
+  QString webEngineStoragePath() const;
+
   Database *database();
 
   Q_INVOKABLE void switchProfile(const QString &profileId);
@@ -42,16 +45,23 @@ public:
   Q_INVOKABLE bool isBookmarked(const QString &url);
   Q_INVOKABLE bool toggleBookmark(const QString &url, const QString &title);
 
-  Q_PROPERTY(QString profilePath READ profilePath NOTIFY activeProfileChanged)
-  Q_PROPERTY(QString webEngineStoragePath READ webEngineStoragePath NOTIFY activeProfileChanged)
-
   Q_INVOKABLE QString profilePathFor(const QString &profileId) const;
   Q_INVOKABLE QString webEngineStoragePathFor(const QString &profileId) const;
 
-  QString webEngineStoragePath() const;   // convenience for current profile
+  Q_INVOKABLE QVariantList listProfiles() const;
+  Q_INVOKABLE QString createProfile(const QString &displayName,
+                                    const QString &color = QString(),
+                                    const QString &profileImage = QString());
+  Q_INVOKABLE bool updateProfile(const QString &id,
+                                const QString &displayName,
+                                const QString &color = QString(),
+                                const QString &profileImage = QString());
+  Q_INVOKABLE bool deleteProfile(const QString &id);
+  Q_INVOKABLE QVariantMap profileInfo(const QString &id) const;
 
 signals:
   void activeProfileChanged();
+  void profilesChanged();
   void visitRecorded(const QString &url, const QString &title,
                      const QString &workspaceId);
   void bookmarksChanged();
