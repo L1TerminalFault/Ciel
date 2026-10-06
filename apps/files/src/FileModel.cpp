@@ -49,7 +49,7 @@ void FileListModel::setPath(const QString &path) {
 
     // Queue worker thread to start streaming files
     QMetaObject::invokeMethod(m_loader, &DirectoryLoader::loadDirectory,
-                              Qt::QueuedConnection, path);
+                              Qt::QueuedConnection, path, m_batchLoading);
   }
 };
 

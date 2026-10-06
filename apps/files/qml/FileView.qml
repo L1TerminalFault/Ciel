@@ -127,6 +127,13 @@ Item {
                         CielIconButton {
                             icon: "folder-plus"
                         }
+                        Item {
+                            Layout.fillWidth: true
+                        }
+                        CielIconButton {
+                            icon: TabManager.currentSettings.listViewMode ? "squares-four" : "list-dashes"
+                            onClicked: TabManager.toggleViewMode()
+                        }
                     }
 
                     CielSeparator {}
@@ -143,60 +150,144 @@ Item {
                             Layout.fillWidth: true
                             color: Theme.transparent
 
-                            CielListView {
-                                id: fileList
+                            Loader {
                                 anchors.fill: parent
-                                model: FileListModel
+                                sourceComponent: TabManager.currentSettings.listViewMode ? listViewComponent : gridViewComponent
+                            }
 
-                                delegate: Item {
-                                    id: fileDelegate
-                                    width: fileList.width
-                                    height: 36
+                            Component {
+                                id: listViewComponent
 
-                                    Rectangle {
-                                        anchors.fill: parent
-                                        color: itemHover.hovered ? Theme.background : "transparent"
+                                CielListView {
+                                    id: fileList
+                                    anchors.fill: parent
+                                    model: FileListModel
 
-                                        HoverHandler {
-                                            id: itemHover
+                                    delegate: Item {
+                                        id: fileDelegate
+                                        width: fileList.width
+                                        height: 42
+
+                                        CielSquircle {
+                                            anchors.fill: parent
+                                            anchors.leftMargin: 6
+                                            anchors.rightMargin: 6
+                                            anchors.topMargin: 2
+                                            anchors.bottomMargin: 2
+                                            color: itemHover.hovered ? Theme.background : Theme.surface
+
+                                            HoverHandler {
+                                                id: itemHover
+                                            }
+
+                                            RowLayout {
+                                                anchors.fill: parent
+                                                anchors.leftMargin: 16
+                                                anchors.rightMargin: 16
+                                                spacing: 12
+
+                                                CielIcon {
+                                                    icon: model.isDir ? "folder" : "file"
+                                                }
+
+                                                Text {
+                                                    text: model.name
+                                                    color: Theme.textPrimary
+                                                    Layout.fillWidth: true
+                                                    elide: Text.ElideRight
+                                                }
+
+                                                Text {
+                                                    text: model.isDir ? "" : (model.size + " B")
+                                                    color: Theme.textSecondary
+                                                    Layout.preferredWidth: 80
+                                                }
+
+                                                Text {
+                                                    text: model.modified
+                                                    color: Theme.textSecondary
+                                                    Layout.preferredWidth: 120
+                                                }
+                                            }
                                         }
 
-                                        RowLayout {
+                                        MouseArea {
                                             anchors.fill: parent
-                                            anchors.leftMargin: 16
-                                            anchors.rightMargin: 16
-                                            spacing: 12
-
-                                            CielIcon {
-                                                icon: model.isDir ? "folder" : "file"
-                                            }
-
-                                            Text {
-                                                text: model.name
-                                                color: Theme.textPrimary
-                                                Layout.fillWidth: true
-                                                elide: Text.ElideRight
-                                            }
-
-                                            Text {
-                                                text: model.isDir ? "" : (model.size + " B")
-                                                color: Theme.textSecondary
-                                                Layout.preferredWidth: 80
-                                            }
-
-                                            Text {
-                                                text: model.modified
-                                                color: Theme.textSecondary
-                                                Layout.preferredWidth: 120
+                                            onDoubleClicked: {
+                                                if (model.isDir) {
+                                                    TabManager.openFolder(model.name);
+                                                }
                                             }
                                         }
                                     }
+                                }
+                            }
 
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        onDoubleClicked: {
-                                            if (model.isDir) {
-                                                TabManager.openFolder(model.name);
+                            Component {
+                                id: gridViewComponent
+
+                                CielGridView {
+                                    id: fileGrid
+                                    anchors.fill: parent
+                                    cellWidth: 130
+                                    cellHeight: 120
+                                    model: FileListModel
+
+                                    delegate: Item {
+                                        id: gridDelegate
+                                        width: fileGrid.cellWidth
+                                        height: fileGrid.cellHeight
+
+                                        CielSquircle {
+                                            anchors.fill: parent
+                                            anchors.margins: 4
+                                            color: gridHover.hovered ? Theme.background : Theme.surface
+
+                                            HoverHandler {
+                                                id: gridHover
+                                            }
+
+                                            ColumnLayout {
+                                                anchors.fill: parent
+                                                anchors.margins: 8
+                                                spacing: 8
+
+                                                Item {
+                                                    Layout.fillHeight: true
+                                                }
+
+                                                FileIcon {
+                                                    visible: !model.isDir
+                                                    Layout.alignment: Qt.AlignHCenter
+                                                }
+
+                                                FolderIcon {
+                                                    visible: model.isDir
+                                                    Layout.alignment: Qt.AlignHCenter
+                                                }
+
+                                                Text {
+                                                    text: model.name
+                                                    color: Theme.textPrimary
+                                                    Layout.fillWidth: true
+                                                    horizontalAlignment: Text.AlignHCenter
+                                                    elide: Text.ElideMiddle
+                                                    maximumLineCount: 2
+                                                    wrapMode: Text.WrapAnywhere
+                                                }
+
+                                                Item {
+                                                    Layout.fillHeight: true
+                                                }
+                                            }
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            onDoubleClicked: {
+                                                if (model.isDir) {
+                                                    TabManager.openFolder(model.name);
+                                                }
                                             }
                                         }
                                     }

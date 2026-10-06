@@ -4,9 +4,29 @@
 #include <QList>
 #include <QString>
 #include <QUuid>
+#include <cstdint>
 #include <qhashfunctions.h>
 #include <qqmlintegration.h>
 #include <qtmetamacros.h>
+
+struct FileViewSettings {
+  Q_GADGET
+  Q_PROPERTY(bool listViewMode MEMBER listViewMode)
+  Q_PROPERTY(SortBy sortBy MEMBER sortBy)
+  Q_PROPERTY(bool ascending MEMBER ascending)
+  Q_PROPERTY(bool showHiddenFiles MEMBER showHiddenFiles)
+  Q_PROPERTY(bool showSymlinks MEMBER showSymlinks)
+
+public:
+  enum class SortBy : uint8_t { DateModified = 0, Type, Name, Size };
+  Q_ENUM(SortBy)
+  bool listViewMode = false;
+  SortBy sortBy = SortBy::DateModified;
+  bool ascending = true;
+  bool showHiddenFiles = false;
+  bool showSymlinks = false;
+};
+Q_DECLARE_METATYPE(FileViewSettings)
 
 struct TabItem {
   QUuid id = QUuid::createUuid();
@@ -14,7 +34,9 @@ struct TabItem {
   QString path;
   QString icon;
   int scrollPosition = 0;
+  FileViewSettings settings;
 };
+
 class QJSEngine;
 class QQmlEngine;
 class TabManager : public QAbstractListModel {
@@ -27,6 +49,9 @@ class TabManager : public QAbstractListModel {
   Q_PROPERTY(QString currentPath READ currentPath WRITE setCurrentPath NOTIFY
                  currentPathChanged)
 
+  Q_PROPERTY(FileViewSettings currentSettings READ currentSettings NOTIFY
+                 currentSettingsChanged)
+
 public:
   enum TabRoles { IdRole = Qt::UserRole + 1, TitleRole, PathRole, IconRole };
   Q_ENUM(TabRoles)
@@ -37,10 +62,13 @@ public:
   QVariant data(const QModelIndex &index,
                 int role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
-
+  FileViewSettings currentSettings() const;
   // QML Invokables
   Q_INVOKABLE void addTab(const QString &path = QString());
   Q_INVOKABLE void closeTab(const QString &id);
+  Q_INVOKABLE void toggleViewMode();
+  Q_INVOKABLE void toggleHiddenFiles();
+  Q_INVOKABLE void setSortBy(FileViewSettings::SortBy criteria);
 
   // Getters & Setters
   QString currentTabId() const;
@@ -53,6 +81,7 @@ public:
   Q_INVOKABLE void openFolder(const QString &folderName);
 
 signals:
+  void currentSettingsChanged();
   void currentTabIdChanged();
   void currentIndexChanged();
   void currentPathChanged();

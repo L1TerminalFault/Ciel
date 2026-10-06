@@ -14,7 +14,7 @@ public:
   explicit DirectoryLoader(QObject *parent = nullptr);
 
 public slots:
-  void loadDirectory(const QString &path);
+  void loadDirectory(const QString &path, bool batchLoading = true);
   void revalidateInBackground(const QString &path, qint64 cachedMtime);
   void cancel();
 

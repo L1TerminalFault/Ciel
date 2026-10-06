@@ -80,6 +80,7 @@ void TabManager::setCurrentTabId(const QString &uuid) {
   emit currentTabIdChanged();
   emit currentIndexChanged();
   emit currentPathChanged();
+  emit currentSettingsChanged();
 }
 
 void TabManager::setCurrentPath(const QString &path) {
@@ -187,3 +188,26 @@ void TabManager::openFolder(const QString &folderName) {
   QString newPath = QDir(m_tabs[idx].path).filePath(folderName);
   setCurrentPath(newPath);
 }
+
+FileViewSettings TabManager::currentSettings() const {
+  auto idx = indexOf(m_activeTabId);
+  if (idx == -1)
+    return FileViewSettings{};
+  return m_tabs[idx].settings;
+}
+
+void TabManager::toggleViewMode() {
+  auto idx = indexOf(m_activeTabId);
+  m_tabs[idx].settings.listViewMode = !m_tabs[idx].settings.listViewMode;
+  emit currentSettingsChanged();
+};
+void TabManager::toggleHiddenFiles() {
+  auto idx = indexOf(m_activeTabId);
+  m_tabs[idx].settings.showHiddenFiles = !m_tabs[idx].settings.showHiddenFiles;
+  emit currentSettingsChanged();
+};
+void TabManager::setSortBy(FileViewSettings::SortBy criteria) {
+  auto idx = indexOf(m_activeTabId);
+  m_tabs[idx].settings.sortBy = criteria;
+  emit currentSettingsChanged();
+};

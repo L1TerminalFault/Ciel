@@ -2,7 +2,7 @@ import QtQuick
 import QtQuick.Controls as T
 import Ciel.Ui
 
-ListView {
+GridView {
     id: root
 
     property bool showScrollBar: true

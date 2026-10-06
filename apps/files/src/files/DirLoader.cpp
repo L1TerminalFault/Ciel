@@ -21,7 +21,7 @@
 
 DirectoryLoader::DirectoryLoader(QObject *parent) : QObject(parent) {}
 
-void DirectoryLoader::loadDirectory(const QString &path) {
+void DirectoryLoader::loadDirectory(const QString &path, bool batchLoading) {
   m_cancelRequested.store(false, std::memory_order_relaxed);
   QVector<ItemEntery> batch;
   batch.reserve(128);
@@ -71,13 +71,13 @@ void DirectoryLoader::loadDirectory(const QString &path) {
     struct stat st;
     if (fstatat(dfd, entry->d_name, &st, AT_SYMLINK_NOFOLLOW) == 0) {
       file_info.isDir = S_ISDIR(st.st_mode);
-      if (file_info.isDir) {
+      file_info.isSymLink = S_ISLNK(st.st_mode);
+      if (file_info.isDir || file_info.isSymLink) {
         file_info.size = 0;
       } else {
         file_info.size = st.st_size;
       }
       file_info.modified = st.st_mtime;
-      file_info.isSymLink = S_ISLNK(st.st_mode);
     } else {
       if (errno == ENOENT) {
         continue;
@@ -87,7 +87,7 @@ void DirectoryLoader::loadDirectory(const QString &path) {
       file_info.isDir = (entry->d_type == DT_DIR);
     }
     batch.append(std::move(file_info));
-    if (batch.size() >= 100) {
+    if (batchLoading && batch.size() >= 100) {
       emit entriesReady(batch);
       batch.clear();
     }

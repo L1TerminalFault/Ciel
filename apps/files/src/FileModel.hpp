@@ -49,4 +49,5 @@ private:
 
   DirectoryLoader *m_loader = nullptr;
   QThread m_workerThread;
+  bool m_batchLoading = true;
 };
