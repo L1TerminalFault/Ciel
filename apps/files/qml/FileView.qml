@@ -11,7 +11,57 @@ Item {
     height: parent ? parent.height : 0
 
     property int navigationIconSize: Theme.SMALL
+    ListModel {
+        id: placesModel
 
+        ListElement {
+            name: "Home"
+            iconName: "house-simple"
+            location: "home"
+        }
+
+        ListElement {
+            name: "Desktop"
+            iconName: "desktop"
+            location: "desktop"
+        }
+
+        ListElement {
+            name: "Documents"
+            iconName: "file-text"
+            location: "documents"
+        }
+
+        ListElement {
+            name: "Downloads"
+            iconName: "download-simple"
+            location: "downloads"
+        }
+
+        ListElement {
+            name: "Pictures"
+            iconName: "images"
+            location: "pictures"
+        }
+
+        ListElement {
+            name: "Music"
+            iconName: "music-notes"
+            location: "music"
+        }
+
+        ListElement {
+            name: "Videos"
+            iconName: "video-camera"
+            location: "videos"
+        }
+
+        ListElement {
+            name: "Trash"
+            iconName: "trash"
+            location: "trash"
+        }
+    }
     Rectangle {
         anchors.fill: parent
         color: Theme.surface
@@ -98,11 +148,87 @@ Item {
 
                 ColumnLayout {
                     Layout.fillHeight: true
-                    Layout.preferredWidth: 300
-                    Layout.margins: 8
+                    Layout.fillWidth: false
+                    Layout.preferredWidth: 200
+                    Layout.margins: 24
+                    Layout.alignment: Qt.AlignTop
+                    spacing: 8
 
                     Text {
-                        text: "sidebar"
+                        text: "Quick Access"
+                        font.pixelSize: 12
+                        font.weight: Font.Medium
+                    }
+
+                    ListView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+
+                        spacing: 4
+                        model: placesModel
+
+                        delegate: CielSquircle {
+                            id: delegateRoot
+
+                            function locationPath() {
+                                switch (location) {
+                                case "home":
+                                    return AppPaths.home();
+                                case "desktop":
+                                    return AppPaths.desktop();
+                                case "documents":
+                                    return AppPaths.documents();
+                                case "downloads":
+                                    return AppPaths.downloads();
+                                case "pictures":
+                                    return AppPaths.pictures();
+                                case "music":
+                                    return AppPaths.music();
+                                case "videos":
+                                    return AppPaths.videos();
+                                case "trash":
+                                    return AppPaths.trash();
+                                default:
+                                    return "";
+                                }
+                            }
+                            width: ListView.view.width
+                            height: 36
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.topMargin: 2
+                                anchors.bottomMargin: 2
+                                anchors.leftMargin: 12
+                                anchors.rightMargin: 12
+                                spacing: 8
+
+                                CielIcon {
+                                    icon: iconName
+                                    size: 20
+                                }
+
+                                Text {
+                                    text: name
+                                    font.pixelSize: 14
+                                    font.weight: Font.Medium
+                                }
+
+                                Item {
+                                    Layout.fillWidth: true
+                                }
+                            }
+
+                            HoverHandler {
+                                id: hoverHandler
+                            }
+
+                            color: hoverHandler.hovered ? Theme.background : Theme.surface
+
+                            TapHandler {
+                                onTapped: TabManager.setCurrentPath(delegateRoot.locationPath())
+                            }
+                        }
                     }
                 }
 

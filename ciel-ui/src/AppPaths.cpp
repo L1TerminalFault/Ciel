@@ -38,3 +38,43 @@ QString AppPaths::ensureDir(const QString &path) const {
   }
   return path;
 }
+
+QString AppPaths::home() const {
+  return QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+}
+
+QString AppPaths::desktop() const {
+  return QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+}
+
+QString AppPaths::documents() const {
+  return QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+}
+
+QString AppPaths::downloads() const {
+  return QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+}
+
+QString AppPaths::pictures() const {
+  return QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+}
+
+QString AppPaths::music() const {
+  return QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
+}
+
+QString AppPaths::videos() const {
+  return QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+}
+
+QString AppPaths::publicShare() const {
+  return QStandardPaths::writableLocation(QStandardPaths::PublicShareLocation);
+}
+
+QString AppPaths::templates() const {
+  return QStandardPaths::writableLocation(QStandardPaths::TemplatesLocation);
+}
+QString AppPaths::trash() const {
+  return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+         "/ciel/trash";
+}
