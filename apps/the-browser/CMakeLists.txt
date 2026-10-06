@@ -84,4 +84,6 @@ qt_add_qml_module(ciel-browser
         qml/ui/downloads/BrowserDownloadItem.qml
         qml/ui/downloads/BrowserDownloadsPopup.qml
         qml/ui/history/HistoryPage.qml
+        qml/ui/profilePage/ProfilePage.qml
+        qml/ui/profilePage/ProfileMutateDialog.qml
 )
