@@ -94,6 +94,10 @@ ApplicationWindow {
             var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
             if (model) model.addTab("ciel://history")
         }
+        onProfilesRequested: {
+            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
+            if (model) model.addTab("ciel://profiles")
+        }
         onNewTabRequested: {
             var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
             if (model) model.addTab()
@@ -217,12 +221,13 @@ ApplicationWindow {
                         readonly property string urlStr: model.url ? model.url.toString() : ""
                         readonly property bool isBlank: urlStr === "about:blank" || urlStr === ""
                         readonly property bool isHistory: urlStr === "ciel://history" || urlStr === "about:history"
+                        readonly property bool isProfilePage: urlStr === "ciel://profiles"
 
                         WebEngineView {
                             id: engineView
                             anchors.fill: parent
                             backgroundColor: Theme.background
-                            visible: !pageContainer.isBlank && !pageContainer.isHistory
+                            visible: !pageContainer.isBlank && !pageContainer.isHistory && !pageContainer.isProfilePage
 
                             // ← uses the persistent, switchable profile
                             profile: window.currentWebProfile
@@ -252,6 +257,13 @@ ApplicationWindow {
                         StartPage {
                             anchors.fill: parent
                             visible: pageContainer.isBlank
+                            config: browserConfig
+                            activeView: engineView
+                        }
+
+                        ProfilePage {
+                            anchors.fill: parent
+                            visible: pageContainer.isProfilePage
                             config: browserConfig
                             activeView: engineView
                         }
