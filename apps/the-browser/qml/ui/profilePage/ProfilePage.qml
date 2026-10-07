@@ -486,6 +486,7 @@ Item {
                 spacing: 6
                 width: profileRow.itemWidth
                 height: profileRow.itemHeight
+                z: -100
 
                 readonly property int finalIndex: profileRow.totalCount - 1
                 readonly property int rowIndex: Math.floor(finalIndex / profileRow.maxColumns)
@@ -520,17 +521,17 @@ Item {
                 // opacity: entryTriggered ? 1 : 0
 
 opacity: (entryTriggered && centerCard.editMode) ? 1 : 0
-scale: (entryTriggered && centerCard.editMode) ? 1 : 0
+// scale: (entryTriggered && centerCard.editMode) ? 1 : 0
 transformOrigin: Item.Center
 
-Behavior on scale {
-    CielSpring {
-        damping: 0.85
-        spring: 10.0
-        mass: 2.2
-        epsilon: 0.002
-    }
-}
+// Behavior on scale {
+//     CielSpring {
+//         damping: 0.85
+//         spring: 10.0
+//         mass: 2.2
+//         epsilon: 0.002
+//     }
+// }
 
                 transform: Translate {
                     x: addProfileDelegate.localBounceOffsetX
@@ -545,7 +546,7 @@ Behavior on scale {
                 }
                 Behavior on x {
                     enabled: addProfileDelegate.entryTriggered
-                    CielSpring { damping: 2.5; spring: 8.4; mass: 1.8; epsilon: 0.002 }
+                    CielSpring { damping: 0.5; spring: 8.4; mass: 1.8; epsilon: 0.002 }
                 }
                 Behavior on y {
                     CielSpring {
