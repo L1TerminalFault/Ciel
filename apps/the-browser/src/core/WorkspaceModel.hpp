@@ -62,6 +62,14 @@ signals:
   void currentIndexChanged();
 
 private:
+  void unloadWorkspaces();
+  void releaseTabModels();
+  WorkspaceItem insertWorkspaceRecord(const QString &name, const QString &color,
+                                      const QString &icon,
+                                      const QString &presetId);
+  void persistWorkspaceOrder();
+  void persistCurrentWorkspace();
+
   QList<WorkspaceItem> m_workspaces;
   QHash<QString, TabModel *> m_tabModels;
   int m_currentIndex{0};

@@ -21,5 +21,6 @@ public:
 
 private:
   QString m_connectionName;
+  bool m_open{false};
   bool runMigrations();
 };

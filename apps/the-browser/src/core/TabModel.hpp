@@ -73,6 +73,7 @@ signals:
 private:
   void loadTabs();
   void persistOrder();
+  void persistCurrentTab();
 
   QList<TabItem> m_tabs;
   int m_currentIndex{0};

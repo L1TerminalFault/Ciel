@@ -20,6 +20,7 @@ bool Database::initialize(const QString &dbPath) {
 
   QSqlDatabase db =
       QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), m_connectionName);
+  m_open = true;
   db.setDatabaseName(dbPath);
 
   if (!db.open()) {
@@ -30,6 +31,11 @@ bool Database::initialize(const QString &dbPath) {
 }
 
 void Database::close() {
+  if (!m_open) {
+    return;
+  }
+  m_open = false;
+
   if (QSqlDatabase::contains(m_connectionName)) {
     {
       QSqlDatabase db = QSqlDatabase::database(m_connectionName);
