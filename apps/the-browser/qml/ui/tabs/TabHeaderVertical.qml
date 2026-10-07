@@ -27,6 +27,12 @@ Item {
         return slash !== -1 ? s.substring(0, slash) : s;
     }
 
+    Rectangle {
+        anchors.fill: parent
+        color: Theme.background
+        z: -1
+    }
+
     Behavior on implicitHeight {
         CielSpring {
             damping: 3.0

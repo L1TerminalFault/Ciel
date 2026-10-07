@@ -1,7 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls
+import QtQuick.Effects
 import Ciel.Ui
 import Ciel.Browser 1.0
+import "../profilePage/"
 
 Item {
     id: root
@@ -70,6 +73,7 @@ Item {
     signal translateRequested
     signal findInPageRequested
     signal settingsRequested
+    signal profilesRequested
 
     readonly property real collapsedWidth: 56
     readonly property real expandedWidth: 200
@@ -142,6 +146,12 @@ Item {
             visible: !root.collapsed && (Layout.preferredHeight > 0.01 || root.dragSourceIndex !== -1 || root.unpinningIndex !== -1)
             clip: true
             z: 12
+
+            Rectangle {
+                anchors.fill: parent
+                color: Theme.background
+                z: -1
+            }
 
             Behavior on Layout.preferredHeight {
                 NumberAnimation {
@@ -828,55 +838,577 @@ Item {
             }
         }
 
-        Item {
-            id: sidebarFooter
-            Layout.fillWidth: true
-            Layout.preferredHeight: root.collapsed ? 84 : 44
-            z: 25
+Item {
+    id: sidebarFooter
+    Layout.fillWidth: true
+    Layout.preferredHeight: root.collapsed ? (btnSize * numberOfButtonsWhenCollapsed + margin * 2) : (btnSize * numberOfButtonsWhenExpanded + margin * 2 + 14)
+    z: 25
+    clip: true
+
+    property real collapseProgress: root.collapsed ? 1.0 : 0.0
+
+    readonly property real btnSize: 36
+    readonly property real margin: 8
+
+    readonly property int numberOfButtonsWhenCollapsed: 3
+    readonly property int numberOfButtonsWhenExpanded: 2
+
+    Behavior on Layout.preferredHeight {
+        CielSpring {
+            damping: 3.0
+            spring: 10.2
+            mass: 3.2
+            epsilon: 0.002
+        }
+    }
+    Behavior on collapseProgress {
+        CielSpring {
+            damping: 3.0
+            spring: 10.2
+            mass: 3.2
+            epsilon: 0.002
+        }
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        color: Theme.background
+        z: -1
+    }
+
+    Item {
+        id: profileTrigger
+        width: sidebarFooter.btnSize
+        height: sidebarFooter.btnSize
+
+        readonly property real expX: sidebarFooter.margin
+        readonly property real expY: Math.round(sidebarFooter.height - height - sidebarFooter.margin) - sidebarFooter.btnSize
+        readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
+        readonly property real colY: sidebarFooter.margin
+
+        x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
+        y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
+
+        property var profiles: ProfileManager.listProfiles()
+        readonly property bool hasExtraProfiles: profiles.length > 1
+
+        Connections {
+            target: ProfileManager
+            function onActiveProfileChanged() {
+                profileTrigger.profiles = ProfileManager.listProfiles()
+            }
+        }
+
+        CielIconButton {
+            id: addProfileBtn
+            anchors.fill: parent
+            size: Theme.SMALL
+            icon: "user"
+            visible: !profileTrigger.hasExtraProfiles
+            onClicked: root.profilesRequested()
+        }
+
+
+Item {
+    id: avatarStack
+    anchors.horizontalCenter: parent.horizontalCenter
+    anchors.bottom: parent.bottom
+    width: sidebarFooter.btnSize
+    height: sidebarFooter.btnSize
+    visible: profileTrigger.hasExtraProfiles
+    clip: false
+
+    // Stable membership (order does NOT follow active)
+    property var heldIds: []
+
+    readonly property var shown: {
+        var list = profileTrigger.profiles || []
+        var map = ({})
+        for (var i = 0; i < list.length; ++i)
+            map[list[i].id] = list[i]
+        var out = []
+        for (var i = 0; i < heldIds.length; ++i) {
+            if (map[heldIds[i]])
+                out.push(map[heldIds[i]])
+        }
+        return out
+    }
+
+    readonly property int stackCount: shown.length
+    property int foldedCount: 0
+    property bool folding: false
+    property real bounceScale: 1.0
+
+    function ensureSlotIds() {
+        var list = profileTrigger.profiles || []
+        var byId = ({})
+        var activeId = ""
+        for (var i = 0; i < list.length; ++i) {
+            byId[list[i].id] = list[i]
+            if (list[i].isActive)
+                activeId = list[i].id
+        }
+
+        var ids = []
+        for (var i = 0; i < heldIds.length; ++i) {
+            if (byId[heldIds[i]])
+                ids.push(heldIds[i])
+        }
+        if (activeId && ids.indexOf(activeId) < 0) {
+            if (ids.length < 3)
+                ids.push(activeId)
+            else
+                ids[ids.length - 1] = activeId
+        }
+        for (var i = 0; i < list.length && ids.length < 3; ++i) {
+            if (ids.indexOf(list[i].id) < 0)
+                ids.push(list[i].id)
+        }
+        // only write if membership/order actually changed
+        var same = ids.length === heldIds.length
+        if (same) {
+            for (var i = 0; i < ids.length; ++i) {
+                if (ids[i] !== heldIds[i])
+                    same = false
+            }
+        }
+        if (!same)
+            heldIds = ids
+    }
+
+    function syncAllSlots() {
+        for (var i = 0; i < stackRepeater.count; ++i) {
+            var it = stackRepeater.itemAt(i)
+            if (it && it.syncSlot)
+                it.syncSlot()
+        }
+    }
+
+    function sizeAt(fromBottom) {
+        return 22 + Math.max(0, stackCount - 1 - fromBottom) * 4
+    }
+    function restY(fromBottom) {
+        return (height - sizeAt(0)) - fromBottom * 8
+    }
+    function coverY(fromBottom) {
+        return (height - sizeAt(0)) + (sizeAt(0) - sizeAt(fromBottom)) / 2
+    }
+
+    function punchBounce() {
+        bounceScale = 1.18
+        bounceReset.restart()
+    }
+
+    function expand() {
+        foldTimer.stop()
+        openTimer.stop()
+        bounceReset.stop()
+        if (foldedCount <= 0) {
+            folding = false
+            bounceScale = 1.0
+            return
+        }
+        folding = true
+        unfoldTimer.restart()
+    }
+
+    function playFold() {
+        if (folding || stackCount < 2)
+            return
+        unfoldTimer.stop()
+        expandDelay.stop()
+        openTimer.stop()
+        folding = true
+        foldedCount = 0
+        foldTimer.restart()
+    }
+
+    Component.onCompleted: {
+        avatarStack.ensureSlotIds()
+        if (stackCount > 1) {
+            foldedCount = Math.max(0, stackCount - 1)
+            folding = true
+            unfoldTimer.restart()
+        }
+        Qt.callLater(syncAllSlots)
+    }
+
+    Connections {
+        target: ProfileManager
+        function onActiveProfileChanged() {
+            profileTrigger.profiles = ProfileManager.listProfiles()
+            avatarStack.ensureSlotIds()
+            Qt.callLater(function () {
+                avatarStack.syncAllSlots()
+                avatarStack.punchBounce()
+            })
+        }
+        function onProfilesChanged() {
+            profileTrigger.profiles = ProfileManager.listProfiles()
+            avatarStack.ensureSlotIds()
+            Qt.callLater(avatarStack.syncAllSlots)
+        }
+    }
+
+    Behavior on bounceScale {
+        CielSpring { damping: 1.0; spring: 20.2; mass: 3.2; epsilon: 0.002 }
+    }
+
+    Timer {
+        id: bounceReset
+        interval: 70
+        onTriggered: avatarStack.bounceScale = 1.0
+    }
+    Timer {
+        id: unfoldTimer
+        interval: 165
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            if (avatarStack.foldedCount > 0) {
+                if (avatarStack.foldedCount === avatarStack.stackCount - 1)
+                    avatarStack.punchBounce()
+                avatarStack.foldedCount--
+            } else {
+                stop()
+                avatarStack.folding = false
+            }
+        }
+    }
+    Timer {
+        id: foldTimer
+        interval: 165
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            if (avatarStack.foldedCount < avatarStack.stackCount - 1) {
+                if (avatarStack.foldedCount === 0)
+                    avatarStack.punchBounce()
+                avatarStack.foldedCount++
+            } else {
+                stop()
+                openTimer.restart()
+            }
+        }
+    }
+    Timer {
+        id: openTimer
+        interval: 280
+        onTriggered: {
+            root.profilesRequested()
+            expandDelay.restart()
+        }
+    }
+    Timer {
+        id: expandDelay
+        interval: 650
+        onTriggered: avatarStack.expand()
+    }
+
+    Repeater {
+        id: stackRepeater
+        model: 3
+
+        Rectangle {
+            id: circle
+
+            readonly property string profileId: index < avatarStack.heldIds.length
+                                                ? avatarStack.heldIds[index] : ""
+            readonly property var currentData: {
+                var list = avatarStack.shown
+                for (var i = 0; i < list.length; ++i) {
+                    if (list[i].id === profileId)
+                        return list[i]
+                }
+                return null
+            }
+
+            visible: currentData !== null
+            property real stackSlot: 0   // 0 = bottom (active), 1 = mid, 2 = top
+
+            function syncSlot() {
+                if (!currentData) {
+                    stackSlot = 0
+                    return
+                }
+                if (currentData.isActive) {
+                    stackSlot = 0
+                    return
+                }
+                var rank = 1
+                for (var i = 0; i < avatarStack.heldIds.length; ++i) {
+                    var d = null
+                    for (var j = 0; j < avatarStack.shown.length; ++j) {
+                        if (avatarStack.shown[j].id === avatarStack.heldIds[i])
+                            d = avatarStack.shown[j]
+                    }
+                    if (!d || d.isActive)
+                        continue
+                    if (d.id === currentData.id) {
+                        stackSlot = rank
+                        return
+                    }
+                    rank++
+                }
+                stackSlot = rank
+            }
+
+            readonly property bool isSelected: currentData ? currentData.isActive : false
+            readonly property bool folded: stackSlot > 0
+                && stackSlot >= (avatarStack.stackCount - avatarStack.foldedCount)
+
+            width: avatarStack.sizeAt(stackSlot)
+            height: avatarStack.sizeAt(stackSlot)
+            radius: width / 2
+            x: Math.round((avatarStack.width - width) / 2)
+            y: folded ? avatarStack.coverY(stackSlot) : avatarStack.restY(stackSlot)
+
+            // bottom = in front
+            z: Math.round((avatarStack.stackCount - stackSlot) * 10)
+
+            color: (currentData && currentData.color) ? currentData.color : Theme.surface
+            border.width: isSelected ? 2 : 1.5
+            border.color: isSelected ? Theme.accent : Theme.surface
             clip: true
+            scale: isSelected ? avatarStack.bounceScale : 1.0
+            transformOrigin: Item.Center
 
-            property real collapseProgress: root.collapsed ? 1.0 : 0.0
-
-            Behavior on Layout.preferredHeight {
-                CielSpring {
-                    damping: 3.0
-                    spring: 10.2
-                    mass: 3.2
-                    epsilon: 0.002
-                }
+            Behavior on stackSlot {
+                CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
+            }
+            Behavior on y {
+                CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
+            }
+            Behavior on width {
+                CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
+            }
+            Behavior on height {
+                CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
             }
 
-            Behavior on collapseProgress {
-                CielSpring {
-                    damping: 3.0
-                    spring: 10.2
-                    mass: 3.2
-                    epsilon: 0.002
-                }
+            Component.onCompleted: syncSlot()
+
+            Image {
+                id: stackImg
+                anchors.fill: parent
+                source: circle.currentData ? circle.currentData.profileImage : ""
+                fillMode: Image.PreserveAspectCrop
+                visible: false // MultiEffect draws it instead
+                asynchronous: true
             }
 
-            readonly property real btnSize: 36
-
-            CielIconButton {
-                id: settingsTrigger
-                width: sidebarFooter.btnSize
-                height: sidebarFooter.btnSize
-                size: Theme.SMALL
-                icon: "gear-six"
-
-                readonly property real expX: 8
-                readonly property real expY: Math.round((sidebarFooter.height - height) / 2)
-                readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
-                readonly property real colY: 44
-
-                x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
-                y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
+            Rectangle {
+                id: stackMaskSource
+                anchors.fill: parent
+                // Dynamically shrinks the clipping region by the border thickness
+                anchors.margins: circle.border.width
+                radius: width / 2
+                visible: false
+                layer.enabled: true // required for mask texture compilation
             }
+
+            MultiEffect {
+                anchors.fill: stackMaskSource // Forces the image directly inside the border edge
+                source: stackImg
+                maskEnabled: true
+                maskSource: stackMaskSource
+                visible: circle.currentData && circle.currentData.profileImage !== ""
+            }
+            Label {
+                anchors.centerIn: parent
+                text: (circle.currentData && circle.currentData.displayName)
+                      ? circle.currentData.displayName.charAt(0).toUpperCase() : ""
+                font.pixelSize: Math.max(9, circle.width * 0.4)
+                font.bold: true
+                color: "black"
+                visible: circle.currentData && circle.currentData.profileImage === ""
+            }
+        }
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        enabled: !avatarStack.folding
+        onClicked: avatarStack.playFold()
+    }
+}
+        // Item {
+        //     id: avatarStack
+        //     anchors.fill: parent
+        //     visible: profileTrigger.hasExtraProfiles
+        //     clip: false
+        //
+        //     // Take at most the first 3 profiles (active one first if you prefer)
+        //     readonly property var shown: {
+        //         var list = profileTrigger.profiles.slice(0, 3)
+        //         // Optional: put the active profile first
+        //         list.sort(function(a, b) {
+        //             if (a.isActive) return -1
+        //             if (b.isActive) return 1
+        //             return 0
+        //         })
+        //         return list.slice(0, 3)
+        //     }
+        //
+        //     Repeater {
+        //         model: avatarStack.shown
+        //
+        //         Rectangle {
+        //             // Stack them slightly offset to the right
+        //             x: index * 10
+        //             y: 0
+        //             width: 28
+        //             height: 28
+        //             radius: 14
+        //             color: Theme.surface
+        //             border.width: 2
+        //             border.color: Theme.background          // creates the nice stacked look
+        //             z: avatarStack.shown.length - index     // front-most on top
+        //             clip: true
+        //
+        //             // Profile image
+        //             Image {
+        //                 anchors.fill: parent
+        //                 anchors.margins: 1
+        //                 source: modelData.profileImage
+        //                 fillMode: Image.PreserveAspectCrop
+        //                 visible: modelData.profileImage !== ""
+        //                 asynchronous: true
+        //             }
+        //
+        //             // Fallback initial
+        //             Label {
+        //                 anchors.centerIn: parent
+        //                 text: modelData.displayName.charAt(0).toUpperCase()
+        //                 font.pixelSize: 11
+        //                 font.bold: true
+        //                 color: Theme.textPrimary
+        //                 visible: modelData.profileImage === ""
+        //             }
+        //
+        //             // Tiny active indicator
+        //             Rectangle {
+        //                 visible: modelData.isActive
+        //                 anchors.right: parent.right
+        //                 anchors.bottom: parent.bottom
+        //                 anchors.margins: -1
+        //                 width: 10
+        //                 height: 10
+        //                 radius: 5
+        //                 color: Theme.accent
+        //                 border.width: 1.5
+        //                 border.color: Theme.background
+        //             }
+        //         }
+        //     }
+        //
+        //     // Click area for the whole stack
+        //     MouseArea {
+        //         anchors.fill: parent
+        //         anchors.rightMargin: - (avatarStack.shown.length - 1) * 10   // cover the whole stack
+        //         cursorShape: Qt.PointingHandCursor
+        //         // onClicked: profileMenu.open()
+        //         onClicked: root.profilesRequested();
+        //     }
+        // }
+
+        // ProfilePage { id: addProfileDialog }
+
+        // The actual menu (same as before, just attached here)
+        // Menu {
+        //     id: profileMenu
+        //     width: 260
+        //     y: profileTrigger.height + 6
+        //
+        //     Instantiator {
+        //         model: profileTrigger.profiles
+        //         delegate: MenuItem {
+        //             width: profileMenu.width
+        //             height: 48
+        //
+        //             contentItem: RowLayout {
+        //                 spacing: 12
+        //                 anchors.leftMargin: 12
+        //                 anchors.rightMargin: 12
+        //
+        //                 Rectangle {
+        //                     width: 32; height: 32
+        //                     radius: 16
+        //                     color: Theme.surface
+        //                     clip: true
+        //
+        //                     Image {
+        //                         anchors.fill: parent
+        //                         source: modelData.profileImage
+        //                         fillMode: Image.PreserveAspectCrop
+        //                         visible: modelData.profileImage !== ""
+        //                     }
+        //                     Label {
+        //                         anchors.centerIn: parent
+        //                         text: modelData.displayName.charAt(0).toUpperCase()
+        //                         visible: modelData.profileImage === ""
+        //                         font.bold: true
+        //                     }
+        //                 }
+        //
+        //                 Label {
+        //                     text: modelData.displayName
+        //                     Layout.fillWidth: true
+        //                     elide: Text.ElideRight
+        //                 }
+        //
+        //                 CielIcon {
+        //                     icon: "check"
+        //                     size: Theme.SMALL
+        //                     visible: modelData.isActive
+        //                     color: Theme.accent
+        //                 }
+        //             }
+        //
+        //             onTriggered: {
+        //                 if (!modelData.isActive)
+        //                     ProfileManager.switchProfile(modelData.id)
+        //             }
+        //         }
+        //         onObjectAdded: (index, object) => profileMenu.insertItem(index, object)
+        //         onObjectRemoved: (index, object) => profileMenu.removeItem(object)
+        //     }
+        //
+        //     MenuSeparator {}
+        //
+        //     MenuItem {
+        //         text: "Add new profile…"
+        //         icon.source: ""          // or use a CielIcon if you prefer
+        //         onTriggered: addProfileDialog.open()
+        //     }
+        // }
+    }
+
+    // ──────────────────────────────────────────────
+    // Existing settings button (unchanged)
+    // ──────────────────────────────────────────────
+    CielIconButton {
+        id: settingsTrigger
+        width: sidebarFooter.btnSize
+        height: sidebarFooter.btnSize
+        size: Theme.SMALL
+        icon: "gear-six"
+
+        readonly property real expX: sidebarFooter.margin
+        readonly property real expY: Math.round(sidebarFooter.height - height - sidebarFooter.margin)        
+        readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
+        readonly property real colY: 80
+
+        x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
+        y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
+    }
+
 
             Row {
                 id: workspaceDots
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
+                y: settingsTrigger.y + Math.round((settingsTrigger.height - height) / 2)
                 spacing: 6
                 opacity: 1.0 - sidebarFooter.collapseProgress
                 visible: opacity > 0.01
@@ -942,9 +1474,9 @@ Item {
                 icon: "download-simple"
 
                 readonly property real expX: Math.round(sidebarFooter.width - width - 8)
-                readonly property real expY: Math.round((sidebarFooter.height - height) / 2)
+                readonly property real expY: Math.round(sidebarFooter.height - height - 8) // - 36   
                 readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
-                readonly property real colY: 4
+                readonly property real colY: 44                                                   
 
                 x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
                 y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)

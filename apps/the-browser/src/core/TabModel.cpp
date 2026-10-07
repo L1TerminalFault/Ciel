@@ -123,6 +123,8 @@ void TabModel::addTab(const QUrl &url) {
   if (url.toString() == QStringLiteral("ciel://history") ||
       url.toString() == QStringLiteral("about:history")) {
     tab.title = QStringLiteral("History");
+  } else if (url.toString() == QStringLiteral("ciel://profiles")) {
+    tab.title = QStringLiteral("Profiles");
   } else if (url.isEmpty() || url == QUrl(QStringLiteral("about:blank"))) {
     tab.title = QStringLiteral("New Tab");
   } else {
