@@ -17,7 +17,6 @@ QString activeTabKey(const QString &workspaceId) {
 
 WorkspaceModel::WorkspaceModel(QObject *parent) : QAbstractListModel(parent) {
   auto *pm = ProfileManager::instance();
-qInfo() << "[workspaces] ctor, connected to ProfileManager" << pm;
 
   connect(pm, &ProfileManager::activeProfileAboutToChange, this,
           &WorkspaceModel::unloadWorkspaces);
@@ -118,7 +117,6 @@ void WorkspaceModel::releaseTabModels() {
 }
 
 void WorkspaceModel::unloadWorkspaces() {
-qInfo() << "[workspaces] unload (profile about to change)";
   releaseTabModels();
 
   beginResetModel();
@@ -193,12 +191,7 @@ void WorkspaceModel::loadWorkspaces() {
   QVariantList rows =
       db->query(QStringLiteral("SELECT id, name, color, icon, preset_id FROM "
                                "workspaces ORDER BY sort_order ASC;"));
-qInfo() << "[workspaces] profile" << pm->activeProfileId()
-        << "rows:" << rows.size();
-qInfo() << "[workspaces] load for profile" << pm->activeProfileId()
-        << "rows:" << rows.size();
 for (const auto &r : rows)
-  qInfo() << "   " << r.toMap().value(QStringLiteral("id")).toString();
 
   for (const auto &r : rows) {
     QVariantMap map = r.toMap();
@@ -231,8 +224,6 @@ for (const auto &r : rows)
   endResetModel();
   emit countChanged();
   emit currentIndexChanged();
-qInfo() << "[workspaces] loaded, count =" << m_workspaces.size()
-        << "current =" << currentWorkspaceId();
 }
 
 void WorkspaceModel::createWorkspace(const QString &name, const QString &color,
