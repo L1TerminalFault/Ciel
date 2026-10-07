@@ -51,7 +51,7 @@ CielPopup {
         editMode = false;
     }
 
-    onClosed: reset()
+    onAfterClosed: reset()
 
     // function openForProfile(id) {
     //     profileId = id;
@@ -102,7 +102,7 @@ CielPopup {
                 Rectangle {
                     anchors.fill: parent
                     radius: width / 2
-                    color: profileColor // Theme.surface
+                    color: editProfileDialog.editMode ? profileColor : Theme.surface
                     border.width: 1
                     border.color: Theme.border
                 }
@@ -137,17 +137,18 @@ CielPopup {
                         Text {
                             anchors.centerIn: parent
                             text: nameField.text.charAt(0).toUpperCase() // model.displayName.charAt(0).toUpperCase()
-                            visible: editProfileDialog.chosenImage === ""
+                            visible: editProfileDialog.chosenImage === "" && editProfileDialog.editMode
                             font.bold: true
                             font.pixelSize: 18
                         }
-                // CielIcon {
-                //     anchors.centerIn: parent
-                //     icon: "user"
-                //     size: Theme.MEDIUM
-                //     color: Theme.textSecondary
-                //     visible: editProfileDialog.chosenImage === ""
-                // }
+
+                CielIcon {
+                    anchors.centerIn: parent
+                    icon: "user"
+                    size: Theme.MEDIUM
+                    color: Theme.textSecondary
+                    visible: !editProfileDialog.editMode
+                }
 
                 // Clickable avatar
                 MouseArea {
@@ -203,7 +204,7 @@ CielPopup {
                     border.width: 1
                     border.color: Theme.border
 
-                    // visible: editProfileDialog.chosenImage !== ""
+                    // visible: editProfileDialog.editMode
 
                     CielIcon {
                         anchors.centerIn: parent
