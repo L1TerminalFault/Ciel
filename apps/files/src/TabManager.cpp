@@ -83,20 +83,29 @@ void TabManager::setCurrentTabId(const QString &uuid) {
   emit currentSettingsChanged();
 }
 
-void TabManager::setCurrentPath(const QString &path) {
+bool TabManager::setCurrentPath(const QString &path) {
   int idx = currentIndex();
-  if (idx < 0 || m_tabs[idx].path == path)
-    return;
+  if (idx < 0)
+    return false;
+
+  QDir dir(path);
+  if (!dir.exists())
+    return false;
+
+  if (m_tabs[idx].path == path)
+    return true;
 
   m_tabs[idx].path = path;
 
-  QString folderName = QFileInfo(path).fileName();
+  QString folderName = dir.dirName();
   m_tabs[idx].title = folderName.isEmpty() ? path : folderName;
 
   emit currentPathChanged();
 
   QModelIndex modelIdx = index(idx);
   emit dataChanged(modelIdx, modelIdx, {TitleRole, PathRole});
+
+  return true;
 }
 
 void TabManager::addTab(const QString &path) {

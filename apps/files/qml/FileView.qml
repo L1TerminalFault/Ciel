@@ -9,7 +9,38 @@ Item {
     id: root
     width: parent ? parent.width : 0
     height: parent ? parent.height : 0
+    property var breadcrumbModel: []
+    property bool editingPath: false
+    function updateBreadcrumb() {
+        const parts = TabManager.currentPath.split("/").filter(p => p !== "");
 
+        let result = [];
+        let path = "";
+
+        // Root
+        result.push({
+            title: "/",
+            path: "/"
+        });
+
+        for (const part of parts) {
+            path += "/" + part;
+
+            result.push({
+                title: part,
+                path: path
+            });
+        }
+
+        breadcrumbModel = result;
+    }
+    Component.onCompleted: updateBreadcrumb()
+    Connections {
+        target: TabManager
+        function onCurrentPathChanged() {
+            updateBreadcrumb();
+        }
+    }
     property int navigationIconSize: Theme.SMALL
     ListModel {
         id: placesModel
@@ -117,18 +148,47 @@ Item {
                         Layout.fillWidth: true
                         Layout.fillHeight: true
                         color: Theme.background
-
                         CielBreadCrumb {
+                            visible: !editingPath
                             anchors.fill: parent
                             anchors.margins: 8
-                            model: [
-                                {
-                                    title: "something"
-                                },
-                                {
-                                    title: "some"
+                            model: root.breadcrumbModel
+                        }
+                        TextInput {
+                            id: pathInput
+                            anchors.fill: parent
+                            anchors.margins: 8
+                            verticalAlignment: TextInput.AlignVCenter
+                            visible: editingPath
+                            color: Theme.textPrimary
+                            selectByMouse: true
+                            text: TabManager.currentPath
+                            focus: editingPath
+                            onAccepted: {
+                                if (TabManager.setCurrentPath(text)) {
+                                    root.editingPath = false;
+                                } else {
+                                    pathErrorPopup.title = "Invalid path";
+                                    pathErrorPopup.message = "The specified directory does not exist.";
+                                    pathErrorPopup.open();
                                 }
-                            ]
+                            }
+
+                            onActiveFocusChanged: {
+                                if (!activeFocus)
+                                    root.editingPath = false;
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: !editingPath
+
+                            onClicked: {
+                                pathInput.text = TabManager.currentPath;
+                                root.editingPath = true;
+                                pathInput.forceActiveFocus();
+                            }
                         }
                     }
 
@@ -223,7 +283,7 @@ Item {
                                 id: hoverHandler
                             }
 
-                            color: hoverHandler.hovered ? Theme.background : Theme.surface
+                            color: hoverHandler.hovered || TabManager.currentPath == delegateRoot.locationPath() ? Theme.background : Theme.surface
 
                             TapHandler {
                                 onTapped: TabManager.setCurrentPath(delegateRoot.locationPath())
@@ -422,6 +482,51 @@ Item {
                         }
                     }
                 }
+            }
+        }
+    }
+    CielPopup {
+        id: pathErrorPopup
+
+        property string title: ""
+        property string message: ""
+
+        contentWidth: 400
+        contentHeight: 180
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 16
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: pathErrorPopup.title
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: pathErrorPopup.message
+                    color: Theme.textSecondary
+                    wrapMode: Text.WordWrap
+                }
+            }
+
+            Item {
+                Layout.fillHeight: true
+            }
+
+            CielButton {
+                Layout.alignment: Qt.AlignRight
+                text: "OK"
+                onClicked: pathErrorPopup.close()
             }
         }
     }
