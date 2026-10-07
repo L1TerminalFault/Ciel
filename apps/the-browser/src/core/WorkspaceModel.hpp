@@ -62,6 +62,17 @@ signals:
   void currentIndexChanged();
 
 private:
+  // Called right before the active profile's database is closed.
+  // Detaches every TabModel and empties this model so nothing can write
+  // into the wrong profile's database.
+  void unloadWorkspaces();
+  void releaseTabModels();
+  WorkspaceItem insertWorkspaceRecord(const QString &name, const QString &color,
+                                      const QString &icon,
+                                      const QString &presetId);
+  void persistWorkspaceOrder();
+  void persistCurrentWorkspace();
+
   QList<WorkspaceItem> m_workspaces;
   QHash<QString, TabModel *> m_tabModels;
   int m_currentIndex{0};
