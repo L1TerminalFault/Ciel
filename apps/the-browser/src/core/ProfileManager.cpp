@@ -16,8 +16,8 @@
 
 ProfileManager *ProfileManager::s_instance = nullptr;
 
-static QJsonObject loadProfilesMeta();   // defined further down
-static QString profilesMetaPath();       // defined further down
+static QJsonObject loadProfilesMeta();
+static QString profilesMetaPath();
 
 static QString appStatePath() {
   return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
@@ -38,7 +38,6 @@ static void saveLastProfileId(const QString &id) {
 
 ProfileManager *ProfileManager::create(QQmlEngine *, QJSEngine *) {
   ProfileManager *pm = instance();
-  // INFO: The QML engine must never delete the shared instance
   QJSEngine::setObjectOwnership(pm, QJSEngine::CppOwnership);
   return pm;
 }
@@ -90,7 +89,6 @@ QString ProfileManager::webEngineStoragePath() const {
     return webEngineStoragePathFor(m_activeProfileId);
 }
 
-// Global meta file that stores all profile metadata
 static QString profilesMetaPath() {
     return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
            + QStringLiteral("/ciel/browser/profiles.json");
@@ -111,12 +109,10 @@ static bool saveProfilesMeta(const QJsonObject &root) {
     return true;
 }
 
-// ---------- list ----------
 QVariantList ProfileManager::listProfiles() const {
     QVariantList result;
     QJsonObject root = loadProfilesMeta();
 
-    // Always guarantee "default" exists in the meta
     if (!root.contains("default")) {
         root.insert("default", QJsonObject{
             {"displayName", "Default"},
@@ -159,23 +155,19 @@ static QString generateRandomHexColor() {
     return color.name(QColor::HexRgb).toUpper(); 
 }
 
-// ---------- create (UUID generated here) ----------
 QString ProfileManager::createProfile(const QString &displayName,
                                       const QString &color,
                                       const QString &profileImage) {
     if (displayName.trimmed().isEmpty())
         return {};
 
-    // Generate a random UUID (without braces)
     const QString id = QUuid::createUuid().toString(QUuid::WithoutBraces);
     const QString _color = color.isEmpty() ? generateRandomHexColor() : color;
 
-    // Create the on-disk folders
     const QString path = profilePathFor(id);
     if (!QDir().mkpath(path + QStringLiteral("/webengine/cache")))
         return {};
 
-    // Store metadata
     QJsonObject root = loadProfilesMeta();
     root.insert(id, QJsonObject{
         {"displayName",  displayName.trimmed()},
@@ -189,7 +181,6 @@ QString ProfileManager::createProfile(const QString &displayName,
     return id;
 }
 
-// ---------- update ----------
 bool ProfileManager::updateProfile(const QString &id,
                                    const QString &displayName,
                                    const QString &color,
@@ -216,17 +207,14 @@ bool ProfileManager::updateProfile(const QString &id,
     return true;
 }
 
-// ---------- delete ----------
 bool ProfileManager::deleteProfile(const QString &id) {
     if (id == "default" || id == m_activeProfileId)
-        return false;   // protect default + currently active
+        return false;
 
-    // Remove folder
     const QString path = profilePathFor(id);
     if (QDir(path).exists())
         QDir(path).removeRecursively();
 
-    // Remove from meta
     QJsonObject root = loadProfilesMeta();
     root.remove(id);
 
@@ -238,7 +226,6 @@ bool ProfileManager::deleteProfile(const QString &id) {
     return saveProfilesMeta(root);
 }
 
-// ---------- convenience ----------
 QVariantMap ProfileManager::profileInfo(const QString &id) const {
     QJsonObject root = loadProfilesMeta();
     if (!root.contains(id))
@@ -263,7 +250,6 @@ qInfo() << "[profile] switchProfile on instance" << this << "->" << profileId
   if (m_activeProfileId == profileId && !m_currentSessionId.isEmpty())
     return;
 
-  // Refuse unknown profiles ("default" is always allowed)
   if (profileId != QStringLiteral("default") &&
       !loadProfilesMeta().contains(profileId)) {
     qWarning() << "switchProfile: unknown profile" << profileId;
@@ -271,7 +257,6 @@ qInfo() << "[profile] switchProfile on instance" << this << "->" << profileId
   }
 
   if (!m_currentSessionId.isEmpty()) {
-    // Let models detach from the old DB while it is still open
     emit activeProfileAboutToChange();
     endSession();
     m_database.close();
@@ -285,7 +270,7 @@ qInfo() << "[profile] switchProfile on instance" << this << "->" << profileId
 
   const QString dbPath = m_profilePath + QStringLiteral("/browser.db");
   if (m_database.initialize(dbPath)) {
-    saveLastProfileId(profileId);          // NEW – remember for next launch
+    saveLastProfileId(profileId);
   } else {
     qWarning() << "switchProfile: failed to open database" << dbPath;
   }
