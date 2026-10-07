@@ -19,13 +19,9 @@ WorkspaceModel::WorkspaceModel(QObject *parent) : QAbstractListModel(parent) {
   auto *pm = ProfileManager::instance();
 qInfo() << "[workspaces] ctor, connected to ProfileManager" << pm;
 
-  // Runs synchronously BEFORE the old profile's DB is closed.
   connect(pm, &ProfileManager::activeProfileAboutToChange, this,
           &WorkspaceModel::unloadWorkspaces);
 
-  // Queued so every QML binding that depends on activeProfileChanged
-  // (e.g. currentWebProfile in Main.qml) is updated before the new
-  // delegates are created.
   connect(pm, &ProfileManager::activeProfileChanged, this,
           &WorkspaceModel::loadWorkspaces, Qt::QueuedConnection);
 
@@ -94,7 +90,6 @@ TabModel *WorkspaceModel::tabModel(const QString &workspaceId) {
     return nullptr;
   }
 
-  // Only hand out tab models for workspaces owned by the active profile.
   bool owned = false;
   for (const auto &ws : std::as_const(m_workspaces)) {
     if (ws.id == workspaceId) {
@@ -116,8 +111,6 @@ TabModel *WorkspaceModel::tabModel(const QString &workspaceId) {
 
 void WorkspaceModel::releaseTabModels() {
   for (TabModel *model : std::as_const(m_tabModels)) {
-    // Empty workspace id => every DB write inside TabModel is skipped and
-    // all index-based calls from still-alive delegates become no-ops.
     model->setWorkspaceId(QString());
     model->deleteLater();
   }
@@ -187,14 +180,8 @@ WorkspaceItem WorkspaceModel::insertWorkspaceRecord(const QString &name,
 
   return item;
 }
-// WorkspaceModel constructor, right after: auto *pm = ProfileManager::instance();
-
-// ProfileManager::switchProfile, as the very first line
-
-// ProfileManager::ProfileManager (constructor), first line
 
 void WorkspaceModel::loadWorkspaces() {
-  // Make sure nothing from a previous profile survives.
   releaseTabModels();
 
   beginResetModel();
@@ -222,7 +209,6 @@ for (const auto &r : rows)
                          map.value(QStringLiteral("preset_id")).toString()});
   }
 
-  // A brand-new profile gets its own default workspaces.
   if (m_workspaces.isEmpty()) {
     m_workspaces.append(insertWorkspaceRecord(QStringLiteral("Workspace 1"),
                                               QStringLiteral("#3B82F6"),
@@ -233,7 +219,6 @@ for (const auto &r : rows)
                                               QStringLiteral("browser"),
                                               QString()));
   } else {
-    // Restore the workspace this profile was last using.
     const QString savedId = pm->stateValue(activeWorkspaceKey());
     for (int i = 0; i < m_workspaces.size(); ++i) {
       if (m_workspaces.at(i).id == savedId) {
@@ -271,8 +256,6 @@ void WorkspaceModel::removeWorkspace(int index) {
   const QString id = m_workspaces.at(index).id;
   Database *db = ProfileManager::instance()->database();
 
-  // Workspaces own tabs: remove them explicitly instead of relying on
-  // foreign-key cascades.
   db->execute(QStringLiteral("DELETE FROM tabs WHERE workspace_id = :id;"),
               {{QStringLiteral(":id"), id}});
   db->execute(QStringLiteral("DELETE FROM workspaces WHERE id = :id;"),
@@ -285,7 +268,6 @@ void WorkspaceModel::removeWorkspace(int index) {
   m_workspaces.removeAt(index);
   endRemoveRows();
 
-  // Delete only after the view has dropped its delegates.
   if (tabs) {
     tabs->setWorkspaceId(QString());
     tabs->deleteLater();
