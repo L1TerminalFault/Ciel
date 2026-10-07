@@ -23,6 +23,7 @@ DirectoryLoader::DirectoryLoader(QObject *parent) : QObject(parent) {}
 
 void DirectoryLoader::loadDirectory(const QString &path, bool batchLoading) {
   m_cancelRequested.store(false, std::memory_order_relaxed);
+  emit loadStarted(path);
   QVector<ItemEntery> batch;
   batch.reserve(128);
 
@@ -110,13 +111,11 @@ void DirectoryLoader::loadDirectory(const QString &path, bool batchLoading) {
 
 void DirectoryLoader::revalidateInBackground(const QString &path,
                                              qint64 cachedMtime) {
-  if (m_cancelRequested.load(std::memory_order_relaxed))
-    return;
+  m_cancelRequested.store(false, std::memory_order_relaxed);
+
   const QByteArray localPath = QFile::encodeName(path);
   struct stat st;
   if (stat(localPath.constData(), &st) != 0) {
-    // If the folder was deleted or permissions changed while away,
-    // calling loadDirectory() lets it emit the proper error signal.
     loadDirectory(path);
     return;
   }

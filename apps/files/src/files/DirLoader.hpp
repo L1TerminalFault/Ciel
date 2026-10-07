@@ -19,6 +19,7 @@ public slots:
   void cancel();
 
 signals:
+  void loadStarted(const QString &path);
   void entriesReady(const QVector<ItemEntery> &batch);
   void loadFinished(const QString &path, qint64 modifiedTime);
   void loadError(const QString &path, int errorCode,

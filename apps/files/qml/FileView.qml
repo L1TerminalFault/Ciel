@@ -312,6 +312,7 @@ Item {
 
                         CielIconButton {
                             icon: "folder-plus"
+                            onClicked: createFolderPopup.open()
                         }
                         Item {
                             Layout.fillWidth: true
@@ -481,6 +482,51 @@ Item {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+    CielPopup {
+        id: createFolderPopup
+
+        contentWidth: 400
+        contentHeight: 160
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 16
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Folder Name"
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                CielSearch {
+                    id: newFolderNameInput
+                    Layout.fillWidth: true
+                    placeholder: "folderName"
+                    showIcons: false
+                    onAccepted: {
+                        FileListModel.createFolder();
+                        createFolderPopup.close();
+                    }
+                }
+            }
+
+            CielButton {
+                Layout.alignment: Qt.AlignRight
+                text: "Create"
+                onClicked: {
+                    FileListModel.createFolder(newFolderNameInput.text);
+                    createFolderPopup.close();
                 }
             }
         }

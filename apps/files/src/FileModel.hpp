@@ -7,6 +7,7 @@
 #include <QString>
 #include <QThread>
 #include <qqmlintegration.h>
+#include <qtmetamacros.h>
 
 class DirectoryLoader;
 
@@ -29,12 +30,14 @@ public:
   ~FileListModel() override;
 
   Q_INVOKABLE void setPath(const QString &path);
+  Q_INVOKABLE bool createFolder(const QString &dirName);
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index, int role) const override;
   QHash<int, QByteArray> roleNames() const override;
 
 private slots:
+  void onLoadStarted(const QString &path);
   void onEntriesReady(const QVector<ItemEntery> &batch);
   void onLoadFinished(const QString &path, qint64 modifiedTime);
   void onLoadError(const QString &path, int errorCode,

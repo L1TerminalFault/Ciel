@@ -2,6 +2,7 @@
 #include "files/DirCache.hpp"
 #include "files/DirLoader.hpp"
 #include <qabstractitemmodel.h>
+#include <qdir.h>
 #include <qfileinfo.h>
 
 FileListModel::FileListModel(QObject *parent) : QAbstractListModel(parent) {
@@ -9,7 +10,8 @@ FileListModel::FileListModel(QObject *parent) : QAbstractListModel(parent) {
   qRegisterMetaType<QVector<ItemEntery>>("QVector<ItemEntery>");
   m_loader = new DirectoryLoader;
   m_loader->moveToThread(&m_workerThread);
-
+  connect(m_loader, &DirectoryLoader::loadStarted, this,
+          &FileListModel::onLoadStarted);
   connect(m_loader, &DirectoryLoader::entriesReady, this,
           &FileListModel::onEntriesReady);
   connect(m_loader, &DirectoryLoader::loadFinished, this,
@@ -122,4 +124,25 @@ void FileListModel::onLoadError(const QString &path, int errorCode,
   endResetModel();
 
   emit loadErrorNotify(errorMessage);
+}
+void FileListModel::onLoadStarted(const QString &path) {
+  if (path == m_currentPath) {
+    beginResetModel();
+    m_entries.clear();
+    endResetModel();
+  }
+}
+
+bool FileListModel::createFolder(const QString &dirName) {
+  if (dirName.isEmpty())
+    return false;
+
+  QDir dir(m_currentPath);
+  if (!dir.mkdir(dirName))
+    return false;
+
+  QMetaObject::invokeMethod(m_loader, &DirectoryLoader::loadDirectory,
+                            Qt::QueuedConnection, m_currentPath,
+                            m_batchLoading);
+  return true;
 }

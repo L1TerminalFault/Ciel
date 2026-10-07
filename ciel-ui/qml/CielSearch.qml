@@ -13,6 +13,7 @@ Item {
     property bool isPrimary: false
     property var preContent: null
     property var postContent: null
+    property bool showIcons: true
 
     signal accepted(string query)
 
@@ -103,7 +104,7 @@ Item {
         }
 
         CielIcon {
-            visible: !root.preContent
+            visible: !root.preContent && root.showIcons
             icon: "magnifying-glass"
             size: Theme.XSMALL
             color: Theme.textSecondary
