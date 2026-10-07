@@ -273,7 +273,8 @@ void FileListModel::applySortAndFilter() {
 void FileListModel::handleSelection(int row, Qt::KeyboardModifiers modifiers) {
   if (row < 0 || row >= m_entries.size())
     return;
-
+  m_focusedRow = row;
+  emit focusedRowChanged();
   if (modifiers & Qt::ControlModifier) {
     bool newState = !m_entries[row].isSelected;
     m_entries[row].isSelected = newState;
@@ -350,7 +351,8 @@ void FileListModel::selectAll() {
 void FileListModel::navigate(int targetRow, int modifiers) {
   if (m_entries.isEmpty())
     return;
-  targetRow = std::clamp<int>(targetRow, 0, m_entries.size() - 1);
+  if (targetRow < 0 || targetRow >= m_entries.size())
+    return;
 
   auto mods = Qt::KeyboardModifiers(modifiers);
   m_focusedRow = targetRow;
