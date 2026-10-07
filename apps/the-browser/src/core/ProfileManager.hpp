@@ -75,6 +75,7 @@ private:
   void initializeProfile(const QString &profileId);
   void startSession();
   void endSession();
+  void shutdown();
 
   static ProfileManager *s_instance;
   QString m_activeProfileId;
