@@ -39,6 +39,8 @@ struct TabItem {
   QString path;
   QString icon;
   int scrollPosition = 0;
+  QSet<QString> selectedFiles;
+  QString selectionAnchor;
   FileViewSettings settings;
 };
 

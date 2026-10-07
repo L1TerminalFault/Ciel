@@ -6,6 +6,7 @@
 #include <qabstractitemmodel.h>
 #include <qdir.h>
 #include <qfileinfo.h>
+#include <qnamespace.h>
 #include <sys/stat.h>
 
 #if defined(Q_OS_LINUX)
@@ -122,11 +123,9 @@ int FileListModel::rowCount(const QModelIndex &parent) const {
 }
 
 QHash<int, QByteArray> FileListModel::roleNames() const {
-  return {{NameRole, "name"},
-          {IsDirRole, "isDir"},
-          {SizeRole, "size"},
-          {ModifiedRole, "modified"},
-          {IconRole, "icon"}};
+  return {{NameRole, "name"}, {IsDirRole, "isDir"},
+          {SizeRole, "size"}, {ModifiedRole, "modified"},
+          {IconRole, "icon"}, {SelectedRole, "selected"}};
 }
 
 QVariant FileListModel::data(const QModelIndex &index, int role) const {
@@ -153,6 +152,9 @@ QVariant FileListModel::data(const QModelIndex &index, int role) const {
   case IconRole:
     return entry.isDir ? QStringLiteral("folder") : QStringLiteral("file");
 
+  case SelectedRole:
+    return entry.isSelected;
+
   default:
     return QVariant();
   }
@@ -160,6 +162,8 @@ QVariant FileListModel::data(const QModelIndex &index, int role) const {
 
 void FileListModel::onLoadStarted(const QString &path) {
   if (path == m_currentPath) {
+    m_selectedIndices.clear();
+    m_anchorIndex = -1;
     m_rawEntries.clear();
     beginResetModel();
     m_entries.clear();
@@ -264,4 +268,131 @@ void FileListModel::applySortAndFilter() {
             });
 
   endResetModel();
+}
+
+void FileListModel::handleSelection(int row, Qt::KeyboardModifiers modifiers) {
+  if (row < 0 || row >= m_entries.size())
+    return;
+
+  if (modifiers & Qt::ControlModifier) {
+    bool newState = !m_entries[row].isSelected;
+    m_entries[row].isSelected = newState;
+    m_anchorIndex = row;
+
+    if (newState) {
+      m_selectedIndices.append(row);
+    } else {
+      m_selectedIndices.removeOne(row);
+    }
+
+    QModelIndex idx = index(row);
+    emit dataChanged(idx, idx, {SelectedRole});
+
+  } else if ((modifiers & Qt::ShiftModifier) && m_anchorIndex != -1) {
+    int start = std::min(m_anchorIndex, row);
+    int end = std::max(m_anchorIndex, row);
+
+    for (int i = start; i <= end; ++i) {
+      if (!m_entries[i].isSelected) {
+        m_entries[i].isSelected = true;
+        m_selectedIndices.append(i);
+      }
+    }
+
+    emit dataChanged(index(start), index(end), {SelectedRole});
+
+  } else {
+    for (int prevRow : m_selectedIndices) {
+      if (prevRow != row && prevRow < m_entries.size()) {
+        m_entries[prevRow].isSelected = false;
+        QModelIndex idx = index(prevRow);
+        emit dataChanged(idx, idx, {SelectedRole});
+      }
+    }
+    m_selectedIndices.clear();
+
+    m_entries[row].isSelected = true;
+    m_selectedIndices.append(row);
+    m_anchorIndex = row;
+
+    QModelIndex idx = index(row);
+    emit dataChanged(idx, idx, {SelectedRole});
+  }
+}
+
+void FileListModel::clearSelection() {
+  if (m_selectedIndices.isEmpty())
+    return;
+
+  for (int row : m_selectedIndices) {
+    if (row < m_entries.size()) {
+      m_entries[row].isSelected = false;
+      QModelIndex idx = index(row);
+      emit dataChanged(idx, idx, {SelectedRole});
+    }
+  }
+  m_selectedIndices.clear();
+  m_anchorIndex = -1;
+}
+
+void FileListModel::selectAll() {
+  if (m_entries.isEmpty())
+    return;
+  m_selectedIndices.clear();
+  m_selectedIndices.reserve(m_entries.size());
+  for (int i = 0; i < m_entries.size(); ++i) {
+    m_entries[i].isSelected = true;
+    m_selectedIndices.append(i);
+  }
+  emit dataChanged(index(0), index(m_entries.size() - 1), {SelectedRole});
+}
+
+void FileListModel::navigate(int targetRow, int modifiers) {
+  if (m_entries.isEmpty())
+    return;
+  targetRow = std::clamp<int>(targetRow, 0, m_entries.size() - 1);
+
+  auto mods = Qt::KeyboardModifiers(modifiers);
+  m_focusedRow = targetRow;
+  emit focusedRowChanged();
+
+  if (mods & Qt::ControlModifier) {
+    return;
+  }
+
+  if (mods & Qt::ShiftModifier) {
+    if (m_anchorIndex == -1)
+      m_anchorIndex = 0;
+    int start = std::min(m_anchorIndex, targetRow);
+    int end = std::max(m_anchorIndex, targetRow);
+
+    for (int i = start; i <= end; ++i) {
+      if (!m_entries[i].isSelected) {
+        m_entries[i].isSelected = true;
+        m_selectedIndices.append(i);
+      }
+    }
+    emit dataChanged(index(start), index(end), {SelectedRole});
+  } else {
+    clearSelection();
+    m_entries[targetRow].isSelected = true;
+    m_selectedIndices.append(targetRow);
+    m_anchorIndex = targetRow;
+    emit dataChanged(index(targetRow), index(targetRow), {SelectedRole});
+  }
+}
+
+int FileListModel::findNextByPrefix(const QString &prefix) {
+  if (prefix.isEmpty() || m_entries.isEmpty())
+    return -1;
+  QByteArray p = prefix.toUtf8();
+  int n = m_entries.size();
+
+  for (int i = 1; i <= n; ++i) {
+    int idx = (m_focusedRow + i) % n;
+    if (m_entries[idx].name.startsWith(p)) {
+      return idx;
+    }
+  }
+  return -1;
 }

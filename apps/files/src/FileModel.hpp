@@ -17,13 +17,15 @@ class FileListModel : public QAbstractListModel {
   QML_ELEMENT
   QML_SINGLETON
 
+  Q_PROPERTY(int focusedRow READ focusedRow NOTIFY focusedRowChanged)
 public:
   enum Roles {
     NameRole = Qt::UserRole + 1,
     IsDirRole,
     SizeRole,
     ModifiedRole,
-    IconRole
+    IconRole,
+    SelectedRole
   };
   Q_ENUM(Roles)
 
@@ -33,11 +35,16 @@ public:
   Q_INVOKABLE void setPath(const QString &path);
   Q_INVOKABLE bool createFolder(const QString &dirName);
   Q_INVOKABLE void setSettings(const FileViewSettings &settings);
+  int focusedRow() const { return m_focusedRow; }
+  Q_INVOKABLE void selectAll();
+  Q_INVOKABLE void navigate(int targetRow, int modifiers = 0);
+  Q_INVOKABLE int findNextByPrefix(const QString &prefix);
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index, int role) const override;
   QHash<int, QByteArray> roleNames() const override;
-
+  Q_INVOKABLE void handleSelection(int row, Qt::KeyboardModifiers modifiers);
+  Q_INVOKABLE void clearSelection();
 private slots:
   void onLoadStarted(const QString &path);
   void onEntriesReady(const QVector<ItemEntery> &batch);
@@ -46,8 +53,12 @@ private slots:
                    const QString &errorMessage);
 signals:
   void loadErrorNotify(const QString err);
+  void focusedRowChanged();
 
 private:
+  int m_focusedRow = 0;
+  QVector<int> m_selectedIndices;
+  int m_anchorIndex = -1;
   void applySortAndFilter();
   FileViewSettings m_settings;
   QVector<ItemEntery> m_rawEntries;

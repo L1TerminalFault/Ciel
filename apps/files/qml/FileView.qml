@@ -272,6 +272,7 @@ Item {
                                     text: name
                                     font.pixelSize: 14
                                     font.weight: Font.Medium
+                                    color: Theme.textPrimary
                                 }
 
                                 Item {
@@ -441,11 +442,104 @@ Item {
                         spacing: 0
 
                         CielSquircle {
+                            id: viewArea
                             Layout.fillHeight: true
                             Layout.fillWidth: true
                             color: Theme.transparent
+                            focus: true
+                            readonly property int columns: TabManager.currentSettings.listViewMode ? 1 : Math.max(1, Math.floor(width / 130))
+                            readonly property int rowsPerPage: Math.max(1, Math.floor(height / (TabManager.currentSettings.listViewMode ? 42 : 120)))
+                            readonly property int pageSize: rowsPerPage * columns
 
+                            property string typeAheadBuffer: ""
+
+                            Component.onCompleted: forceActiveFocus()
+                            Timer {
+                                id: typeAheadTimer
+                                interval: 800
+                                onTriggered: viewArea.typeAheadBuffer = ""
+                            }
+
+                            Keys.onPressed: function (event) {
+                                var cur = FileListModel.focusedRow;
+                                var count = FileListModel.rowCount();
+                                var mods = event.modifiers;
+
+                                switch (event.key) {
+                                case Qt.Key_Left:
+                                    FileListModel.navigate(cur - 1, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_Right:
+                                    FileListModel.navigate(cur + 1, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_Up:
+                                    FileListModel.navigate(cur - viewArea.columns, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_Down:
+                                    FileListModel.navigate(cur + viewArea.columns, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_Home:
+                                    FileListModel.navigate(0, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_End:
+                                    FileListModel.navigate(count - 1, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_PageUp:
+                                    FileListModel.navigate(cur - viewArea.pageSize, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_PageDown:
+                                    FileListModel.navigate(cur + viewArea.pageSize, mods);
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_A:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        FileListModel.selectAll();
+                                        event.accepted = true;
+                                    }
+                                    break;
+                                case Qt.Key_Escape:
+                                    FileListModel.clearSelection();
+                                    event.accepted = true;
+                                    break;
+                                case Qt.Key_Return:
+                                case Qt.Key_Enter:
+                                    var name = FileListModel.data(FileListModel.index(cur, 0), FileListModel.NameRole);
+                                    var isDir = FileListModel.data(FileListModel.index(cur, 0), FileListModel.IsDirRole);
+                                    if (isDir) {
+                                        TabManager.openFolder(name);
+                                    }
+                                    event.accepted = true;
+                                    break;
+                                default:
+                                    if (event.text.length > 0 && !event.modifiers) {
+                                        viewArea.typeAheadBuffer += event.text.toLowerCase();
+                                        typeAheadTimer.restart();
+                                        var target = FileListModel.findNextByPrefix(viewArea.typeAheadBuffer);
+                                        if (target !== -1) {
+                                            FileListModel.navigate(target, 0);
+                                        }
+                                        event.accepted = true;
+                                    }
+                                    break;
+                                }
+                            }
+                            Connections {
+                                target: FileListModel
+                                function onFocusedRowChanged() {
+                                    if (loader.item && typeof loader.item.positionViewAtIndex === "function") {
+                                        loader.item.positionViewAtIndex(FileListModel.focusedRow, 0);
+                                    }
+                                }
+                            }
                             Loader {
+                                id: loader
                                 anchors.fill: parent
                                 sourceComponent: TabManager.currentSettings.listViewMode ? listViewComponent : gridViewComponent
                             }
@@ -456,12 +550,24 @@ Item {
                                 CielListView {
                                     id: fileList
                                     anchors.fill: parent
+                                    anchors.topMargin: 4
+                                    anchors.bottomMargin: 4
                                     model: FileListModel
-
+                                    TapHandler {
+                                        onTapped: function (eventPoint) {
+                                            var p = fileList.mapToItem(fileList.contentItem, eventPoint.position.x, eventPoint.position.y);
+                                            if (fileList.indexAt(p.x, p.y) === -1) {
+                                                FileListModel.clearSelection();
+                                                root.forceActiveFocus();
+                                            }
+                                        }
+                                    }
                                     delegate: Item {
                                         id: fileDelegate
                                         width: fileList.width
                                         height: 42
+
+                                        readonly property bool isSelected: model.selected
 
                                         CielSquircle {
                                             anchors.fill: parent
@@ -469,7 +575,8 @@ Item {
                                             anchors.rightMargin: 6
                                             anchors.topMargin: 2
                                             anchors.bottomMargin: 2
-                                            color: itemHover.hovered ? Theme.background : Theme.surface
+
+                                            color: isSelected ? "#b4e2fa" : itemHover.hovered ? Theme.background : Theme.surface
 
                                             HoverHandler {
                                                 id: itemHover
@@ -513,6 +620,10 @@ Item {
                                                     TabManager.openFolder(model.name);
                                                 }
                                             }
+                                            onClicked: function (mouse) {
+                                                viewArea.forceActiveFocus();
+                                                FileListModel.handleSelection(index, mouse.modifiers);
+                                            }
                                         }
                                     }
                                 }
@@ -527,16 +638,25 @@ Item {
                                     cellWidth: 130
                                     cellHeight: 120
                                     model: FileListModel
-
+                                    TapHandler {
+                                        onTapped: function (eventPoint) {
+                                            var p = fileGrid.mapToItem(fileGrid.contentItem, eventPoint.position.x, eventPoint.position.y);
+                                            if (fileGrid.indexAt(p.x, p.y) === -1) {
+                                                FileListModel.clearSelection();
+                                                root.forceActiveFocus();
+                                            }
+                                        }
+                                    }
                                     delegate: Item {
                                         id: gridDelegate
                                         width: fileGrid.cellWidth
                                         height: fileGrid.cellHeight
+                                        readonly property bool isSelected: model.selected
 
                                         CielSquircle {
                                             anchors.fill: parent
-                                            anchors.margins: 4
-                                            color: gridHover.hovered ? Theme.background : Theme.surface
+                                            anchors.margins: 6
+                                            color: isSelected ? "#b4e2fa" : gridHover.hovered ? Theme.background : Theme.surface
 
                                             HoverHandler {
                                                 id: gridHover
@@ -583,6 +703,10 @@ Item {
                                                 if (model.isDir) {
                                                     TabManager.openFolder(model.name);
                                                 }
+                                            }
+                                            onClicked: function (mouse) {
+                                                viewArea.forceActiveFocus();
+                                                FileListModel.handleSelection(index, mouse.modifiers);
                                             }
                                         }
                                     }

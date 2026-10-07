@@ -11,6 +11,7 @@ struct ItemEntery {
   qint64 modified = 0;
   bool isInaccessible = false;
   bool isSymLink = false;
+  bool isSelected = false;
   int metadataError = -1;
 };
 
