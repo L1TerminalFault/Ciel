@@ -1,9 +1,11 @@
 #include "ProfileManager.hpp"
 
-#include <QString>
-#include <QColor>
 #include <random>
 
+#include <QSettings>
+#include <QCoreApplication>
+#include <QString>
+#include <QColor>
 #include <QDir>
 #include <QStandardPaths>
 #include <QUuid>
@@ -14,25 +16,57 @@
 
 ProfileManager *ProfileManager::s_instance = nullptr;
 
+static QJsonObject loadProfilesMeta();   // defined further down
+static QString profilesMetaPath();       // defined further down
+
+static QString appStatePath() {
+  return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+         QStringLiteral("/ciel/browser/state.ini");
+}
+
+static QString loadLastProfileId() {
+  QSettings s(appStatePath(), QSettings::IniFormat);
+  return s.value(QStringLiteral("lastActiveProfile")).toString();
+}
+
+static void saveLastProfileId(const QString &id) {
+  QDir().mkpath(QFileInfo(appStatePath()).absolutePath());
+  QSettings s(appStatePath(), QSettings::IniFormat);
+  s.setValue(QStringLiteral("lastActiveProfile"), id);
+  s.sync();
+}
+
 ProfileManager *ProfileManager::create(QQmlEngine *, QJSEngine *) {
-  return instance();
+  ProfileManager *pm = instance();
+  // INFO: The QML engine must never delete the shared instance
+  QJSEngine::setObjectOwnership(pm, QJSEngine::CppOwnership);
+  return pm;
 }
 
 ProfileManager *ProfileManager::instance() {
   if (!s_instance) {
-    s_instance = new ProfileManager();
+    new ProfileManager(QCoreApplication::instance());
   }
   return s_instance;
-}
-
-ProfileManager::ProfileManager(QObject *parent) : QObject(parent) {
-  s_instance = this;
-  switchProfile(QStringLiteral("default"));
 }
 
 ProfileManager::~ProfileManager() {
   endSession();
   m_database.close();
+  if (s_instance == this)
+    s_instance = nullptr;
+}
+
+ProfileManager::ProfileManager(QObject *parent) : QObject(parent) {
+  s_instance = this;
+
+  QString startId = loadLastProfileId();
+  if (startId.isEmpty() ||
+      (startId != QStringLiteral("default") &&
+       !loadProfilesMeta().contains(startId))) {
+    startId = QStringLiteral("default");
+  }
+  switchProfile(startId);
 }
 
 QString ProfileManager::activeProfileId() const { return m_activeProfileId; }
@@ -111,20 +145,16 @@ static QString generateRandomHexColor() {
     static std::random_device rd;
     static std::mt19937 gen(rd());
     
-    // 1. Hue can be anything from 0 to 359 degrees (full color spectrum)
     std::uniform_int_distribution<int> hueDist(0, 359);
     
-    // 2. Saturation (65% to 85%) gives it punchy, vibrant color without being muddy
     std::uniform_int_distribution<int> satDist(165, 215); 
     
-    // 3. Lightness (80% to 90%) ensures the background stays perfectly light
     std::uniform_int_distribution<int> lightDist(204, 230);
 
     int h = hueDist(gen);
     int s = satDist(gen);
     int l = lightDist(gen);
 
-    // Create the color using HSL and convert it directly to a standard hex string
     QColor color = QColor::fromHsl(h, s, l);
     return color.name(QColor::HexRgb).toUpper(); 
 }
@@ -155,7 +185,8 @@ QString ProfileManager::createProfile(const QString &displayName,
     if (!saveProfilesMeta(root))
         return {};
 
-    return id;   // caller can switch to it if desired
+    emit profilesChanged();
+    return id;
 }
 
 // ---------- update ----------
@@ -222,33 +253,47 @@ QVariantMap ProfileManager::profileInfo(const QString &id) const {
         {"isActive",     m_activeProfileId == id}
     };
 }
+
 void ProfileManager::switchProfile(const QString &profileId) {
-  if (m_activeProfileId == profileId && !m_currentSessionId.isEmpty()) {
+qInfo() << "[profile] switchProfile on instance" << this << "->" << profileId
+        << "| static instance =" << s_instance
+        << "| listeners:" << receivers(SIGNAL(activeProfileChanged()));
+  if (profileId.isEmpty())
+    return;
+  if (m_activeProfileId == profileId && !m_currentSessionId.isEmpty())
+    return;
+
+  // Refuse unknown profiles ("default" is always allowed)
+  if (profileId != QStringLiteral("default") &&
+      !loadProfilesMeta().contains(profileId)) {
+    qWarning() << "switchProfile: unknown profile" << profileId;
     return;
   }
 
   if (!m_currentSessionId.isEmpty()) {
+    // Let models detach from the old DB while it is still open
+    emit activeProfileAboutToChange();
     endSession();
     m_database.close();
+    m_currentSessionId.clear();
   }
-
-    m_activeProfileId = profileId;
-    m_profilePath = profilePathFor(profileId);
-
-    QDir().mkpath(m_profilePath + QStringLiteral("/webengine"));
-    QDir().mkpath(m_profilePath + QStringLiteral("/webengine/cache"));
 
   m_activeProfileId = profileId;
   m_profilePath = profilePathFor(profileId);
-  // m_profilePath =
-  //     QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-  //     QStringLiteral("/ciel/browser/profiles/") + profileId;
 
-  QDir().mkpath(m_profilePath + QStringLiteral("/webengine"));
+  QDir().mkpath(m_profilePath + QStringLiteral("/webengine/cache"));
 
-  QString dbPath = m_profilePath + QStringLiteral("/browser.db");
-  m_database.initialize(dbPath);
+  const QString dbPath = m_profilePath + QStringLiteral("/browser.db");
+  if (m_database.initialize(dbPath)) {
+    saveLastProfileId(profileId);          // NEW – remember for next launch
+  } else {
+    qWarning() << "switchProfile: failed to open database" << dbPath;
+  }
 
+    qWarning() << "switchProfile: failed to open database" << dbPath;
+qInfo() << "[profile] switched to" << profileId << "db:" << dbPath;
+
+  ensureStateTable();
   startSession();
   emit activeProfileChanged();
 }
@@ -400,4 +445,33 @@ bool ProfileManager::toggleBookmark(const QString &url, const QString &title) {
 
   emit bookmarksChanged();
   return true;
+}
+
+void ProfileManager::ensureStateTable() {
+  m_database.execute(QStringLiteral(
+      "CREATE TABLE IF NOT EXISTS profile_state ("
+      "state_key TEXT PRIMARY KEY, state_value TEXT NOT NULL);"));
+}
+
+QString ProfileManager::stateValue(const QString &key, const QString &fallback) {
+  QVariantList rows = m_database.query(
+      QStringLiteral("SELECT state_value FROM profile_state "
+                     "WHERE state_key = :k LIMIT 1;"),
+      {{QStringLiteral(":k"), key}});
+  if (rows.isEmpty())
+    return fallback;
+  return rows.first().toMap().value(QStringLiteral("state_value")).toString();
+}
+
+void ProfileManager::setStateValue(const QString &key, const QString &value) {
+  m_database.execute(
+      QStringLiteral("INSERT OR REPLACE INTO profile_state "
+                     "(state_key, state_value) VALUES (:k, :v);"),
+      {{QStringLiteral(":k"), key}, {QStringLiteral(":v"), value}});
+}
+
+void ProfileManager::removeStateValue(const QString &key) {
+  m_database.execute(
+      QStringLiteral("DELETE FROM profile_state WHERE state_key = :k;"),
+      {{QStringLiteral(":k"), key}});
 }
