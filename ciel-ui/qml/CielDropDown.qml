@@ -8,6 +8,8 @@ Item {
     property Item trigger: null
     property string placement: "bottom"
     property bool isOpen: false
+    property bool modalOverlay: true
+    property int zIndex: 99999
 
     default property alias content: menuColumn.data
 
@@ -96,7 +98,7 @@ Item {
     }
 
     Connections {
-        target: root.trigger
+        target: root.modalOverlay ? root.trigger : null
         ignoreUnknownSignals: true
         function onClicked() {
             root.toggle();
@@ -108,7 +110,7 @@ Item {
         parent: root.Window.window ? root.Window.window.contentItem : root
         anchors.fill: parent
         visible: root.isOpen || menuCard.opacity > 0.0
-        z: 99999
+        z: root.zIndex
 
         property real openProgress: root.isOpen ? 1.0 : 0.0
 
@@ -122,9 +124,18 @@ Item {
         }
 
         MouseArea {
+            id: backdropMouse
             anchors.fill: parent
+            enabled: root.modalOverlay
             hoverEnabled: false
-            onPressed: root.close()
+            onPressed: function (mouse) {
+                var p = menuCard.mapFromItem(backdropMouse, mouse.x, mouse.y);
+                if (p.x >= 0 && p.x <= menuCard.width && p.y >= 0 && p.y <= menuCard.height) {
+                    mouse.accepted = false;
+                    return;
+                }
+                root.close();
+            }
         }
 
         Item {

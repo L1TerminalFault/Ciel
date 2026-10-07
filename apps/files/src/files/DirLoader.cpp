@@ -24,6 +24,7 @@ DirectoryLoader::DirectoryLoader(QObject *parent) : QObject(parent) {}
 void DirectoryLoader::loadDirectory(const QString &path, bool batchLoading) {
   m_cancelRequested.store(false, std::memory_order_relaxed);
   emit loadStarted(path);
+
   QVector<ItemEntery> batch;
   batch.reserve(128);
 
@@ -59,7 +60,7 @@ void DirectoryLoader::loadDirectory(const QString &path, bool batchLoading) {
   while (struct dirent *entry = readNext()) {
     if (m_cancelRequested.load(std::memory_order_relaxed))
       break;
-    // skipping the . and .. dirs
+
     if (entry->d_name[0] == '.' &&
         (entry->d_name[1] == '\0' ||
          (entry->d_name[1] == '.' && entry->d_name[2] == '\0'))) {
@@ -106,7 +107,6 @@ void DirectoryLoader::loadDirectory(const QString &path, bool batchLoading) {
     batch.clear();
   }
   emit loadFinished(path, directoryModified);
-  return;
 }
 
 void DirectoryLoader::revalidateInBackground(const QString &path,
@@ -122,9 +122,10 @@ void DirectoryLoader::revalidateInBackground(const QString &path,
   if (st.st_mtime == cachedMtime) {
     return;
   }
-  // on changed
+
   loadDirectory(path);
 }
+
 void DirectoryLoader::cancel() {
   m_cancelRequested.store(true, std::memory_order_relaxed);
 }

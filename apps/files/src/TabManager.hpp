@@ -11,17 +11,22 @@
 
 struct FileViewSettings {
   Q_GADGET
+  QML_VALUE_TYPE(fileViewSettings)
+  QML_UNCREATABLE("FileViewSettings cannot be created directly")
+
   Q_PROPERTY(bool listViewMode MEMBER listViewMode)
   Q_PROPERTY(SortBy sortBy MEMBER sortBy)
   Q_PROPERTY(bool ascending MEMBER ascending)
   Q_PROPERTY(bool showHiddenFiles MEMBER showHiddenFiles)
   Q_PROPERTY(bool showSymlinks MEMBER showSymlinks)
+  Q_PROPERTY(bool foldersFirstSorting MEMBER foldersFirstSorting)
 
 public:
   enum class SortBy : uint8_t { DateModified = 0, Type, Name, Size };
   Q_ENUM(SortBy)
   bool listViewMode = false;
   SortBy sortBy = SortBy::DateModified;
+  bool foldersFirstSorting = true;
   bool ascending = true;
   bool showHiddenFiles = false;
   bool showSymlinks = false;
@@ -69,6 +74,9 @@ public:
   Q_INVOKABLE void toggleViewMode();
   Q_INVOKABLE void toggleHiddenFiles();
   Q_INVOKABLE void setSortBy(FileViewSettings::SortBy criteria);
+  Q_INVOKABLE void toggleAscending();
+  Q_INVOKABLE void toggleFoldersFirst();
+  Q_INVOKABLE void toggleSymlinks();
 
   // Getters & Setters
   QString currentTabId() const;

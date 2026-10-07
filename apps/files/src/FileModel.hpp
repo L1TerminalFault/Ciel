@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TabManager.hpp"
 #include "files/DirCache.hpp"
 #include "files/type.hpp"
 #include <QAbstractListModel>
@@ -31,6 +32,7 @@ public:
 
   Q_INVOKABLE void setPath(const QString &path);
   Q_INVOKABLE bool createFolder(const QString &dirName);
+  Q_INVOKABLE void setSettings(const FileViewSettings &settings);
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index, int role) const override;
@@ -46,6 +48,9 @@ signals:
   void loadErrorNotify(const QString err);
 
 private:
+  void applySortAndFilter();
+  FileViewSettings m_settings;
+  QVector<ItemEntery> m_rawEntries;
   QVector<ItemEntery> m_entries;
   QString m_currentPath;
   QCache<QString, CachedListing> m_cache;
