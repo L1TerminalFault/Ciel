@@ -27,10 +27,25 @@ Item {
                 Repeater {
                     model: root.model
                     delegate: Item {
+                        id: delegateRoot
+
+                        property bool isNewItem: index === root.model.length - 1
+
                         implicitWidth: innerRow.implicitWidth
                         implicitHeight: innerRow.implicitHeight
+
+                        scale: isNewItem ? 0.9 : 1.0
+
+                        CielSpring {
+                            target: delegateRoot
+                            property: "scale"
+                            to: 1
+                            running: delegateRoot.isNewItem
+                        }
+
                         RowLayout {
                             id: innerRow
+
                             CielSquircle {
                                 Layout.preferredWidth: title.implicitWidth + 16
                                 Layout.preferredHeight: title.implicitHeight + 8
@@ -43,6 +58,7 @@ Item {
                                     anchors.centerIn: parent
                                 }
                             }
+
                             CielIcon {
                                 icon: "caret-right"
                                 size: Theme.XSMALL
