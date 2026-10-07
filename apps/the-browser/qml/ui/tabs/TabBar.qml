@@ -1155,6 +1155,15 @@ Item {
         Rectangle {
             id: circle
 
+    layer.enabled: true
+    layer.effect: MultiEffect {
+        shadowEnabled: true
+        shadowColor: "#90000000"
+        shadowBlur: 0.5
+        shadowVerticalOffset: 0
+        shadowHorizontalOffset: 0
+    }
+
             readonly property string profileId: index < avatarStack.heldIds.length
                                                 ? avatarStack.heldIds[index] : ""
             readonly property var currentData: {
@@ -1210,8 +1219,8 @@ Item {
             z: Math.round((avatarStack.stackCount - stackSlot) * 10)
 
             color: (currentData && currentData.color) ? currentData.color : Theme.surface
-            border.width: isSelected ? 2 : 1.5
-            border.color: isSelected ? Theme.accent : Theme.surface
+            // border.width: isSelected ? 2 : 1.5
+            // border.color: isSelected ? Theme.accent : Theme.surface
             clip: true
             scale: isSelected ? avatarStack.bounceScale : 1.0
             transformOrigin: Item.Center
