@@ -82,33 +82,76 @@ Item {
     implicitWidth: targetWidth
     implicitHeight: parent.height
 
-    property real horizontalScrollAccumulator: 0.0
+property real horizontalScrollAccumulator: 0.0
+property bool horizontalGestureTriggered: false
 
-    Timer {
-        id: wheelResetTimer
-        interval: 300
-        onTriggered: root.horizontalScrollAccumulator = 0
+Timer {
+    id: horizontalGestureEndTimer
+
+    interval: 180
+
+    onTriggered: {
+        root.horizontalScrollAccumulator = 0
+        root.horizontalGestureTriggered = false
     }
+}
 
-    WheelHandler {
-        target: root
-        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-        onWheel: event => {
-            var dx = event.angleDelta.x !== 0 ? event.angleDelta.x : (event.pixelDelta.x !== 0 ? event.pixelDelta.x : (event.modifiers & Qt.ShiftModifier ? event.angleDelta.y : 0));
-            if (dx !== 0 && root.workspaceModel) {
-                wheelResetTimer.restart();
-                root.horizontalScrollAccumulator += dx;
-                if (Math.abs(root.horizontalScrollAccumulator) >= 60) {
-                    var dir = root.horizontalScrollAccumulator < 0 ? 1 : -1;
-                    root.horizontalScrollAccumulator = 0;
-                    var nextIdx = root.workspaceModel.currentIndex + dir;
-                    if (nextIdx >= 0 && nextIdx < root.workspaceModel.count) {
-                        root.workspaceModel.currentIndex = nextIdx;
-                    }
-                }
-            }
+WheelHandler {
+    id: horizontalWheelHandler
+
+    target: null
+    orientation: Qt.Horizontal
+    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+
+    onWheel: event => {
+        if (!root.workspaceModel)
+            return
+
+        var dx = event.pixelDelta.x
+
+        if (dx === 0)
+            dx = event.angleDelta.x
+
+        if (dx === 0)
+            return
+
+        event.accepted = true
+
+        // Every wheel event extends the current gesture.
+        horizontalGestureEndTimer.restart()
+
+        // Already navigated during this gesture.
+        if (root.horizontalGestureTriggered)
+            return
+
+        root.horizontalScrollAccumulator += dx
+
+        // Touchpads generate many small pixel events.
+        var threshold = event.pixelDelta.x !== 0 ? 45 : 60
+
+        if (Math.abs(root.horizontalScrollAccumulator) < threshold)
+            return
+
+        // --------------------------------------------------
+        // ONE horizontal swipe = ONE workspace change
+        // --------------------------------------------------
+        root.horizontalGestureTriggered = true
+
+        var direction =
+                root.horizontalScrollAccumulator < 0 ? 1 : -1
+
+        root.horizontalScrollAccumulator = 0
+
+        var nextIndex =
+                root.workspaceModel.currentIndex + direction
+
+        if (nextIndex >= 0 &&
+            nextIndex < root.workspaceModel.count) {
+
+            root.workspaceModel.currentIndex = nextIndex
         }
     }
+}
 
     Behavior on implicitWidth {
         CielSpring {
@@ -1413,57 +1456,62 @@ Item {
                 opacity: 1.0 - sidebarFooter.collapseProgress
                 visible: opacity > 0.01
 
-                Repeater {
-                    model: root.workspaceModel
+Repeater {
+    model: root.workspaceModel
 
-                    Item {
-                        id: dotWrapper
-                        readonly property bool isActive: root.workspaceModel ? root.workspaceModel.currentIndex === index : false
-                        width: isActive ? 18 : 6
-                        height: 6
+    Item {
+        id: dotWrapper
+        readonly property bool isActive: root.workspaceModel ? root.workspaceModel.currentIndex === index : false
 
-                        Behavior on width {
-                            CielSpring {
-                                damping: 0.32
-                                spring: 5.2
-                                mass: 1.0
-                                epsilon: 0.001
-                            }
-                        }
+        // Color stored in the workspace's database row (fallback: accent)
+        readonly property color wsColor: model.color ? model.color : Theme.accent
 
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: 3
-                            color: dotWrapper.isActive ? Theme.accent : Theme.border
-                            scale: dotWrapper.isActive ? 1.0 : 0.85
+        width: isActive ? 18 : 6
+        height: 6
 
-                            Behavior on scale {
-                                CielSpring {
-                                    damping: 0.30
-                                    spring: 5.4
-                                    mass: 0.9
-                                    epsilon: 0.001
-                                }
-                            }
+        Behavior on width {
+            CielSpring {
+                damping: 0.32
+                spring: 5.2
+                mass: 1.0
+                epsilon: 0.001
+            }
+        }
 
-                            Behavior on color {
-                                ColorAnimation {
-                                    duration: 150
-                                }
-                            }
-                        }
+        Rectangle {
+            anchors.fill: parent
+            radius: 3
+            // Active: full workspace color. Inactive: same hue, dimmed.
+            color: dotWrapper.isActive ? dotWrapper.wsColor : Qt.alpha(dotWrapper.wsColor, 0.4)
+            scale: dotWrapper.isActive ? 1.0 : 0.85
 
-                        MouseArea {
-                            anchors.fill: parent
-                            anchors.margins: -6
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                if (root.workspaceModel)
-                                    root.workspaceModel.currentIndex = index;
-                            }
-                        }
-                    }
+            Behavior on scale {
+                CielSpring {
+                    damping: 0.30
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
                 }
+            }
+
+            Behavior on color {
+                ColorAnimation {
+                    duration: 150
+                }
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -6
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                if (root.workspaceModel)
+                    root.workspaceModel.currentIndex = index;
+            }
+        }
+    }
+}
             }
 
             CielIconButton {
