@@ -242,9 +242,6 @@ QVariantMap ProfileManager::profileInfo(const QString &id) const {
 }
 
 void ProfileManager::switchProfile(const QString &profileId) {
-qInfo() << "[profile] switchProfile on instance" << this << "->" << profileId
-        << "| static instance =" << s_instance
-        << "| listeners:" << receivers(SIGNAL(activeProfileChanged()));
   if (profileId.isEmpty())
     return;
   if (m_activeProfileId == profileId && !m_currentSessionId.isEmpty())
@@ -274,9 +271,6 @@ qInfo() << "[profile] switchProfile on instance" << this << "->" << profileId
   } else {
     qWarning() << "switchProfile: failed to open database" << dbPath;
   }
-
-    qWarning() << "switchProfile: failed to open database" << dbPath;
-qInfo() << "[profile] switched to" << profileId << "db:" << dbPath;
 
   ensureStateTable();
   startSession();
