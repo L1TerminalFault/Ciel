@@ -62,9 +62,6 @@ signals:
   void currentIndexChanged();
 
 private:
-  // Called right before the active profile's database is closed.
-  // Detaches every TabModel and empties this model so nothing can write
-  // into the wrong profile's database.
   void unloadWorkspaces();
   void releaseTabModels();
   WorkspaceItem insertWorkspaceRecord(const QString &name, const QString &color,
