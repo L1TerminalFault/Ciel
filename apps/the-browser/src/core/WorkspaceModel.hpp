@@ -64,9 +64,12 @@ signals:
 private:
   void unloadWorkspaces();
   void releaseTabModels();
+  void readWorkspaceRows();
+  void seedDefaultWorkspaces();
   WorkspaceItem insertWorkspaceRecord(const QString &name, const QString &color,
                                       const QString &icon,
                                       const QString &presetId);
+  QString uniqueName(const QString &requested) const;
   void persistWorkspaceOrder();
   void persistCurrentWorkspace();
 
