@@ -709,14 +709,25 @@ Item {
 
                                         MouseArea {
                                             anchors.fill: parent
-                                            onDoubleClicked: {
-                                                if (model.isDir) {
+                                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                                            onDoubleClicked: function (mouse) {
+                                                if (mouse.button === Qt.LeftButton && model.isDir) {
                                                     TabManager.openFolder(model.name);
                                                 }
                                             }
+
                                             onClicked: function (mouse) {
                                                 viewArea.forceActiveFocus();
-                                                FileListModel.handleSelection(index, mouse.modifiers);
+
+                                                if (mouse.button === Qt.LeftButton) {
+                                                    FileListModel.handleSelection(index, mouse.modifiers);
+                                                } else if (mouse.button === Qt.RightButton) {
+                                                    if (!model.selected) {
+                                                        FileListModel.handleSelection(index, 0);
+                                                    }
+                                                    fileContextMenu.popup(mouse.x, mouse.y, this);
+                                                }
                                             }
                                         }
                                     }
@@ -794,6 +805,96 @@ Item {
             }
         }
     }
+
+    CielContextMenu {
+        id: fileContextMenu
+        property bool bookmarkBtn: true
+
+        CielMenuItem {
+            text: "Cut"
+            icon: "scissors"
+            shortcut: "Ctrl+X"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy"
+            icon: "copy"
+            shortcut: "Ctrl+C"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Duplicate"
+            shortcut: "Ctrl+D"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy Path"
+            shortcut: "Ctrl+Shift+C"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Rename"
+            icon: "pencil"
+            shortcut: "F2"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            visible: fileContextMenu.bookmarkBtn
+            text: "Bookmark"
+            icon: "bookmark"
+            shortcut: "Ctrl+B"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Compress"
+            icon: "file-archive"
+            shortcut: "Ctrl+Shift+Z"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Properties"
+            icon: "info"
+            shortcut: "Alt+Enter"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Paste"
+            shortcut: "Ctrl+V"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Delete"
+            icon: "trash"
+            destructive: true
+            shortcut: "Delete"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+    }
+
     CielPopup {
         id: pathErrorPopup
 

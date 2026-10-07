@@ -8,7 +8,7 @@ Item {
     property string text: ""
     property string icon: ""
     property string trailingIcon: ""
-    property bool enabled: true
+    property bool isEnabled: true
 
     signal clicked
     signal triggered
@@ -115,7 +115,7 @@ Item {
                 icon: root.icon
                 size: Theme.SMALL
                 visible: root.icon.length > 0
-                color: root.enabled ? Theme.textPrimary : Theme.textSecondary
+                color: root.isEnabled ? Theme.textPrimary : Theme.textSecondary
             }
         }
 
@@ -123,7 +123,7 @@ Item {
             text: root.text
             font.pixelSize: 13
             font.weight: Font.Normal
-            color: root.enabled ? Theme.textPrimary : Theme.textSecondary
+            color: root.isEnabled ? Theme.textPrimary : Theme.textSecondary
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             elide: Text.ElideRight
@@ -149,7 +149,7 @@ Item {
         id: subMouse
         anchors.fill: parent
         hoverEnabled: true
-        cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+        cursorShape: root.isEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
 
         onEntered: {
             closeTimer.stop();
@@ -166,7 +166,7 @@ Item {
         }
 
         onClicked: {
-            if (!root.enabled)
+            if (!root.isEnabled)
                 return;
 
             openTimer.stop();
