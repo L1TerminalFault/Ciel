@@ -207,7 +207,7 @@ CielPopup {
 
                     CielIcon {
                         anchors.centerIn: parent
-                        icon: editProfileDialog.chosenImage !== "" ? "trash" : "edit"
+                        icon: editProfileDialog.chosenImage !== "" ? "trash" : "pencil-simple"
                         size: Theme.SMALL
                         color: editProfileDialog.chosenImage !== "" ? "#ff2589" : Theme.textSecondary
                         // color: Theme.textSecondary
