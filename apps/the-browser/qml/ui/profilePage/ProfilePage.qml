@@ -630,7 +630,7 @@ Item {
 
             CielIcon {
                 anchors.centerIn: parent
-                icon: "edit"
+                icon: "pencil"
                 size: Theme.MEDIUM
                 color: Theme.textPrimary
 

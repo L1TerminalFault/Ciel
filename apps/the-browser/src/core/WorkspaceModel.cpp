@@ -1,18 +1,35 @@
 #include "WorkspaceModel.hpp"
 #include "ProfileManager.hpp"
 
+#include <QDebug>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
 #include <QUuid>
 
 #include <utility>
 
 namespace {
+
+constexpr bool kAllowUserWorkspaces = false;
+
+struct DefaultWorkspace {
+  const char *name;
+  const char *color;
+};
+
+constexpr DefaultWorkspace kDefaultWorkspaces[] = {
+    {"Workspace 1", "#3B82F6"}, {"Workspace 2", "#8B5CF6"},
+    {"Workspace 3", "#10B981"}, {"Workspace 4", "#F59E0B"},
+    {"Workspace 5", "#EF4444"},
+};
+
 QString activeWorkspaceKey() { return QStringLiteral("active_workspace_id"); }
 QString activeTabKey(const QString &workspaceId) {
   return QStringLiteral("active_tab:") + workspaceId;
 }
+
 } // namespace
 
 WorkspaceModel::WorkspaceModel(QObject *parent) : QAbstractListModel(parent) {
@@ -145,6 +162,37 @@ void WorkspaceModel::persistWorkspaceOrder() {
   }
 }
 
+QString WorkspaceModel::uniqueName(const QString &requested) const {
+  static const QRegularExpression numbered(
+      QStringLiteral("^Workspace (\\d+)$"));
+
+  bool taken = false;
+  int maxN = 0;
+  for (const auto &ws : std::as_const(m_workspaces)) {
+    if (ws.name == requested)
+      taken = true;
+    const auto m = numbered.match(ws.name);
+    if (m.hasMatch())
+      maxN = qMax(maxN, m.captured(1).toInt());
+  }
+
+  if (requested.trimmed().isEmpty())
+    return QStringLiteral("Workspace %1").arg(maxN + 1);
+  if (!taken)
+    return requested;
+  if (numbered.match(requested).hasMatch())
+    return QStringLiteral("Workspace %1").arg(maxN + 1);
+
+  for (int i = 2;; ++i) {
+    const QString candidate = QStringLiteral("%1 (%2)").arg(requested).arg(i);
+    bool exists = false;
+    for (const auto &ws : std::as_const(m_workspaces))
+      exists = exists || ws.name == candidate;
+    if (!exists)
+      return candidate;
+  }
+}
+
 WorkspaceItem WorkspaceModel::insertWorkspaceRecord(const QString &name,
                                                     const QString &color,
                                                     const QString &icon,
@@ -160,8 +208,8 @@ WorkspaceItem WorkspaceModel::insertWorkspaceRecord(const QString &name,
         orderRows.first().toMap().value(QStringLiteral("next_order")).toInt();
   }
 
-  WorkspaceItem item{QUuid::createUuid().toString(QUuid::WithoutBraces), name,
-                     color, icon, presetId};
+  WorkspaceItem item{QUuid::createUuid().toString(QUuid::WithoutBraces),
+                     uniqueName(name), color, icon, presetId};
 
   db->execute(
       QStringLiteral(
@@ -169,7 +217,7 @@ WorkspaceItem WorkspaceModel::insertWorkspaceRecord(const QString &name,
           "sort_order) "
           "VALUES (:id, :name, :color, :icon, :preset_id, :sort_order);"),
       {{QStringLiteral(":id"), item.id},
-       {QStringLiteral(":name"), name},
+       {QStringLiteral(":name"), item.name},
        {QStringLiteral(":color"), color},
        {QStringLiteral(":icon"), icon},
        {QStringLiteral(":preset_id"),
@@ -179,19 +227,13 @@ WorkspaceItem WorkspaceModel::insertWorkspaceRecord(const QString &name,
   return item;
 }
 
-void WorkspaceModel::loadWorkspaces() {
-  releaseTabModels();
-
-  beginResetModel();
+void WorkspaceModel::readWorkspaceRows() {
   m_workspaces.clear();
-  m_currentIndex = 0;
 
-  ProfileManager *pm = ProfileManager::instance();
-  Database *db = pm->database();
-  QVariantList rows =
-      db->query(QStringLiteral("SELECT id, name, color, icon, preset_id FROM "
-                               "workspaces ORDER BY sort_order ASC;"));
-for (const auto &r : rows)
+  Database *db = ProfileManager::instance()->database();
+  QVariantList rows = db->query(
+      QStringLiteral("SELECT id, name, color, icon, preset_id FROM "
+                     "workspaces ORDER BY sort_order ASC, rowid ASC;"));
 
   for (const auto &r : rows) {
     QVariantMap map = r.toMap();
@@ -201,23 +243,49 @@ for (const auto &r : rows)
                          map.value(QStringLiteral("icon")).toString(),
                          map.value(QStringLiteral("preset_id")).toString()});
   }
+}
+
+void WorkspaceModel::seedDefaultWorkspaces() {
+  Database *db = ProfileManager::instance()->database();
+
+  int order = 0;
+  for (const auto &def : kDefaultWorkspaces) {
+    db->execute(
+        QStringLiteral(
+            "INSERT OR IGNORE INTO workspaces (id, name, color, icon, "
+            "preset_id, sort_order) "
+            "VALUES (:id, :name, :color, :icon, NULL, :sort_order);"),
+        {{QStringLiteral(":id"),
+          QStringLiteral("default-workspace-%1").arg(order + 1)},
+         {QStringLiteral(":name"), QString::fromLatin1(def.name)},
+         {QStringLiteral(":color"), QString::fromLatin1(def.color)},
+         {QStringLiteral(":icon"), QStringLiteral("browser")},
+         {QStringLiteral(":sort_order"), order}});
+    ++order;
+  }
+}
+
+void WorkspaceModel::loadWorkspaces() {
+  releaseTabModels();
+
+  beginResetModel();
+  m_currentIndex = 0;
+
+  readWorkspaceRows();
 
   if (m_workspaces.isEmpty()) {
-    m_workspaces.append(insertWorkspaceRecord(QStringLiteral("Workspace 1"),
-                                              QStringLiteral("#3B82F6"),
-                                              QStringLiteral("browser"),
-                                              QString()));
-    m_workspaces.append(insertWorkspaceRecord(QStringLiteral("Workspace 2"),
-                                              QStringLiteral("#8B5CF6"),
-                                              QStringLiteral("browser"),
-                                              QString()));
+    seedDefaultWorkspaces();
+    readWorkspaceRows();
   } else {
-    const QString savedId = pm->stateValue(activeWorkspaceKey());
-    for (int i = 0; i < m_workspaces.size(); ++i) {
-      if (m_workspaces.at(i).id == savedId) {
-        m_currentIndex = i;
-        break;
-      }
+    persistWorkspaceOrder();
+  }
+
+  const QString savedId =
+      ProfileManager::instance()->stateValue(activeWorkspaceKey());
+  for (int i = 0; i < m_workspaces.size(); ++i) {
+    if (m_workspaces.at(i).id == savedId) {
+      m_currentIndex = i;
+      break;
     }
   }
 
@@ -229,6 +297,12 @@ for (const auto &r : rows)
 void WorkspaceModel::createWorkspace(const QString &name, const QString &color,
                                      const QString &icon,
                                      const QString &presetId) {
+  if (!kAllowUserWorkspaces) {
+    qInfo() << "[workspaces] createWorkspace ignored (fixed default set):"
+            << name;
+    return;
+  }
+
   WorkspaceItem item = insertWorkspaceRecord(name, color, icon, presetId);
 
   beginInsertRows(QModelIndex(), m_workspaces.size(), m_workspaces.size());
