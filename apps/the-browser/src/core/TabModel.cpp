@@ -56,6 +56,7 @@ int TabModel::currentIndex() const { return m_currentIndex; }
 void TabModel::setCurrentIndex(int index) {
   if (index >= 0 && index < m_tabs.size() && m_currentIndex != index) {
     m_currentIndex = index;
+    persistCurrentTab();
     emit currentIndexChanged();
   }
 }
@@ -77,6 +78,7 @@ void TabModel::setWorkspaceId(const QString &wsId) {
 void TabModel::loadTabs() {
   beginResetModel();
   m_tabs.clear();
+  m_currentIndex = 0;
 
   if (m_workspaceId.isEmpty()) {
     endResetModel();
@@ -107,7 +109,14 @@ void TabModel::loadTabs() {
     return;
   }
 
-  m_currentIndex = 0;
+  const QString savedId = ProfileManager::instance()->stateValue(
+      QStringLiteral("active_tab:") + m_workspaceId);
+  for (int i = 0; i < m_tabs.size(); ++i) {
+    if (m_tabs.at(i).id == savedId) {
+      m_currentIndex = i;
+      break;
+    }
+  }
   endResetModel();
   emit countChanged();
   emit currentIndexChanged();
@@ -182,6 +191,7 @@ void TabModel::closeTab(int index) {
   } else if (m_currentIndex == index) {
     emit currentIndexChanged();
   }
+  persistCurrentTab();
 }
 
 void TabModel::updateTitle(int index, const QString &title) {
@@ -281,6 +291,8 @@ void TabModel::moveTab(int from, int to) {
     m_currentIndex++;
     emit currentIndexChanged();
   }
+
+  persistCurrentTab();
 }
 
 void TabModel::togglePin(int index) {
@@ -349,6 +361,8 @@ void TabModel::setPinned(int index, bool pinned) {
     emit dataChanged(this->index(index), this->index(index),
                      QList<int>{IsPinnedRole});
   }
+
+  persistCurrentTab();
 }
 
 void TabModel::persistOrder() {
@@ -363,4 +377,13 @@ void TabModel::persistOrder() {
         {{QStringLiteral(":order"), i},
          {QStringLiteral(":id"), m_tabs.at(i).id}});
   }
+}
+
+void TabModel::persistCurrentTab() {
+  if (m_workspaceId.isEmpty() || m_currentIndex < 0 ||
+      m_currentIndex >= m_tabs.size())
+    return;
+  ProfileManager::instance()->setStateValue(
+      QStringLiteral("active_tab:") + m_workspaceId,
+      m_tabs.at(m_currentIndex).id);
 }
