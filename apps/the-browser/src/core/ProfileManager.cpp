@@ -50,7 +50,7 @@ ProfileManager *ProfileManager::instance() {
 }
 
 ProfileManager::~ProfileManager() {
-  endSession();
+  shutdown();
   m_database.close();
   if (s_instance == this)
     s_instance = nullptr;
@@ -58,6 +58,9 @@ ProfileManager::~ProfileManager() {
 
 ProfileManager::ProfileManager(QObject *parent) : QObject(parent) {
   s_instance = this;
+
+  connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this,
+          &ProfileManager::shutdown);
 
   QString startId = loadLastProfileId();
   if (startId.isEmpty() ||
@@ -453,4 +456,10 @@ void ProfileManager::removeStateValue(const QString &key) {
   m_database.execute(
       QStringLiteral("DELETE FROM profile_state WHERE state_key = :k;"),
       {{QStringLiteral(":k"), key}});
+}
+
+void ProfileManager::shutdown() {
+  endSession();
+  m_currentSessionId.clear();
+  m_database.close();
 }
