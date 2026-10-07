@@ -6,9 +6,29 @@
 #include <QJsonObject>
 #include <QUuid>
 
+#include <utility>
+
+namespace {
+QString activeWorkspaceKey() { return QStringLiteral("active_workspace_id"); }
+QString activeTabKey(const QString &workspaceId) {
+  return QStringLiteral("active_tab:") + workspaceId;
+}
+} // namespace
+
 WorkspaceModel::WorkspaceModel(QObject *parent) : QAbstractListModel(parent) {
-  connect(ProfileManager::instance(), &ProfileManager::activeProfileChanged,
-          this, &WorkspaceModel::loadWorkspaces);
+  auto *pm = ProfileManager::instance();
+qInfo() << "[workspaces] ctor, connected to ProfileManager" << pm;
+
+  // Runs synchronously BEFORE the old profile's DB is closed.
+  connect(pm, &ProfileManager::activeProfileAboutToChange, this,
+          &WorkspaceModel::unloadWorkspaces);
+
+  // Queued so every QML binding that depends on activeProfileChanged
+  // (e.g. currentWebProfile in Main.qml) is updated before the new
+  // delegates are created.
+  connect(pm, &ProfileManager::activeProfileChanged, this,
+          &WorkspaceModel::loadWorkspaces, Qt::QueuedConnection);
+
   loadWorkspaces();
 }
 
@@ -57,6 +77,7 @@ int WorkspaceModel::currentIndex() const { return m_currentIndex; }
 void WorkspaceModel::setCurrentIndex(int index) {
   if (index >= 0 && index < m_workspaces.size() && m_currentIndex != index) {
     m_currentIndex = index;
+    persistCurrentWorkspace();
     emit currentIndexChanged();
   }
 }
@@ -73,6 +94,18 @@ TabModel *WorkspaceModel::tabModel(const QString &workspaceId) {
     return nullptr;
   }
 
+  // Only hand out tab models for workspaces owned by the active profile.
+  bool owned = false;
+  for (const auto &ws : std::as_const(m_workspaces)) {
+    if (ws.id == workspaceId) {
+      owned = true;
+      break;
+    }
+  }
+  if (!owned) {
+    return nullptr;
+  }
+
   if (!m_tabModels.contains(workspaceId)) {
     auto *model = new TabModel(this);
     model->setWorkspaceId(workspaceId);
@@ -81,14 +114,104 @@ TabModel *WorkspaceModel::tabModel(const QString &workspaceId) {
   return m_tabModels.value(workspaceId);
 }
 
-void WorkspaceModel::loadWorkspaces() {
+void WorkspaceModel::releaseTabModels() {
+  for (TabModel *model : std::as_const(m_tabModels)) {
+    // Empty workspace id => every DB write inside TabModel is skipped and
+    // all index-based calls from still-alive delegates become no-ops.
+    model->setWorkspaceId(QString());
+    model->deleteLater();
+  }
+  m_tabModels.clear();
+}
+
+void WorkspaceModel::unloadWorkspaces() {
+qInfo() << "[workspaces] unload (profile about to change)";
+  releaseTabModels();
+
   beginResetModel();
   m_workspaces.clear();
+  m_currentIndex = 0;
+  endResetModel();
 
+  emit countChanged();
+  emit currentIndexChanged();
+}
+
+void WorkspaceModel::persistCurrentWorkspace() {
+  const QString id = currentWorkspaceId();
+  if (!id.isEmpty()) {
+    ProfileManager::instance()->setStateValue(activeWorkspaceKey(), id);
+  }
+}
+
+void WorkspaceModel::persistWorkspaceOrder() {
   Database *db = ProfileManager::instance()->database();
+  for (int i = 0; i < m_workspaces.size(); ++i) {
+    db->execute(QStringLiteral(
+                    "UPDATE workspaces SET sort_order = :order WHERE id = :id;"),
+                {{QStringLiteral(":order"), i},
+                 {QStringLiteral(":id"), m_workspaces.at(i).id}});
+  }
+}
+
+WorkspaceItem WorkspaceModel::insertWorkspaceRecord(const QString &name,
+                                                    const QString &color,
+                                                    const QString &icon,
+                                                    const QString &presetId) {
+  Database *db = ProfileManager::instance()->database();
+
+  QVariantList orderRows = db->query(QStringLiteral(
+      "SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM "
+      "workspaces;"));
+  int order = m_workspaces.size();
+  if (!orderRows.isEmpty()) {
+    order =
+        orderRows.first().toMap().value(QStringLiteral("next_order")).toInt();
+  }
+
+  WorkspaceItem item{QUuid::createUuid().toString(QUuid::WithoutBraces), name,
+                     color, icon, presetId};
+
+  db->execute(
+      QStringLiteral(
+          "INSERT INTO workspaces (id, name, color, icon, preset_id, "
+          "sort_order) "
+          "VALUES (:id, :name, :color, :icon, :preset_id, :sort_order);"),
+      {{QStringLiteral(":id"), item.id},
+       {QStringLiteral(":name"), name},
+       {QStringLiteral(":color"), color},
+       {QStringLiteral(":icon"), icon},
+       {QStringLiteral(":preset_id"),
+        presetId.isEmpty() ? QVariant() : presetId},
+       {QStringLiteral(":sort_order"), order}});
+
+  return item;
+}
+// WorkspaceModel constructor, right after: auto *pm = ProfileManager::instance();
+
+// ProfileManager::switchProfile, as the very first line
+
+// ProfileManager::ProfileManager (constructor), first line
+
+void WorkspaceModel::loadWorkspaces() {
+  // Make sure nothing from a previous profile survives.
+  releaseTabModels();
+
+  beginResetModel();
+  m_workspaces.clear();
+  m_currentIndex = 0;
+
+  ProfileManager *pm = ProfileManager::instance();
+  Database *db = pm->database();
   QVariantList rows =
       db->query(QStringLiteral("SELECT id, name, color, icon, preset_id FROM "
                                "workspaces ORDER BY sort_order ASC;"));
+qInfo() << "[workspaces] profile" << pm->activeProfileId()
+        << "rows:" << rows.size();
+qInfo() << "[workspaces] load for profile" << pm->activeProfileId()
+        << "rows:" << rows.size();
+for (const auto &r : rows)
+  qInfo() << "   " << r.toMap().value(QStringLiteral("id")).toString();
 
   for (const auto &r : rows) {
     QVariantMap map = r.toMap();
@@ -99,43 +222,41 @@ void WorkspaceModel::loadWorkspaces() {
                          map.value(QStringLiteral("preset_id")).toString()});
   }
 
+  // A brand-new profile gets its own default workspaces.
   if (m_workspaces.isEmpty()) {
-    endResetModel();
-    createWorkspace(QStringLiteral("Workspace 1"), QStringLiteral("#3B82F6"),
-                    QStringLiteral("browser"));
-    createWorkspace(QStringLiteral("Workspace 2"), QStringLiteral("#8B5CF6"),
-                    QStringLiteral("browser"));
-    return;
+    m_workspaces.append(insertWorkspaceRecord(QStringLiteral("Workspace 1"),
+                                              QStringLiteral("#3B82F6"),
+                                              QStringLiteral("browser"),
+                                              QString()));
+    m_workspaces.append(insertWorkspaceRecord(QStringLiteral("Workspace 2"),
+                                              QStringLiteral("#8B5CF6"),
+                                              QStringLiteral("browser"),
+                                              QString()));
+  } else {
+    // Restore the workspace this profile was last using.
+    const QString savedId = pm->stateValue(activeWorkspaceKey());
+    for (int i = 0; i < m_workspaces.size(); ++i) {
+      if (m_workspaces.at(i).id == savedId) {
+        m_currentIndex = i;
+        break;
+      }
+    }
   }
 
-  m_currentIndex = 0;
   endResetModel();
   emit countChanged();
   emit currentIndexChanged();
+qInfo() << "[workspaces] loaded, count =" << m_workspaces.size()
+        << "current =" << currentWorkspaceId();
 }
 
 void WorkspaceModel::createWorkspace(const QString &name, const QString &color,
                                      const QString &icon,
                                      const QString &presetId) {
-  QString id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-  int order = m_workspaces.size();
-
-  Database *db = ProfileManager::instance()->database();
-  db->execute(
-      QStringLiteral(
-          "INSERT INTO workspaces (id, name, color, icon, preset_id, "
-          "sort_order) "
-          "VALUES (:id, :name, :color, :icon, :preset_id, :sort_order);"),
-      {{QStringLiteral(":id"), id},
-       {QStringLiteral(":name"), name},
-       {QStringLiteral(":color"), color},
-       {QStringLiteral(":icon"), icon},
-       {QStringLiteral(":preset_id"),
-        presetId.isEmpty() ? QVariant() : presetId},
-       {QStringLiteral(":sort_order"), order}});
+  WorkspaceItem item = insertWorkspaceRecord(name, color, icon, presetId);
 
   beginInsertRows(QModelIndex(), m_workspaces.size(), m_workspaces.size());
-  m_workspaces.append({id, name, color, icon, presetId});
+  m_workspaces.append(item);
   endInsertRows();
 
   emit countChanged();
@@ -147,26 +268,39 @@ void WorkspaceModel::removeWorkspace(int index) {
     return;
   }
 
-  QString id = m_workspaces.at(index).id;
+  const QString id = m_workspaces.at(index).id;
   Database *db = ProfileManager::instance()->database();
+
+  // Workspaces own tabs: remove them explicitly instead of relying on
+  // foreign-key cascades.
+  db->execute(QStringLiteral("DELETE FROM tabs WHERE workspace_id = :id;"),
+              {{QStringLiteral(":id"), id}});
   db->execute(QStringLiteral("DELETE FROM workspaces WHERE id = :id;"),
               {{QStringLiteral(":id"), id}});
+  ProfileManager::instance()->removeStateValue(activeTabKey(id));
 
-  if (m_tabModels.contains(id)) {
-    delete m_tabModels.take(id);
-  }
+  TabModel *tabs = m_tabModels.take(id);
 
   beginRemoveRows(QModelIndex(), index, index);
   m_workspaces.removeAt(index);
   endRemoveRows();
 
+  // Delete only after the view has dropped its delegates.
+  if (tabs) {
+    tabs->setWorkspaceId(QString());
+    tabs->deleteLater();
+  }
+
+  persistWorkspaceOrder();
   emit countChanged();
 
-  if (m_currentIndex >= m_workspaces.size()) {
-    setCurrentIndex(m_workspaces.size() - 1);
-  } else if (m_currentIndex == index) {
-    emit currentIndexChanged();
+  if (index < m_currentIndex) {
+    m_currentIndex--;
+  } else if (index == m_currentIndex) {
+    m_currentIndex = qMin(index, m_workspaces.size() - 1);
   }
+  persistCurrentWorkspace();
+  emit currentIndexChanged();
 }
 
 void WorkspaceModel::saveAsPreset(int index, const QString &presetName) {
