@@ -414,11 +414,10 @@ PanelWindow {
 
         Separator {}
 
-        // Clock
         Text {
             id: clock
             color: Theme.textSecondary
-            text: Qt.formatTime(new Date(), "HH:mm")
+            text: Qt.formatTime(new Date(), "h:mm AP")
             font.pixelSize: 13
             font.weight: Font.Medium
             renderType: Text.NativeRendering
@@ -428,7 +427,7 @@ PanelWindow {
                 running: true
                 repeat: true
                 onTriggered: {
-                    clock.text = Qt.formatTime(new Date(), "HH:mm");
+                    clock.text = Qt.formatTime(new Date(), "h:mm AP");
                 }
             }
         }

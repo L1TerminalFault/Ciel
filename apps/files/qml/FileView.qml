@@ -567,6 +567,7 @@ Item {
                                         width: fileList.width
                                         height: 42
 
+                                        readonly property bool isFocused: FileListModel.focusedRow === index && viewArea.activeFocus
                                         readonly property bool isSelected: model.selected
 
                                         CielSquircle {
@@ -575,6 +576,8 @@ Item {
                                             anchors.rightMargin: 6
                                             anchors.topMargin: 2
                                             anchors.bottomMargin: 2
+                                            borderWidth: 1
+                                            borderColor: isFocused ? "#64c5fa" : Theme.transparent
 
                                             color: isSelected ? "#b4e2fa" : itemHover.hovered ? Theme.background : Theme.surface
 
@@ -651,12 +654,15 @@ Item {
                                         id: gridDelegate
                                         width: fileGrid.cellWidth
                                         height: fileGrid.cellHeight
+                                        readonly property bool isFocused: FileListModel.focusedRow === index && viewArea.activeFocus
                                         readonly property bool isSelected: model.selected
 
                                         CielSquircle {
                                             anchors.fill: parent
                                             anchors.margins: 6
                                             color: isSelected ? "#b4e2fa" : gridHover.hovered ? Theme.background : Theme.surface
+                                            borderWidth: 2
+                                            borderColor: isFocused ? "#64c5fa" : "white"
 
                                             HoverHandler {
                                                 id: gridHover
