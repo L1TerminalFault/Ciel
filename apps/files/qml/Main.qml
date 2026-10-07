@@ -18,14 +18,16 @@ ApplicationWindow {
     Connections {
         target: TabManager
         function onCurrentPathChanged() {
-            if (TabManager.currentPath) {
-                FileListModel.setPath(TabManager.currentPath);
-            }
+            FileListModel.setSettings(TabManager.currentSettings);
+            FileListModel.setPath(TabManager.currentPath);
+        }
+        function onCurrentSettingsChanged() {
+            FileListModel.setSettings(TabManager.currentSettings);
         }
     }
 
     Component.onCompleted: {
-        TabManager.addTab("/");
+        TabManager.addTab("/home");
         FileListModel.setPath(TabManager.currentPath);
     }
 

@@ -42,13 +42,21 @@ Item {
         anchors.rightMargin: 10
         spacing: 8
 
-        CielIcon {
-            id: iconItem
-            icon: root.icon
-            size: Theme.SMALL
-            visible: root.icon.length > 0
-            color: root.destructive ? Theme.textPrimary : (root.enabled ? Theme.textPrimary : Theme.textSecondary)
+        Item {
+            implicitWidth: Theme.SMALL
+            implicitHeight: Theme.SMALL
+            Layout.preferredWidth: Theme.SMALL
+            Layout.preferredHeight: Theme.SMALL
             Layout.alignment: Qt.AlignVCenter
+
+            CielIcon {
+                id: iconItem
+                anchors.centerIn: parent
+                icon: root.icon
+                size: Theme.SMALL
+                visible: root.icon.length > 0
+                color: root.destructive ? Theme.textPrimary : (root.enabled ? Theme.textPrimary : Theme.textSecondary)
+            }
         }
 
         Text {

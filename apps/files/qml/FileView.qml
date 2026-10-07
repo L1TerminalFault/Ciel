@@ -312,6 +312,7 @@ Item {
 
                         CielIconButton {
                             icon: "folder-plus"
+                            onClicked: createFolderPopup.open()
                         }
                         Item {
                             Layout.fillWidth: true
@@ -319,6 +320,114 @@ Item {
                         CielIconButton {
                             icon: TabManager.currentSettings.listViewMode ? "squares-four" : "list-dashes"
                             onClicked: TabManager.toggleViewMode()
+                        }
+                        CielIconButton {
+                            id: filterButton
+                            icon: "funnel"
+
+                            readonly property int sortDateModified: 0
+                            readonly property int sortType: 1
+                            readonly property int sortName: 2
+                            readonly property int sortSize: 3
+
+                            CielDropDown {
+                                id: filterMenu
+                                trigger: filterButton
+                                placement: "bottom"
+
+                                CielMenuSub {
+                                    text: "Sort by"
+                                    icon: "arrows-down-up"
+
+                                    CielMenuItem {
+                                        text: "Date Modified"
+                                        icon: TabManager.currentSettings.sortBy === filterButton.sortDateModified ? "check" : ""
+                                        onTriggered: {
+                                            TabManager.setSortBy(filterButton.sortDateModified);
+                                            filterMenu.close();
+                                        }
+                                    }
+
+                                    CielMenuItem {
+                                        text: "Type"
+                                        icon: TabManager.currentSettings.sortBy === filterButton.sortType ? "check" : ""
+                                        onTriggered: {
+                                            TabManager.setSortBy(filterButton.sortType);
+                                            filterMenu.close();
+                                        }
+                                    }
+
+                                    CielMenuItem {
+                                        text: "Name"
+                                        icon: TabManager.currentSettings.sortBy === filterButton.sortName ? "check" : ""
+                                        onTriggered: {
+                                            TabManager.setSortBy(filterButton.sortName);
+                                            filterMenu.close();
+                                        }
+                                    }
+
+                                    CielMenuItem {
+                                        text: "Size"
+                                        icon: TabManager.currentSettings.sortBy === filterButton.sortSize ? "check" : ""
+                                        onTriggered: {
+                                            TabManager.setSortBy(filterButton.sortSize);
+                                            filterMenu.close();
+                                        }
+                                    }
+
+                                    CielMenuSeparator {}
+
+                                    CielMenuItem {
+                                        text: "Ascending"
+                                        icon: TabManager.currentSettings.ascending ? "check" : ""
+                                        onTriggered: {
+                                            if (!TabManager.currentSettings.ascending)
+                                                TabManager.toggleAscending();
+                                            filterMenu.close();
+                                        }
+                                    }
+
+                                    CielMenuItem {
+                                        text: "Descending"
+                                        icon: !TabManager.currentSettings.ascending ? "check" : ""
+                                        onTriggered: {
+                                            if (TabManager.currentSettings.ascending)
+                                                TabManager.toggleAscending();
+                                            filterMenu.close();
+                                        }
+                                    }
+                                }
+
+                                CielMenuSeparator {}
+
+                                CielMenuItem {
+                                    text: "Folders First"
+                                    icon: TabManager.currentSettings.foldersFirstSorting ? "check" : ""
+                                    onTriggered: {
+                                        TabManager.toggleFoldersFirst();
+                                        filterMenu.close();
+                                    }
+                                }
+
+                                CielMenuItem {
+                                    text: "Show Hidden Files"
+                                    icon: TabManager.currentSettings.showHiddenFiles ? "check" : ""
+                                    shortcut: "Ctrl+H"
+                                    onTriggered: {
+                                        TabManager.toggleHiddenFiles();
+                                        filterMenu.close();
+                                    }
+                                }
+
+                                CielMenuItem {
+                                    text: "Show Symlinks"
+                                    icon: TabManager.currentSettings.showSymlinks ? "check" : ""
+                                    onTriggered: {
+                                        TabManager.toggleSymlinks();
+                                        filterMenu.close();
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -480,6 +589,72 @@ Item {
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+    CielPopup {
+        id: createFolderPopup
+
+        contentWidth: 400
+        contentHeight: 165
+        onOpened: {
+            Qt.callLater(function () {
+                newFolderNameInput.inputField.forceActiveFocus();
+            });
+        }
+
+        onClosed: {
+            newFolderNameInput.text = "";
+        }
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 16
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Folder Name"
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                CielSearch {
+                    id: newFolderNameInput
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    placeholder: "folderName"
+                    showIcons: false
+                    isPrimary: true
+                    onAccepted: {
+                        FileListModel.createFolder();
+                        createFolderPopup.close();
+                    }
+                }
+            }
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignRight
+                spacing: 8
+                CielButton {
+                    text: "Cancel"
+                    onClicked: {
+                        createFolderPopup.close();
+                    }
+                }
+                CielButton {
+                    Layout.alignment: Qt.AlignRight
+                    text: "Create"
+                    primary: true
+                    onClicked: {
+                        FileListModel.createFolder(newFolderNameInput.text);
+                        createFolderPopup.close();
                     }
                 }
             }

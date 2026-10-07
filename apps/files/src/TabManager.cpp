@@ -220,3 +220,28 @@ void TabManager::setSortBy(FileViewSettings::SortBy criteria) {
   m_tabs[idx].settings.sortBy = criteria;
   emit currentSettingsChanged();
 };
+
+void TabManager::toggleAscending() {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+  m_tabs[idx].settings.ascending = !m_tabs[idx].settings.ascending;
+  emit currentSettingsChanged();
+}
+
+void TabManager::toggleFoldersFirst() {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+  m_tabs[idx].settings.foldersFirstSorting =
+      !m_tabs[idx].settings.foldersFirstSorting;
+  emit currentSettingsChanged();
+}
+
+void TabManager::toggleSymlinks() {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+  m_tabs[idx].settings.showSymlinks = !m_tabs[idx].settings.showSymlinks;
+  emit currentSettingsChanged();
+}
