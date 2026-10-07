@@ -232,7 +232,10 @@ ApplicationWindow {
                             // ← uses the persistent, switchable profile
                             profile: window.currentWebProfile
 
-                            url: model.url
+                            Component.onCompleted: {
+                                if (!pageContainer.isProfilePage && !pageContainer.isHistory)
+                                    url = model.url
+                            }
 
                             onTitleChanged: {
                                 if (workspaceContainer.wsTabModel && !pageContainer.isHistory)
