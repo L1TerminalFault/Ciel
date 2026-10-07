@@ -98,6 +98,8 @@ void FileListModel::setPath(const QString &path) {
   }
   m_loader->cancel();
   m_currentPath = path;
+  m_focusedRow = -1;
+  emit focusedRowChanged();
 
   if (CachedListing *cached = m_cache.object(path)) {
     m_rawEntries = cached->entries;
@@ -164,6 +166,8 @@ void FileListModel::onLoadStarted(const QString &path) {
   if (path == m_currentPath) {
     m_selectedIndices.clear();
     m_anchorIndex = -1;
+    m_focusedRow = -1;
+    emit focusedRowChanged();
     m_rawEntries.clear();
     beginResetModel();
     m_entries.clear();
@@ -351,6 +355,9 @@ void FileListModel::selectAll() {
 void FileListModel::navigate(int targetRow, int modifiers) {
   if (m_entries.isEmpty())
     return;
+  if (m_focusedRow == -1) {
+    targetRow = 0;
+  }
   if (targetRow < 0 || targetRow >= m_entries.size())
     return;
 

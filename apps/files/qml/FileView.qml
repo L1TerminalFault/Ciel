@@ -517,6 +517,10 @@ Item {
                                     }
                                     event.accepted = true;
                                     break;
+                                case Qt.Key_Space:
+                                    FileListModel.handleSelection(cur, mods);
+                                    event.accepted = true;
+                                    break;
                                 default:
                                     if (event.text.length > 0 && !event.modifiers) {
                                         viewArea.typeAheadBuffer += event.text.toLowerCase();
@@ -534,7 +538,7 @@ Item {
                                 target: FileListModel
                                 function onFocusedRowChanged() {
                                     if (loader.item && typeof loader.item.positionViewAtIndex === "function") {
-                                        loader.item.positionViewAtIndex(FileListModel.focusedRow, 0);
+                                        loader.item.positionViewAtIndex(FileListModel.focusedRow, ListView.Contain);
                                     }
                                 }
                             }
@@ -576,8 +580,8 @@ Item {
                                             anchors.rightMargin: 6
                                             anchors.topMargin: 2
                                             anchors.bottomMargin: 2
-                                            borderWidth: 1
-                                            borderColor: isFocused ? "#64c5fa" : Theme.transparent
+                                            borderWidth: 2
+                                            borderColor: isFocused ? "#64c5fa" : "white"
 
                                             color: isSelected ? "#b4e2fa" : itemHover.hovered ? Theme.background : Theme.surface
 
