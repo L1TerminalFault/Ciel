@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <cmath>
 
-SwipeGestureFilter::SwipeGestureFilter(QObject *parent) : QObject(parent) {
+SwipeGestureFilter::SwipeGestureFilter(QQuickItem *parent)
+    : QQuickItem(parent) {
   m_inactivityTimer.setSingleShot(true);
   m_inactivityTimer.setInterval(280);
   connect(&m_inactivityTimer, &QTimer::timeout, this,
@@ -54,14 +55,40 @@ void SwipeGestureFilter::setThreshold(double val) {
   }
 }
 
+// SwipeGestureFilter::~SwipeGestureFilter() = default;
+
 bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
   if (event->type() != QEvent::Wheel)
-    return QObject::eventFilter(watched, event);
+    return QQuickItem::eventFilter(watched, event);
 
   auto *we = static_cast<QWheelEvent *>(event);
 
+  QPointF localPos = mapFromScene(we->position());
+
+  if (!contains(localPos)) {
+    return QQuickItem::eventFilter(watched, event);
+  }
+
+  // New gesture starts.
+  if (we->phase() == Qt::ScrollBegin) {
+    m_hasPhase = true;
+    m_gestureRejected = false;
+    m_inactivityTimer.stop();
+  }
+
+  // If this gesture started vertically, completely ignore it.
+  if (m_gestureRejected) {
+    if (we->phase() == Qt::ScrollEnd ||
+        we->phase() == Qt::NoScrollPhase) {
+      m_gestureRejected = false;
+      m_hasPhase = false;
+    }
+
+    return QQuickItem::eventFilter(watched, event);
+  }
+
   if (we->phase() == Qt::ScrollMomentum) {
-    return m_active ? true : QObject::eventFilter(watched, event);
+    return m_active ? true : QQuickItem::eventFilter(watched, event);
   }
 
   if (we->phase() == Qt::ScrollEnd) {
@@ -69,24 +96,48 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
       commitGesture();
       return true;
     }
-    return QObject::eventFilter(watched, event);
+
+    m_hasPhase = false;
+    return QQuickItem::eventFilter(watched, event);
   }
 
   QPoint pixelDelta = we->pixelDelta();
   QPoint angleDelta = we->angleDelta();
 
-  double dx = pixelDelta.x() != 0 ? pixelDelta.x() : (angleDelta.x() / 4.0);
-  double dy = pixelDelta.y() != 0 ? pixelDelta.y() : (angleDelta.y() / 4.0);
+  double dx = pixelDelta.x() != 0
+                  ? pixelDelta.x()
+                  : (angleDelta.x() / 4.0);
 
+  double dy = pixelDelta.y() != 0
+                  ? pixelDelta.y()
+                  : (angleDelta.y() / 4.0);
+
+  // Don't classify zero movement.
+  if (dx == 0.0 && dy == 0.0)
+    return QQuickItem::eventFilter(watched, event);
+
+  // ---------------------------------------------------------
+  // AXIS LOCK
+  //
+  // The first meaningful movement decides the gesture axis.
+  // If it starts vertically, abandon the gesture entirely.
+  // ---------------------------------------------------------
   if (!m_active) {
-    if (std::abs(dy) > std::abs(dx) || std::abs(dx) < 2.0)
-      return QObject::eventFilter(watched, event);
+
+    if (std::abs(dy) >= std::abs(dx)) {
+      m_gestureRejected = true;
+      return QQuickItem::eventFilter(watched, event);
+    }
+
+    // Horizontal gesture.
+    if (std::abs(dx) < 2.0)
+      return QQuickItem::eventFilter(watched, event);
 
     if (dx > 0 && !m_canGoBack)
-      return QObject::eventFilter(watched, event);
+      return QQuickItem::eventFilter(watched, event);
 
     if (dx < 0 && !m_canGoForward)
-      return QObject::eventFilter(watched, event);
+      return QQuickItem::eventFilter(watched, event);
 
     m_active = true;
     emit activeChanged();
@@ -95,11 +146,15 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
   m_accumulatedX += dx;
 
   if (m_accumulatedX > 0 && m_canGoBack) {
-    m_backProgress = std::min(1.25, m_accumulatedX / m_threshold);
+    m_backProgress =
+        std::min(1.25, m_accumulatedX / m_threshold);
     m_forwardProgress = 0.0;
+
   } else if (m_accumulatedX < 0 && m_canGoForward) {
-    m_forwardProgress = std::min(1.25, -m_accumulatedX / m_threshold);
+    m_forwardProgress =
+        std::min(1.25, -m_accumulatedX / m_threshold);
     m_backProgress = 0.0;
+
   } else {
     m_backProgress = 0.0;
     m_forwardProgress = 0.0;
@@ -107,9 +162,12 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
 
   emit gestureUpdated();
 
-  if (we->phase() == Qt::ScrollBegin || we->phase() == Qt::ScrollUpdate) {
+  if (we->phase() == Qt::ScrollBegin ||
+      we->phase() == Qt::ScrollUpdate) {
+
     m_hasPhase = true;
     m_inactivityTimer.stop();
+
   } else if (we->phase() == Qt::NoScrollPhase && !m_hasPhase) {
     m_inactivityTimer.start();
   }
@@ -117,7 +175,7 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
   if (std::abs(m_accumulatedX) > 10.0)
     return true;
 
-  return QObject::eventFilter(watched, event);
+  return QQuickItem::eventFilter(watched, event);
 }
 
 void SwipeGestureFilter::commitGesture() {
