@@ -4,6 +4,7 @@ import QtQuick.Controls as T
 import QtQuick.Layouts
 import Ciel.Ui
 import Ciel.Files
+import QtQuick.Controls
 
 Item {
     id: root
@@ -35,6 +36,34 @@ Item {
         breadcrumbModel = result;
     }
     Component.onCompleted: updateBreadcrumb()
+    Connections {
+        target: TabManager
+
+        function onCopyProgress(copied, total, file) {
+            transferPopup.currentFile = file;
+            transferPopup.progress = total > 0 ? (copied / total) : 0.0;
+            if (!transferPopup.hasConflict) {
+                transferPopup.open();
+            }
+        }
+
+        function onConflictDetected(fileName) {
+            transferPopup.conflictFile = fileName;
+            transferPopup.open();
+        }
+
+        function onOperationFailed(errorMsg) {
+            transferPopup.close();
+            pathErrorPopup.title = "Operation Failed";
+            pathErrorPopup.message = errorMsg;
+            pathErrorPopup.open();
+        }
+
+        function onCopyFinished() {
+            transferPopup.conflictFile = "";
+            transferPopup.close();
+        }
+    }
     Connections {
         target: TabManager
         function onCurrentPathChanged() {
@@ -470,6 +499,27 @@ Item {
                                     FileListModel.navigate(cur - 1, mods);
                                     event.accepted = true;
                                     break;
+                                case Qt.Key_C:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        console.log("calling copy");
+                                        TabManager.setCutMode(false);
+                                        TabManager.addSelectedToClipboard();
+                                        event.accepted = true;
+                                    }
+                                    break;
+                                case Qt.Key_X:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        TabManager.setCutMode(true);
+                                        TabManager.addSelectedToClipboard();
+                                        event.accepted = true;
+                                    }
+                                    break;
+                                case Qt.Key_V:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        TabManager.paste();
+                                        event.accepted = true;
+                                    }
+                                    break;
                                 case Qt.Key_Right:
                                     FileListModel.navigate(cur + 1, mods);
                                     event.accepted = true;
@@ -778,7 +828,7 @@ Item {
                     showIcons: false
                     isPrimary: true
                     onAccepted: {
-                        FileListModel.createFolder();
+                        FileListModel.createFolder(newFolderNameInput.text);
                         createFolderPopup.close();
                     }
                 }
@@ -815,6 +865,8 @@ Item {
             icon: "scissors"
             shortcut: "Ctrl+X"
             onTriggered: {
+                TabManager.setCutMode(false);
+                TabManager.addSelectedToClipboard();
                 fileContextMenu.close();
             }
         }
@@ -823,6 +875,7 @@ Item {
             icon: "copy"
             shortcut: "Ctrl+C"
             onTriggered: {
+                TabManager.addSelectedToClipboard();
                 fileContextMenu.close();
             }
         }
@@ -831,6 +884,8 @@ Item {
             text: "Duplicate"
             shortcut: "Ctrl+D"
             onTriggered: {
+                TabManager.addSelectedToClipboard();
+                TabManager.paste();
                 fileContextMenu.close();
             }
         }
@@ -881,6 +936,7 @@ Item {
             text: "Paste"
             shortcut: "Ctrl+V"
             onTriggered: {
+                TabManager.paste();
                 fileContextMenu.close();
             }
         }
@@ -894,7 +950,111 @@ Item {
             }
         }
     }
+    CielPopup {
+        id: transferPopup
+        contentWidth: 420
+        contentHeight: hasConflict ? 160 : 130
+        // closePolicy: Popup.NoAutoClose
 
+        property string currentFile: ""
+        property real progress: 0.0
+        property string conflictFile: ""
+        readonly property bool hasConflict: conflictFile.length > 0
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 16
+
+            ColumnLayout {
+                visible: !transferPopup.hasConflict
+                Layout.fillWidth: true
+                spacing: 10
+
+                Text {
+                    text: "Copying " + transferPopup.currentFile
+                    color: Theme.textPrimary
+                    font.pixelSize: 14
+                    elide: Text.ElideMiddle
+                    Layout.fillWidth: true
+                }
+
+                ProgressBar {
+                    value: transferPopup.progress
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    CielButton {
+                        text: "Cancel"
+                        onClicked: {
+                            TabManager.cancelOperation();
+                            transferPopup.close();
+                        }
+                    }
+                }
+            }
+
+            ColumnLayout {
+                visible: transferPopup.hasConflict
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text {
+                    text: "File Already Exists"
+                    font.pixelSize: 16
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                Text {
+                    text: transferPopup.conflictFile + " already exists in this folder."
+                    color: Theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignRight
+                    spacing: 8
+
+                    CielButton {
+                        text: "Cancel"
+                        onClicked: {
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(2);
+                            transferPopup.close();
+                        }
+                    }
+
+                    CielButton {
+                        text: "Skip"
+                        onClicked: {
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(0);
+                        }
+                    }
+
+                    CielButton {
+                        text: "Replace"
+                        primary: true
+                        onClicked: {
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(1);
+                        }
+                    }
+                }
+            }
+        }
+    }
     CielPopup {
         id: pathErrorPopup
 

@@ -1,8 +1,10 @@
 #pragma once
 
+#include "files/FileOperation.hpp"
 #include <QAbstractListModel>
 #include <QList>
 #include <QString>
+#include <QThread>
 #include <QUuid>
 #include <QVector>
 #include <cstdint>
@@ -58,6 +60,7 @@ class TabManager : public QAbstractListModel {
                  currentPathChanged)
   Q_PROPERTY(FileViewSettings currentSettings READ currentSettings NOTIFY
                  currentSettingsChanged)
+  Q_PROPERTY(bool hasClipboard READ hasClipboard NOTIFY clipboardChanged)
 
 public:
   enum TabRoles { IdRole = Qt::UserRole + 1, TitleRole, PathRole, IconRole };
@@ -66,6 +69,7 @@ public:
   static TabManager *instance();
   static TabManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
   explicit TabManager(QObject *parent = nullptr);
+  ~TabManager() override;
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index,
@@ -82,6 +86,8 @@ public:
   void selectSingle(int row);
   void selectAll(int count);
   void clearSelection();
+
+  bool hasClipboard() const;
 
   Q_INVOKABLE void addTab(const QString &path = QString());
   Q_INVOKABLE void closeTab(const QString &id);
@@ -101,11 +107,24 @@ public:
   Q_INVOKABLE void goUp();
   Q_INVOKABLE void openFolder(const QString &folderName);
 
+  Q_INVOKABLE void addSelectedToClipboard();
+  Q_INVOKABLE void setCutMode(bool isCutMode);
+  Q_INVOKABLE void paste();
+  Q_INVOKABLE void resolveConflict(int action);
+  Q_INVOKABLE void cancelOperation();
+
 signals:
   void currentSettingsChanged();
   void currentTabIdChanged();
   void currentIndexChanged();
   void currentPathChanged();
+  void clipboardChanged();
+
+  void copyProgress(qint64 bytesCopied, qint64 totalBytes,
+                    const QString &currentFile);
+  void conflictDetected(const QString &fileName);
+  void operationFailed(const QString &errorMsg);
+  void copyFinished();
 
 private:
   int indexOf(const QUuid &id) const;
@@ -113,4 +132,10 @@ private:
   QList<TabItem> m_tabs;
   QList<QUuid> m_history;
   QUuid m_activeTabId;
+
+  QVector<QString> m_clipboardPaths;
+  bool m_cutToTarget = false;
+
+  FileOperationWorker *m_activeWorker = nullptr;
+  QThread *m_workerThread = nullptr;
 };

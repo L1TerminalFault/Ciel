@@ -1,7 +1,10 @@
 #include "TabManager.hpp"
+#include "FileModel.hpp"
 #include <QDir>
 #include <QFileInfo>
 #include <algorithm>
+#include <cstdio>
+#include <iostream>
 #include <qqmlengine.h>
 
 static TabManager *s_tabManagerInstance = nullptr;
@@ -14,6 +17,16 @@ TabManager *TabManager::create(QQmlEngine *qmlEngine, QJSEngine *jsEngine) {
 
 TabManager::TabManager(QObject *parent) : QAbstractListModel(parent) {
   s_tabManagerInstance = this;
+}
+
+TabManager::~TabManager() {
+  if (m_activeWorker) {
+    m_activeWorker->cancel();
+  }
+  if (m_workerThread) {
+    m_workerThread->quit();
+    m_workerThread->wait();
+  }
 }
 
 QHash<int, QByteArray> TabManager::roleNames() const {
@@ -154,6 +167,8 @@ void TabManager::clearSelection() {
   m_tabs[idx].selectedFiles.clear();
   m_tabs[idx].selectionAnchor = -1;
 }
+
+bool TabManager::hasClipboard() const { return !m_clipboardPaths.isEmpty(); }
 
 void TabManager::setCurrentTabId(const QString &uuid) {
   QUuid id(uuid);
@@ -345,4 +360,110 @@ void TabManager::toggleSymlinks() {
     return;
   m_tabs[idx].settings.showSymlinks = !m_tabs[idx].settings.showSymlinks;
   emit currentSettingsChanged();
+}
+
+void TabManager::addSelectedToClipboard() {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+
+  auto *flm = FileListModel::instance();
+  if (!flm)
+    return;
+
+  m_clipboardPaths.clear();
+  const auto selectedPaths = flm->selectedPaths();
+  m_clipboardPaths.reserve(selectedPaths.size());
+  for (const auto &item : selectedPaths) {
+    m_clipboardPaths.push_back(item);
+  }
+
+  emit clipboardChanged();
+}
+
+void TabManager::setCutMode(bool isCutMode) { m_cutToTarget = isCutMode; }
+
+void TabManager::paste() {
+  if (m_clipboardPaths.isEmpty()) {
+    qWarning() << "Paste rejected: Clipboard paths list is empty.";
+    return;
+  }
+
+  int idx = currentIndex();
+  if (idx < 0) {
+    qWarning() << "Paste rejected: Invalid tab index" << idx;
+    return;
+  }
+
+  QString dest = m_tabs[idx].path;
+  if (dest.isEmpty()) {
+    qWarning()
+        << "Paste rejected: Target destination path is empty for tab index"
+        << idx;
+    return;
+  }
+
+  if (m_workerThread && m_workerThread->isRunning()) {
+    qWarning() << "Paste rejected: An active file operation worker thread is "
+                  "already running.";
+    return;
+  }
+
+  QStringList sources;
+  sources.reserve(m_clipboardPaths.size());
+  for (const auto &p : m_clipboardPaths) {
+    sources.append(p);
+  }
+
+  m_workerThread = new QThread(this);
+  m_activeWorker = new FileOperationWorker(sources, dest, m_cutToTarget);
+  m_activeWorker->moveToThread(m_workerThread);
+
+  connect(m_workerThread, &QThread::started, m_activeWorker,
+          &FileOperationWorker::start);
+  connect(m_activeWorker, &FileOperationWorker::progressChanged, this,
+          &TabManager::copyProgress);
+  connect(m_activeWorker, &FileOperationWorker::conflictFound, this,
+          &TabManager::conflictDetected);
+  connect(m_activeWorker, &FileOperationWorker::operationFailed, this,
+          &TabManager::operationFailed);
+
+  connect(m_activeWorker, &FileOperationWorker::finished, this, [this]() {
+    if (m_cutToTarget) {
+      m_clipboardPaths.clear();
+      m_cutToTarget = false;
+      emit clipboardChanged();
+    }
+    if (auto *flm = FileListModel::instance()) {
+      flm->refresh();
+    }
+    emit copyFinished();
+  });
+
+  connect(m_activeWorker, &FileOperationWorker::finished, m_workerThread,
+          &QThread::quit);
+  connect(m_activeWorker, &FileOperationWorker::finished, m_activeWorker,
+          &QObject::deleteLater);
+  connect(m_workerThread, &QThread::finished, m_workerThread,
+          &QObject::deleteLater);
+
+  connect(m_workerThread, &QThread::destroyed, this, [this]() {
+    m_workerThread = nullptr;
+    m_activeWorker = nullptr;
+  });
+
+  m_workerThread->start();
+}
+
+void TabManager::resolveConflict(int action) {
+  if (m_activeWorker) {
+    m_activeWorker->resolveConflict(
+        static_cast<FileOperationWorker::ConflictResponse>(action));
+  }
+}
+
+void TabManager::cancelOperation() {
+  if (m_activeWorker) {
+    m_activeWorker->cancel();
+  }
 }

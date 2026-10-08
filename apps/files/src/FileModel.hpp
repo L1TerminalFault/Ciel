@@ -30,7 +30,7 @@ public:
     SelectedRole
   };
   Q_ENUM(Roles)
-
+  static FileListModel *instance();
   explicit FileListModel(QObject *parent = nullptr);
   ~FileListModel() override;
 
@@ -42,13 +42,15 @@ public:
   Q_INVOKABLE void selectAll();
   Q_INVOKABLE void navigate(int targetRow, int modifiers = 0);
   Q_INVOKABLE int findNextByPrefix(const QString &prefix);
+  Q_INVOKABLE void refresh();
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index, int role) const override;
   QHash<int, QByteArray> roleNames() const override;
   Q_INVOKABLE void handleSelection(int row, Qt::KeyboardModifiers modifiers);
   Q_INVOKABLE void clearSelection();
-
+  Q_INVOKABLE QStringList selectedPaths() const;
+  Q_INVOKABLE QStringList selectedNames() const;
 private slots:
   void onLoadStarted(const QString &path);
   void onEntriesReady(const QVector<ItemEntery> &batch);

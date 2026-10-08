@@ -7,6 +7,10 @@
 #include <qfileinfo.h>
 #include <sys/stat.h>
 
+static FileListModel *s_fileListModelInstance = nullptr;
+
+FileListModel *FileListModel::instance() { return s_fileListModelInstance; }
+
 #if defined(Q_OS_LINUX)
 inline int fastCompareName(const QByteArray &a, const QByteArray &b) {
   return strverscmp(a.constData(), b.constData());
@@ -81,6 +85,7 @@ FileListModel::FileListModel(QObject *parent) : QAbstractListModel(parent) {
   ensureTabManagerConnected();
 
   m_workerThread.start();
+  s_fileListModelInstance = this;
 }
 
 FileListModel::~FileListModel() {
@@ -459,4 +464,55 @@ int FileListModel::findNextByPrefix(const QString &prefix) {
   }
 
   return -1;
+}
+
+QStringList FileListModel::selectedPaths() const {
+  QStringList paths;
+  auto *tm = TabManager::instance();
+  if (!tm)
+    return paths;
+
+  const auto &selection = tm->currentTabSelection();
+  paths.reserve(selection.size());
+  QDir dir(m_currentPath);
+
+  for (int row : selection) {
+    if (row >= 0 && row < m_visibleIndices.size()) {
+      int rawIdx = m_visibleIndices.at(row);
+      QString name = QFile::decodeName(m_items.at(rawIdx).name);
+      paths.append(dir.filePath(name));
+    }
+  }
+
+  return paths;
+}
+
+QStringList FileListModel::selectedNames() const {
+  QStringList names;
+  auto *tm = TabManager::instance();
+  if (!tm)
+    return names;
+
+  const auto &selection = tm->currentTabSelection();
+  names.reserve(selection.size());
+
+  for (int row : selection) {
+    if (row >= 0 && row < m_visibleIndices.size()) {
+      int rawIdx = m_visibleIndices.at(row);
+      names.append(QFile::decodeName(m_items.at(rawIdx).name));
+    }
+  }
+
+  return names;
+}
+void FileListModel::refresh() {
+  m_cache.remove(m_currentPath);
+  m_items.clear();
+  beginResetModel();
+  m_visibleIndices.clear();
+  endResetModel();
+
+  QMetaObject::invokeMethod(m_loader, &DirectoryLoader::loadDirectory,
+                            Qt::QueuedConnection, m_currentPath,
+                            m_batchLoading);
 }
