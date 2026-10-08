@@ -4,8 +4,17 @@ import Ciel.Ui
 Item {
     id: controller
 
-    readonly property Flickable target: parent
-
+    property var target: {
+        if (parent && parent.contentY !== undefined)
+            return parent;
+        if (parent && parent.children) {
+            for (var i = 0; i < parent.children.length; ++i) {
+                if (parent.children[i].contentY !== undefined)
+                    return parent.children[i];
+            }
+        }
+        return null;
+    }
     anchors.fill: parent
 
     property var orientation: undefined

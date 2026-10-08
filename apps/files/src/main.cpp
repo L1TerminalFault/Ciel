@@ -1,5 +1,3 @@
-
-#include "TabManager.hpp"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <qqml.h>

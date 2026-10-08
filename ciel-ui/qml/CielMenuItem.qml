@@ -9,7 +9,7 @@ Item {
     property string icon: ""
     property string shortcut: ""
     property bool destructive: false
-    property bool enabled: true
+    property bool isEnabled: true
 
     signal triggered
 
@@ -17,7 +17,7 @@ Item {
     implicitHeight: 32
     width: parent ? parent.width : implicitWidth
 
-    readonly property bool isHovered: itemMouse.containsMouse && root.enabled
+    readonly property bool isHovered: itemMouse.containsMouse && root.isEnabled
 
     CielSquircle {
         anchors.fill: parent
@@ -55,7 +55,7 @@ Item {
                 icon: root.icon
                 size: Theme.SMALL
                 visible: root.icon.length > 0
-                color: root.destructive ? Theme.textPrimary : (root.enabled ? Theme.textPrimary : Theme.textSecondary)
+                color: root.destructive ? Theme.textPrimary : (root.isEnabled ? Theme.textPrimary : Theme.textSecondary)
             }
         }
 
@@ -63,7 +63,7 @@ Item {
             text: root.text
             font.pixelSize: 13
             font.weight: Font.Normal
-            color: root.destructive ? Theme.textPrimary : (root.enabled ? Theme.textPrimary : Theme.textSecondary)
+            color: root.destructive ? Theme.textPrimary : (root.isEnabled ? Theme.textPrimary : Theme.textSecondary)
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
             elide: Text.ElideRight
@@ -82,9 +82,9 @@ Item {
         id: itemMouse
         anchors.fill: parent
         hoverEnabled: true
-        cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+        cursorShape: root.isEnabled ? Qt.PointingHandCursor : Qt.ArrowCursor
         onClicked: {
-            if (root.enabled) {
+            if (root.isEnabled) {
                 root.triggered();
                 var p = root.parent;
                 while (p) {

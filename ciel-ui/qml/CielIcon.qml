@@ -13,7 +13,7 @@ Item {
     width: root.size
     height: root.size
 
-    readonly property string localCielPath: "file://" + AppPaths.dataDir("Ciel") + "/icons/" + root.icon + ".svg"
+    readonly property string localCielPath: root.icon.length > 0 ? ("file://" + AppPaths.dataDir("Ciel") + "/icons/" + root.icon + ".svg") : ""
 
     Image {
         id: sourceImage

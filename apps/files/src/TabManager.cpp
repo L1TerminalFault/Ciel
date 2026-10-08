@@ -1,16 +1,33 @@
 #include "TabManager.hpp"
+#include "FileModel.hpp"
 #include <QDir>
 #include <QFileInfo>
-#include <qfileinfo.h>
-#include <qhashfunctions.h>
+#include <algorithm>
+#include <cstdio>
+#include <iostream>
 #include <qqmlengine.h>
-#include <quuid.h>
+
+static TabManager *s_tabManagerInstance = nullptr;
+
+TabManager *TabManager::instance() { return s_tabManagerInstance; }
 
 TabManager *TabManager::create(QQmlEngine *qmlEngine, QJSEngine *jsEngine) {
   return new TabManager(qmlEngine);
 }
 
-TabManager::TabManager(QObject *parent) : QAbstractListModel(parent) {}
+TabManager::TabManager(QObject *parent) : QAbstractListModel(parent) {
+  s_tabManagerInstance = this;
+}
+
+TabManager::~TabManager() {
+  if (m_activeWorker) {
+    m_activeWorker->cancel();
+  }
+  if (m_workerThread) {
+    m_workerThread->quit();
+    m_workerThread->wait();
+  }
+}
 
 QHash<int, QByteArray> TabManager::roleNames() const {
   return {{IdRole, "id"},
@@ -63,6 +80,96 @@ QString TabManager::currentPath() const {
   return (idx >= 0) ? m_tabs[idx].path : QString();
 }
 
+bool TabManager::isRowSelected(int row) const {
+  int idx = currentIndex();
+  if (idx < 0)
+    return false;
+  const auto &sel = m_tabs[idx].selectedFiles;
+  return std::find(sel.begin(), sel.end(), row) != sel.end();
+}
+
+const QVector<int> &TabManager::currentTabSelection() const {
+  static const QVector<int> empty;
+  int idx = currentIndex();
+  if (idx < 0)
+    return empty;
+  return m_tabs[idx].selectedFiles;
+}
+
+int TabManager::currentTabAnchor() const {
+  int idx = currentIndex();
+  if (idx < 0)
+    return -1;
+  return m_tabs[idx].selectionAnchor;
+}
+
+void TabManager::setSelection(const QVector<int> &selection, int anchor) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  m_tabs[idx].selectedFiles = selection;
+  m_tabs[idx].selectionAnchor = anchor;
+}
+
+void TabManager::toggleSelection(int row) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  auto &sel = m_tabs[idx].selectedFiles;
+  auto it = std::find(sel.begin(), sel.end(), row);
+  if (it != sel.end()) {
+    sel.erase(it);
+  } else {
+    sel.append(row);
+  }
+  m_tabs[idx].selectionAnchor = row;
+}
+
+void TabManager::selectRange(int start, int end) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  auto &sel = m_tabs[idx].selectedFiles;
+  sel.clear();
+  int s = std::min(start, end);
+  int e = std::max(start, end);
+  sel.reserve(e - s + 1);
+  for (int i = s; i <= e; ++i) {
+    sel.append(i);
+  }
+}
+
+void TabManager::selectSingle(int row) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  m_tabs[idx].selectedFiles.clear();
+  m_tabs[idx].selectedFiles.append(row);
+  m_tabs[idx].selectionAnchor = row;
+}
+
+void TabManager::selectAll(int count) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  auto &sel = m_tabs[idx].selectedFiles;
+  sel.clear();
+  sel.reserve(count);
+  for (int i = 0; i < count; ++i) {
+    sel.append(i);
+  }
+}
+
+void TabManager::clearSelection() {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  m_tabs[idx].selectedFiles.clear();
+  m_tabs[idx].selectionAnchor = -1;
+}
+
+bool TabManager::hasClipboard() const { return !m_clipboardPaths.isEmpty(); }
+
 void TabManager::setCurrentTabId(const QString &uuid) {
   QUuid id(uuid);
   if (id == m_activeTabId)
@@ -96,6 +203,8 @@ bool TabManager::setCurrentPath(const QString &path) {
     return true;
 
   m_tabs[idx].path = path;
+  m_tabs[idx].selectedFiles.clear();
+  m_tabs[idx].selectionAnchor = -1;
 
   QString folderName = dir.dirName();
   m_tabs[idx].title = folderName.isEmpty() ? path : folderName;
@@ -117,8 +226,12 @@ void TabManager::addTab(const QString &path) {
   item.id = QUuid::createUuid();
   item.title = folderName;
   item.path = path;
-  // left empty for now probably default to some unique options later on
   item.icon = "";
+
+  int newIndex = m_tabs.size();
+  beginInsertRows(QModelIndex(), newIndex, newIndex);
+  m_tabs.append(item);
+  endInsertRows();
 
   m_activeTabId = item.id;
   m_history.removeAll(item.id);
@@ -126,13 +239,8 @@ void TabManager::addTab(const QString &path) {
 
   emit currentTabIdChanged();
   emit currentPathChanged();
-
-  int newIndex = m_tabs.size();
-  beginInsertRows(QModelIndex(), newIndex, newIndex);
-  m_tabs.append(item);
-  endInsertRows();
-
   emit currentIndexChanged();
+  emit currentSettingsChanged();
 }
 
 void TabManager::closeTab(const QString &uuid) {
@@ -207,19 +315,27 @@ FileViewSettings TabManager::currentSettings() const {
 
 void TabManager::toggleViewMode() {
   auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
   m_tabs[idx].settings.listViewMode = !m_tabs[idx].settings.listViewMode;
   emit currentSettingsChanged();
-};
+}
+
 void TabManager::toggleHiddenFiles() {
   auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
   m_tabs[idx].settings.showHiddenFiles = !m_tabs[idx].settings.showHiddenFiles;
   emit currentSettingsChanged();
-};
+}
+
 void TabManager::setSortBy(FileViewSettings::SortBy criteria) {
   auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
   m_tabs[idx].settings.sortBy = criteria;
   emit currentSettingsChanged();
-};
+}
 
 void TabManager::toggleAscending() {
   auto idx = indexOf(m_activeTabId);
@@ -244,4 +360,110 @@ void TabManager::toggleSymlinks() {
     return;
   m_tabs[idx].settings.showSymlinks = !m_tabs[idx].settings.showSymlinks;
   emit currentSettingsChanged();
+}
+
+void TabManager::addSelectedToClipboard() {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
+
+  auto *flm = FileListModel::instance();
+  if (!flm)
+    return;
+
+  m_clipboardPaths.clear();
+  const auto selectedPaths = flm->selectedPaths();
+  m_clipboardPaths.reserve(selectedPaths.size());
+  for (const auto &item : selectedPaths) {
+    m_clipboardPaths.push_back(item);
+  }
+
+  emit clipboardChanged();
+}
+
+void TabManager::setCutMode(bool isCutMode) { m_cutToTarget = isCutMode; }
+
+void TabManager::paste() {
+  if (m_clipboardPaths.isEmpty()) {
+    qWarning() << "Paste rejected: Clipboard paths list is empty.";
+    return;
+  }
+
+  int idx = currentIndex();
+  if (idx < 0) {
+    qWarning() << "Paste rejected: Invalid tab index" << idx;
+    return;
+  }
+
+  QString dest = m_tabs[idx].path;
+  if (dest.isEmpty()) {
+    qWarning()
+        << "Paste rejected: Target destination path is empty for tab index"
+        << idx;
+    return;
+  }
+
+  if (m_workerThread && m_workerThread->isRunning()) {
+    qWarning() << "Paste rejected: An active file operation worker thread is "
+                  "already running.";
+    return;
+  }
+
+  QStringList sources;
+  sources.reserve(m_clipboardPaths.size());
+  for (const auto &p : m_clipboardPaths) {
+    sources.append(p);
+  }
+
+  m_workerThread = new QThread(this);
+  m_activeWorker = new FileOperationWorker(sources, dest, m_cutToTarget);
+  m_activeWorker->moveToThread(m_workerThread);
+
+  connect(m_workerThread, &QThread::started, m_activeWorker,
+          &FileOperationWorker::start);
+  connect(m_activeWorker, &FileOperationWorker::progressChanged, this,
+          &TabManager::copyProgress);
+  connect(m_activeWorker, &FileOperationWorker::conflictFound, this,
+          &TabManager::conflictDetected);
+  connect(m_activeWorker, &FileOperationWorker::operationFailed, this,
+          &TabManager::operationFailed);
+
+  connect(m_activeWorker, &FileOperationWorker::finished, this, [this]() {
+    if (m_cutToTarget) {
+      m_clipboardPaths.clear();
+      m_cutToTarget = false;
+      emit clipboardChanged();
+    }
+    if (auto *flm = FileListModel::instance()) {
+      flm->refresh();
+    }
+    emit copyFinished();
+  });
+
+  connect(m_activeWorker, &FileOperationWorker::finished, m_workerThread,
+          &QThread::quit);
+  connect(m_activeWorker, &FileOperationWorker::finished, m_activeWorker,
+          &QObject::deleteLater);
+  connect(m_workerThread, &QThread::finished, m_workerThread,
+          &QObject::deleteLater);
+
+  connect(m_workerThread, &QThread::destroyed, this, [this]() {
+    m_workerThread = nullptr;
+    m_activeWorker = nullptr;
+  });
+
+  m_workerThread->start();
+}
+
+void TabManager::resolveConflict(int action) {
+  if (m_activeWorker) {
+    m_activeWorker->resolveConflict(
+        static_cast<FileOperationWorker::ConflictResponse>(action));
+  }
+}
+
+void TabManager::cancelOperation() {
+  if (m_activeWorker) {
+    m_activeWorker->cancel();
+  }
 }

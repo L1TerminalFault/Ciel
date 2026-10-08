@@ -1,11 +1,13 @@
 #pragma once
 
+#include "files/FileOperation.hpp"
 #include <QAbstractListModel>
 #include <QList>
 #include <QString>
+#include <QThread>
 #include <QUuid>
+#include <QVector>
 #include <cstdint>
-#include <qhashfunctions.h>
 #include <qqmlintegration.h>
 #include <qtmetamacros.h>
 
@@ -39,13 +41,14 @@ struct TabItem {
   QString path;
   QString icon;
   int scrollPosition = 0;
-  QSet<QString> selectedFiles;
-  QString selectionAnchor;
+  QVector<int> selectedFiles;
+  int selectionAnchor = -1;
   FileViewSettings settings;
 };
 
 class QJSEngine;
 class QQmlEngine;
+
 class TabManager : public QAbstractListModel {
   Q_OBJECT
   QML_ELEMENT
@@ -55,22 +58,37 @@ class TabManager : public QAbstractListModel {
   Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
   Q_PROPERTY(QString currentPath READ currentPath WRITE setCurrentPath NOTIFY
                  currentPathChanged)
-
   Q_PROPERTY(FileViewSettings currentSettings READ currentSettings NOTIFY
                  currentSettingsChanged)
+  Q_PROPERTY(bool hasClipboard READ hasClipboard NOTIFY clipboardChanged)
 
 public:
   enum TabRoles { IdRole = Qt::UserRole + 1, TitleRole, PathRole, IconRole };
   Q_ENUM(TabRoles)
-  TabManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
+
+  static TabManager *instance();
+  static TabManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
   explicit TabManager(QObject *parent = nullptr);
+  ~TabManager() override;
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index,
                 int role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
   FileViewSettings currentSettings() const;
-  // QML Invokables
+
+  bool isRowSelected(int row) const;
+  const QVector<int> &currentTabSelection() const;
+  int currentTabAnchor() const;
+  void setSelection(const QVector<int> &selection, int anchor);
+  void toggleSelection(int row);
+  void selectRange(int start, int end);
+  void selectSingle(int row);
+  void selectAll(int count);
+  void clearSelection();
+
+  bool hasClipboard() const;
+
   Q_INVOKABLE void addTab(const QString &path = QString());
   Q_INVOKABLE void closeTab(const QString &id);
   Q_INVOKABLE void toggleViewMode();
@@ -80,7 +98,6 @@ public:
   Q_INVOKABLE void toggleFoldersFirst();
   Q_INVOKABLE void toggleSymlinks();
 
-  // Getters & Setters
   QString currentTabId() const;
   void setCurrentTabId(const QString &id);
 
@@ -90,11 +107,24 @@ public:
   Q_INVOKABLE void goUp();
   Q_INVOKABLE void openFolder(const QString &folderName);
 
+  Q_INVOKABLE void addSelectedToClipboard();
+  Q_INVOKABLE void setCutMode(bool isCutMode);
+  Q_INVOKABLE void paste();
+  Q_INVOKABLE void resolveConflict(int action);
+  Q_INVOKABLE void cancelOperation();
+
 signals:
   void currentSettingsChanged();
   void currentTabIdChanged();
   void currentIndexChanged();
   void currentPathChanged();
+  void clipboardChanged();
+
+  void copyProgress(qint64 bytesCopied, qint64 totalBytes,
+                    const QString &currentFile);
+  void conflictDetected(const QString &fileName);
+  void operationFailed(const QString &errorMsg);
+  void copyFinished();
 
 private:
   int indexOf(const QUuid &id) const;
@@ -102,4 +132,10 @@ private:
   QList<TabItem> m_tabs;
   QList<QUuid> m_history;
   QUuid m_activeTabId;
+
+  QVector<QString> m_clipboardPaths;
+  bool m_cutToTarget = false;
+
+  FileOperationWorker *m_activeWorker = nullptr;
+  QThread *m_workerThread = nullptr;
 };

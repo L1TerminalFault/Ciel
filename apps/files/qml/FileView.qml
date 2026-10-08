@@ -4,6 +4,7 @@ import QtQuick.Controls as T
 import QtQuick.Layouts
 import Ciel.Ui
 import Ciel.Files
+import QtQuick.Controls
 
 Item {
     id: root
@@ -35,6 +36,34 @@ Item {
         breadcrumbModel = result;
     }
     Component.onCompleted: updateBreadcrumb()
+    Connections {
+        target: TabManager
+
+        function onCopyProgress(copied, total, file) {
+            transferPopup.currentFile = file;
+            transferPopup.progress = total > 0 ? (copied / total) : 0.0;
+            if (!transferPopup.hasConflict) {
+                transferPopup.open();
+            }
+        }
+
+        function onConflictDetected(fileName) {
+            transferPopup.conflictFile = fileName;
+            transferPopup.open();
+        }
+
+        function onOperationFailed(errorMsg) {
+            transferPopup.close();
+            pathErrorPopup.title = "Operation Failed";
+            pathErrorPopup.message = errorMsg;
+            pathErrorPopup.open();
+        }
+
+        function onCopyFinished() {
+            transferPopup.conflictFile = "";
+            transferPopup.close();
+        }
+    }
     Connections {
         target: TabManager
         function onCurrentPathChanged() {
@@ -459,7 +488,17 @@ Item {
                                 interval: 800
                                 onTriggered: viewArea.typeAheadBuffer = ""
                             }
-
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                onClicked: function (mouse) {
+                                    viewArea.forceActiveFocus();
+                                    if (mouse.button === Qt.RightButton) {
+                                        fileContextMenu.close();
+                                        emptySpaceContextMenu.popup(mouse.x, mouse.y, this);
+                                    }
+                                }
+                            }
                             Keys.onPressed: function (event) {
                                 var cur = FileListModel.focusedRow;
                                 var count = FileListModel.rowCount();
@@ -469,6 +508,26 @@ Item {
                                 case Qt.Key_Left:
                                     FileListModel.navigate(cur - 1, mods);
                                     event.accepted = true;
+                                    break;
+                                case Qt.Key_C:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        TabManager.setCutMode(false);
+                                        TabManager.addSelectedToClipboard();
+                                        event.accepted = true;
+                                    }
+                                    break;
+                                case Qt.Key_X:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        TabManager.setCutMode(true);
+                                        TabManager.addSelectedToClipboard();
+                                        event.accepted = true;
+                                    }
+                                    break;
+                                case Qt.Key_V:
+                                    if (event.modifiers & Qt.ControlModifier) {
+                                        TabManager.paste();
+                                        event.accepted = true;
+                                    }
                                     break;
                                 case Qt.Key_Right:
                                     FileListModel.navigate(cur + 1, mods);
@@ -517,6 +576,10 @@ Item {
                                     }
                                     event.accepted = true;
                                     break;
+                                case Qt.Key_Space:
+                                    FileListModel.handleSelection(cur, mods);
+                                    event.accepted = true;
+                                    break;
                                 default:
                                     if (event.text.length > 0 && !event.modifiers) {
                                         viewArea.typeAheadBuffer += event.text.toLowerCase();
@@ -534,7 +597,7 @@ Item {
                                 target: FileListModel
                                 function onFocusedRowChanged() {
                                     if (loader.item && typeof loader.item.positionViewAtIndex === "function") {
-                                        loader.item.positionViewAtIndex(FileListModel.focusedRow, 0);
+                                        loader.item.positionViewAtIndex(FileListModel.focusedRow, ListView.Contain);
                                     }
                                 }
                             }
@@ -576,8 +639,8 @@ Item {
                                             anchors.rightMargin: 6
                                             anchors.topMargin: 2
                                             anchors.bottomMargin: 2
-                                            borderWidth: 1
-                                            borderColor: isFocused ? "#64c5fa" : Theme.transparent
+                                            borderWidth: 2
+                                            borderColor: isFocused ? "#64c5fa" : "white"
 
                                             color: isSelected ? "#b4e2fa" : itemHover.hovered ? Theme.background : Theme.surface
 
@@ -705,14 +768,26 @@ Item {
 
                                         MouseArea {
                                             anchors.fill: parent
-                                            onDoubleClicked: {
-                                                if (model.isDir) {
+                                            acceptedButtons: Qt.LeftButton | Qt.RightButton
+
+                                            onDoubleClicked: function (mouse) {
+                                                if (mouse.button === Qt.LeftButton && model.isDir) {
                                                     TabManager.openFolder(model.name);
                                                 }
                                             }
+
                                             onClicked: function (mouse) {
                                                 viewArea.forceActiveFocus();
-                                                FileListModel.handleSelection(index, mouse.modifiers);
+
+                                                if (mouse.button === Qt.LeftButton) {
+                                                    FileListModel.handleSelection(index, mouse.modifiers);
+                                                } else if (mouse.button === Qt.RightButton) {
+                                                    if (!model.selected) {
+                                                        FileListModel.handleSelection(index, 0);
+                                                    }
+                                                    emptySpaceContextMenu.close();
+                                                    fileContextMenu.popup(mouse.x, mouse.y, this);
+                                                }
                                             }
                                         }
                                     }
@@ -763,7 +838,7 @@ Item {
                     showIcons: false
                     isPrimary: true
                     onAccepted: {
-                        FileListModel.createFolder();
+                        FileListModel.createFolder(newFolderNameInput.text);
                         createFolderPopup.close();
                     }
                 }
@@ -785,6 +860,274 @@ Item {
                     onClicked: {
                         FileListModel.createFolder(newFolderNameInput.text);
                         createFolderPopup.close();
+                    }
+                }
+            }
+        }
+    }
+    CielContextMenu {
+        id: emptySpaceContextMenu
+
+        CielMenuItem {
+            text: "Open Terminal Here"
+            onTriggered: {
+                TabManager.addSelectedToClipboard();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Paste"
+            shortcut: "Ctrl+V"
+            onTriggered: {
+                TabManager.paste();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy Path"
+            shortcut: "Ctrl+Shift+C"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            visible: fileContextMenu.bookmarkBtn
+            text: "Bookmark"
+            icon: "bookmark"
+            shortcut: "Ctrl+B"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSub {
+            text: "Create New"
+            icon: "plus"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+            CielMenuItem {
+                text: "Text Document"
+            }
+            CielMenuSeparator {}
+            CielMenuItem {
+                text: "Word Document"
+            }
+            CielMenuItem {
+                text: "PPT Presentation"
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Properties"
+            icon: "info"
+            shortcut: "Alt+Enter"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+    }
+
+    CielContextMenu {
+        id: fileContextMenu
+        property bool bookmarkBtn: true
+
+        CielMenuItem {
+            text: "Duplicate"
+            shortcut: "Ctrl+D"
+            onTriggered: {
+                TabManager.addSelectedToClipboard();
+                TabManager.paste();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy Path"
+            shortcut: "Ctrl+Shift+C"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Paste"
+            shortcut: "Ctrl+V"
+            onTriggered: {
+                TabManager.paste();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+
+        CielMenuItem {
+            text: "Cut"
+            icon: "scissors"
+            shortcut: "Ctrl+X"
+            onTriggered: {
+                TabManager.setCutMode(false);
+                TabManager.addSelectedToClipboard();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy"
+            icon: "copy"
+            shortcut: "Ctrl+C"
+            onTriggered: {
+                TabManager.addSelectedToClipboard();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+
+        CielMenuItem {
+            text: "Rename"
+            icon: "pencil"
+            shortcut: "F2"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            visible: fileContextMenu.bookmarkBtn
+            text: "Bookmark"
+            icon: "bookmark"
+            shortcut: "Ctrl+B"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Compress"
+            icon: "file-archive"
+            shortcut: "Ctrl+Shift+Z"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+
+        CielMenuItem {
+            text: "Properties"
+            icon: "info"
+            shortcut: "Alt+Enter"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+
+        CielMenuItem {
+            text: "Delete"
+            icon: "trash"
+            destructive: true
+            shortcut: "Delete"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+    }
+
+    CielPopup {
+        id: transferPopup
+        contentWidth: 420
+        contentHeight: hasConflict ? 160 : 130
+        // closePolicy: Popup.NoAutoClose
+
+        property string currentFile: ""
+        property real progress: 0.0
+        property string conflictFile: ""
+        readonly property bool hasConflict: conflictFile.length > 0
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 20
+            spacing: 16
+
+            ColumnLayout {
+                visible: !transferPopup.hasConflict
+                Layout.fillWidth: true
+                spacing: 10
+
+                Text {
+                    text: "Copying " + transferPopup.currentFile
+                    color: Theme.textPrimary
+                    font.pixelSize: 14
+                    elide: Text.ElideMiddle
+                    Layout.fillWidth: true
+                }
+
+                ProgressBar {
+                    value: transferPopup.progress
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
+
+                    CielButton {
+                        text: "Cancel"
+                        onClicked: {
+                            TabManager.cancelOperation();
+                            transferPopup.close();
+                        }
+                    }
+                }
+            }
+
+            ColumnLayout {
+                visible: transferPopup.hasConflict
+                Layout.fillWidth: true
+                spacing: 12
+
+                Text {
+                    text: "File Already Exists"
+                    font.pixelSize: 16
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                Text {
+                    text: transferPopup.conflictFile + " already exists in this folder."
+                    color: Theme.textSecondary
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignRight
+                    spacing: 8
+
+                    CielButton {
+                        text: "Cancel"
+                        onClicked: {
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(2);
+                            transferPopup.close();
+                        }
+                    }
+
+                    CielButton {
+                        text: "Skip"
+                        onClicked: {
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(0);
+                        }
+                    }
+
+                    CielButton {
+                        text: "Replace"
+                        primary: true
+                        onClicked: {
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(1);
+                        }
                     }
                 }
             }
