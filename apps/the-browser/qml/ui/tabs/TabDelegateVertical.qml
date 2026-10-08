@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Effects
 import Ciel.Ui
 import Ciel.Browser 1.0
 
@@ -666,6 +667,59 @@ Item {
                     duration: 120
                     easing.type: Easing.OutQuad
                 }
+            }
+        }
+
+        Rectangle {
+            id: closeBtnContainer
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.leftMargin: -6
+            anchors.topMargin: -6
+            
+            // Generate a true circle geometry matching your element size bounds
+            width: closeBtnPop.width - 2  // Adjust padding overflow size as desired
+            height: width
+            radius: width / 2
+            color: Theme.surface
+
+            // Animate target visibility matching state evaluation changes
+            opacity: (tabDelegateV.collapsed && visualContentV.morphP < 0.1 && tabModel.count > 1 && tabDelegateV.isHovered) ? 1.0 : 0.0
+            scale: (tabDelegateV.collapsed && visualContentV.morphP < 0.1 && tabModel.count > 1 && tabDelegateV.isHovered) ? 1.0 : 0.0
+            visible: opacity > 0.0
+
+            Behavior on opacity {
+                CielSpring {
+                    damping: 0.28
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
+                }
+            }
+
+            Behavior on scale {
+                CielSpring {
+                    damping: 0.28
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
+                }
+            }
+
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: Qt.rgba(0, 0, 0, 0.15) // Subtle black shadow
+                shadowBlur: 0.3                     // Softness of the shadow edge
+                shadowVerticalOffset: 2             // Drops the shadow slightly downward
+            }
+
+            CielIconButton {
+                id: closeBtnPop
+                anchors.centerIn: parent // Center the button perfectly inside the surface circle
+                icon: "x"
+                size: Theme.XSMALL
+                onClicked: tabDelegateV.requestClose()
             }
         }
 
