@@ -7,6 +7,7 @@
 #include <QCache>
 #include <QString>
 #include <QThread>
+#include <QVector>
 #include <qqmlintegration.h>
 #include <qtmetamacros.h>
 
@@ -18,6 +19,7 @@ class FileListModel : public QAbstractListModel {
   QML_SINGLETON
 
   Q_PROPERTY(int focusedRow READ focusedRow NOTIFY focusedRowChanged)
+
 public:
   enum Roles {
     NameRole = Qt::UserRole + 1,
@@ -45,24 +47,28 @@ public:
   QHash<int, QByteArray> roleNames() const override;
   Q_INVOKABLE void handleSelection(int row, Qt::KeyboardModifiers modifiers);
   Q_INVOKABLE void clearSelection();
+
 private slots:
   void onLoadStarted(const QString &path);
   void onEntriesReady(const QVector<ItemEntery> &batch);
   void onLoadFinished(const QString &path, qint64 modifiedTime);
   void onLoadError(const QString &path, int errorCode,
                    const QString &errorMessage);
+
 signals:
   void loadErrorNotify(const QString err);
   void focusedRowChanged();
 
 private:
+  void applySortAndFilter();
+
   int m_focusedRow = 0;
   QVector<int> m_selectedIndices;
   int m_anchorIndex = -1;
-  void applySortAndFilter();
+
   FileViewSettings m_settings;
-  QVector<ItemEntery> m_rawEntries;
-  QVector<ItemEntery> m_entries;
+  QVector<ItemEntery> m_items;
+  QVector<int> m_visibleIndices;
   QString m_currentPath;
   QCache<QString, CachedListing> m_cache;
 
