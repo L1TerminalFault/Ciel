@@ -488,7 +488,17 @@ Item {
                                 interval: 800
                                 onTriggered: viewArea.typeAheadBuffer = ""
                             }
-
+                            MouseArea {
+                                anchors.fill: parent
+                                acceptedButtons: Qt.LeftButton | Qt.RightButton
+                                onClicked: function (mouse) {
+                                    viewArea.forceActiveFocus();
+                                    if (mouse.button === Qt.RightButton) {
+                                        fileContextMenu.close();
+                                        emptySpaceContextMenu.popup(mouse.x, mouse.y, this);
+                                    }
+                                }
+                            }
                             Keys.onPressed: function (event) {
                                 var cur = FileListModel.focusedRow;
                                 var count = FileListModel.rowCount();
@@ -501,7 +511,6 @@ Item {
                                     break;
                                 case Qt.Key_C:
                                     if (event.modifiers & Qt.ControlModifier) {
-                                        console.log("calling copy");
                                         TabManager.setCutMode(false);
                                         TabManager.addSelectedToClipboard();
                                         event.accepted = true;
@@ -776,6 +785,7 @@ Item {
                                                     if (!model.selected) {
                                                         FileListModel.handleSelection(index, 0);
                                                     }
+                                                    emptySpaceContextMenu.close();
                                                     fileContextMenu.popup(mouse.x, mouse.y, this);
                                                 }
                                             }
@@ -855,10 +865,99 @@ Item {
             }
         }
     }
+    CielContextMenu {
+        id: emptySpaceContextMenu
+
+        CielMenuItem {
+            text: "Open Terminal Here"
+            onTriggered: {
+                TabManager.addSelectedToClipboard();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Paste"
+            shortcut: "Ctrl+V"
+            onTriggered: {
+                TabManager.paste();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy Path"
+            shortcut: "Ctrl+Shift+C"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            visible: fileContextMenu.bookmarkBtn
+            text: "Bookmark"
+            icon: "bookmark"
+            shortcut: "Ctrl+B"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSub {
+            text: "Create New"
+            icon: "plus"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+            CielMenuItem {
+                text: "Text Document"
+            }
+            CielMenuSeparator {}
+            CielMenuItem {
+                text: "Word Document"
+            }
+            CielMenuItem {
+                text: "PPT Presentation"
+            }
+        }
+        CielMenuSeparator {}
+        CielMenuItem {
+            text: "Properties"
+            icon: "info"
+            shortcut: "Alt+Enter"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+    }
 
     CielContextMenu {
         id: fileContextMenu
         property bool bookmarkBtn: true
+
+        CielMenuItem {
+            text: "Duplicate"
+            shortcut: "Ctrl+D"
+            onTriggered: {
+                TabManager.addSelectedToClipboard();
+                TabManager.paste();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Copy Path"
+            shortcut: "Ctrl+Shift+C"
+            onTriggered: {
+                fileContextMenu.close();
+            }
+        }
+        CielMenuItem {
+            text: "Paste"
+            shortcut: "Ctrl+V"
+            onTriggered: {
+                TabManager.paste();
+                fileContextMenu.close();
+            }
+        }
+        CielMenuSeparator {}
 
         CielMenuItem {
             text: "Cut"
@@ -880,23 +979,7 @@ Item {
             }
         }
         CielMenuSeparator {}
-        CielMenuItem {
-            text: "Duplicate"
-            shortcut: "Ctrl+D"
-            onTriggered: {
-                TabManager.addSelectedToClipboard();
-                TabManager.paste();
-                fileContextMenu.close();
-            }
-        }
-        CielMenuItem {
-            text: "Copy Path"
-            shortcut: "Ctrl+Shift+C"
-            onTriggered: {
-                fileContextMenu.close();
-            }
-        }
-        CielMenuSeparator {}
+
         CielMenuItem {
             text: "Rename"
             icon: "pencil"
@@ -923,6 +1006,7 @@ Item {
             }
         }
         CielMenuSeparator {}
+
         CielMenuItem {
             text: "Properties"
             icon: "info"
@@ -932,14 +1016,7 @@ Item {
             }
         }
         CielMenuSeparator {}
-        CielMenuItem {
-            text: "Paste"
-            shortcut: "Ctrl+V"
-            onTriggered: {
-                TabManager.paste();
-                fileContextMenu.close();
-            }
-        }
+
         CielMenuItem {
             text: "Delete"
             icon: "trash"
@@ -950,6 +1027,7 @@ Item {
             }
         }
     }
+
     CielPopup {
         id: transferPopup
         contentWidth: 420
