@@ -1,12 +1,12 @@
 #pragma once
 
 #include <QEvent>
-#include <QObject>
+#include <QQuickItem>
 #include <QTimer>
 #include <QWheelEvent>
 #include <QtQml/qqmlregistration.h>
 
-class SwipeGestureFilter : public QObject {
+class SwipeGestureFilter : public QQuickItem {
   Q_OBJECT
   QML_ELEMENT
   Q_PROPERTY(double backProgress READ backProgress NOTIFY gestureUpdated)
@@ -20,7 +20,7 @@ class SwipeGestureFilter : public QObject {
                  thresholdChanged)
 
 public:
-  explicit SwipeGestureFilter(QObject *parent = nullptr);
+  explicit SwipeGestureFilter(QQuickItem *parent = nullptr);
   ~SwipeGestureFilter() override;
 
   double backProgress() const;
@@ -62,6 +62,7 @@ private:
   bool m_canGoForward{false};
   bool m_hasPhase{false};
   double m_threshold{90.0};
+  bool m_gestureRejected = false;
 
   QTimer m_inactivityTimer;
 };
