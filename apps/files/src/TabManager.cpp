@@ -213,19 +213,19 @@ void TabManager::addTab(const QString &path) {
   item.path = path;
   item.icon = "";
 
+  int newIndex = m_tabs.size();
+  beginInsertRows(QModelIndex(), newIndex, newIndex);
+  m_tabs.append(item);
+  endInsertRows();
+
   m_activeTabId = item.id;
   m_history.removeAll(item.id);
   m_history.append(item.id);
 
   emit currentTabIdChanged();
   emit currentPathChanged();
-
-  int newIndex = m_tabs.size();
-  beginInsertRows(QModelIndex(), newIndex, newIndex);
-  m_tabs.append(item);
-  endInsertRows();
-
   emit currentIndexChanged();
+  emit currentSettingsChanged();
 }
 
 void TabManager::closeTab(const QString &uuid) {
