@@ -3,10 +3,8 @@
 #include "files/DirCache.hpp"
 #include "files/DirLoader.hpp"
 #include <algorithm>
-#include <qabstractitemmodel.h>
 #include <qdir.h>
 #include <qfileinfo.h>
-#include <qnamespace.h>
 #include <sys/stat.h>
 
 #if defined(Q_OS_LINUX)
@@ -80,6 +78,8 @@ FileListModel::FileListModel(QObject *parent) : QAbstractListModel(parent) {
   connect(m_loader, &DirectoryLoader::loadError, this,
           &FileListModel::onLoadError);
 
+  ensureTabManagerConnected();
+
   m_workerThread.start();
 }
 
@@ -92,14 +92,50 @@ FileListModel::~FileListModel() {
   delete m_loader;
 }
 
+void FileListModel::ensureTabManagerConnected() {
+  if (m_tabManagerConnected)
+    return;
+  if (auto *tm = TabManager::instance()) {
+    connect(tm, &TabManager::currentTabIdChanged, this,
+            &FileListModel::onCurrentTabChanged);
+    m_tabManagerConnected = true;
+  }
+}
+
+void FileListModel::syncWithTab() {
+  ensureTabManagerConnected();
+  onCurrentTabChanged();
+}
+
+void FileListModel::onCurrentTabChanged() {
+  auto *tm = TabManager::instance();
+  if (!tm)
+    return;
+
+  int idx = tm->currentIndex();
+  if (idx < 0)
+    return;
+
+  setSettings(tm->currentSettings());
+
+  QString path = tm->currentPath();
+  if (path != m_currentPath) {
+    setPath(path);
+  } else {
+    if (!m_visibleIndices.isEmpty()) {
+      emit dataChanged(index(0), index(m_visibleIndices.size() - 1),
+                       {SelectedRole});
+    }
+  }
+}
+
 void FileListModel::setPath(const QString &path) {
   if (path.isEmpty() || path == m_currentPath) {
     return;
   }
+  ensureTabManagerConnected();
   m_loader->cancel();
   m_currentPath = path;
-  m_selectedIndices.clear();
-  m_anchorIndex = -1;
   m_focusedRow = -1;
   emit focusedRowChanged();
 
@@ -158,7 +194,10 @@ QVariant FileListModel::data(const QModelIndex &index, int role) const {
     return entry.isDir ? QStringLiteral("folder") : QStringLiteral("file");
 
   case SelectedRole:
-    return entry.isSelected;
+    if (auto *tm = TabManager::instance()) {
+      return tm->isRowSelected(index.row());
+    }
+    return false;
 
   default:
     return QVariant();
@@ -167,8 +206,6 @@ QVariant FileListModel::data(const QModelIndex &index, int role) const {
 
 void FileListModel::onLoadStarted(const QString &path) {
   if (path == m_currentPath) {
-    m_selectedIndices.clear();
-    m_anchorIndex = -1;
     m_focusedRow = -1;
     emit focusedRowChanged();
     m_items.clear();
@@ -195,8 +232,6 @@ void FileListModel::onLoadFinished(const QString &path, qint64 modifiedTime) {
 void FileListModel::onLoadError(const QString &path, int errorCode,
                                 const QString &errorMessage) {
   if (path == m_currentPath) {
-    m_selectedIndices.clear();
-    m_anchorIndex = -1;
     m_focusedRow = -1;
     emit focusedRowChanged();
     m_items.clear();
@@ -280,13 +315,6 @@ void FileListModel::applySortAndFilter() {
               return compareEntries(items.at(a), items.at(b), s);
             });
 
-  m_selectedIndices.clear();
-  for (int i = 0; i < m_visibleIndices.size(); ++i) {
-    if (m_items.at(m_visibleIndices.at(i)).isSelected) {
-      m_selectedIndices.append(i);
-    }
-  }
-
   endResetModel();
 }
 
@@ -294,85 +322,74 @@ void FileListModel::handleSelection(int row, Qt::KeyboardModifiers modifiers) {
   if (row < 0 || row >= m_visibleIndices.size())
     return;
 
+  auto *tm = TabManager::instance();
+  if (!tm)
+    return;
+
   m_focusedRow = row;
   emit focusedRowChanged();
 
-  int rawIdx = m_visibleIndices.at(row);
-
   if (modifiers & Qt::ControlModifier) {
-    bool newState = !m_items[rawIdx].isSelected;
-    m_items[rawIdx].isSelected = newState;
-    m_anchorIndex = row;
-
-    if (newState) {
-      m_selectedIndices.append(row);
-    } else {
-      m_selectedIndices.removeOne(row);
-    }
-
+    tm->toggleSelection(row);
     QModelIndex idx = index(row);
     emit dataChanged(idx, idx, {SelectedRole});
+  } else if ((modifiers & Qt::ShiftModifier) && tm->currentTabAnchor() != -1) {
+    int anchor = tm->currentTabAnchor();
+    const auto prevSelection = tm->currentTabSelection();
+    int start = std::min(anchor, row);
+    int end = std::max(anchor, row);
 
-  } else if ((modifiers & Qt::ShiftModifier) && m_anchorIndex != -1) {
-    int start = std::min(m_anchorIndex, row);
-    int end = std::max(m_anchorIndex, row);
+    tm->selectRange(start, end);
 
-    for (int i = start; i <= end; ++i) {
-      int rIdx = m_visibleIndices.at(i);
-      if (!m_items[rIdx].isSelected) {
-        m_items[rIdx].isSelected = true;
-        m_selectedIndices.append(i);
-      }
+    int minRow = start;
+    int maxRow = end;
+    for (int prev : prevSelection) {
+      minRow = std::min(minRow, prev);
+      maxRow = std::max(maxRow, prev);
     }
-
-    emit dataChanged(index(start), index(end), {SelectedRole});
-
+    emit dataChanged(index(minRow), index(maxRow), {SelectedRole});
   } else {
-    for (int prevRow : m_selectedIndices) {
+    const auto prevSelection = tm->currentTabSelection();
+    tm->selectSingle(row);
+
+    for (int prevRow : prevSelection) {
       if (prevRow != row && prevRow < m_visibleIndices.size()) {
-        m_items[m_visibleIndices.at(prevRow)].isSelected = false;
         QModelIndex idx = index(prevRow);
         emit dataChanged(idx, idx, {SelectedRole});
       }
     }
-    m_selectedIndices.clear();
-
-    m_items[rawIdx].isSelected = true;
-    m_selectedIndices.append(row);
-    m_anchorIndex = row;
-
     QModelIndex idx = index(row);
     emit dataChanged(idx, idx, {SelectedRole});
   }
 }
 
 void FileListModel::clearSelection() {
-  if (m_selectedIndices.isEmpty())
+  auto *tm = TabManager::instance();
+  if (!tm)
     return;
 
-  for (int row : m_selectedIndices) {
+  const auto prevSelection = tm->currentTabSelection();
+  if (prevSelection.isEmpty())
+    return;
+
+  tm->clearSelection();
+  for (int row : prevSelection) {
     if (row < m_visibleIndices.size()) {
-      m_items[m_visibleIndices.at(row)].isSelected = false;
       QModelIndex idx = index(row);
       emit dataChanged(idx, idx, {SelectedRole});
     }
   }
-  m_selectedIndices.clear();
-  m_anchorIndex = -1;
 }
 
 void FileListModel::selectAll() {
   if (m_visibleIndices.isEmpty())
     return;
 
-  m_selectedIndices.clear();
-  m_selectedIndices.reserve(m_visibleIndices.size());
+  auto *tm = TabManager::instance();
+  if (!tm)
+    return;
 
-  for (int i = 0; i < m_visibleIndices.size(); ++i) {
-    m_items[m_visibleIndices.at(i)].isSelected = true;
-    m_selectedIndices.append(i);
-  }
-
+  tm->selectAll(m_visibleIndices.size());
   emit dataChanged(index(0), index(m_visibleIndices.size() - 1),
                    {SelectedRole});
 }
@@ -380,47 +397,56 @@ void FileListModel::selectAll() {
 void FileListModel::navigate(int targetRow, int modifiers) {
   if (m_visibleIndices.isEmpty())
     return;
+
   if (m_focusedRow == -1) {
     targetRow = 0;
   }
+
   if (targetRow < 0 || targetRow >= m_visibleIndices.size())
     return;
 
-  auto mods = Qt::KeyboardModifiers(modifiers);
+  auto *tm = TabManager::instance();
+  if (!tm)
+    return;
+
   m_focusedRow = targetRow;
   emit focusedRowChanged();
 
+  auto mods = Qt::KeyboardModifiers(modifiers);
   if (mods & Qt::ControlModifier) {
     return;
   }
 
   if (mods & Qt::ShiftModifier) {
-    if (m_anchorIndex == -1)
-      m_anchorIndex = 0;
-    int start = std::min(m_anchorIndex, targetRow);
-    int end = std::max(m_anchorIndex, targetRow);
-
-    for (int i = start; i <= end; ++i) {
-      int rawIdx = m_visibleIndices.at(i);
-      if (!m_items[rawIdx].isSelected) {
-        m_items[rawIdx].isSelected = true;
-        m_selectedIndices.append(i);
-      }
-    }
+    int anchor = tm->currentTabAnchor();
+    if (anchor == -1)
+      anchor = 0;
+    int start = std::min(anchor, targetRow);
+    int end = std::max(anchor, targetRow);
+    tm->selectRange(start, end);
     emit dataChanged(index(start), index(end), {SelectedRole});
   } else {
-    clearSelection();
-    int rawIdx = m_visibleIndices.at(targetRow);
-    m_items[rawIdx].isSelected = true;
-    m_selectedIndices.append(targetRow);
-    m_anchorIndex = targetRow;
-    emit dataChanged(index(targetRow), index(targetRow), {SelectedRole});
+    const auto prevSelection = tm->currentTabSelection();
+    tm->selectSingle(targetRow);
+
+    for (int prevRow : prevSelection) {
+      if (prevRow != targetRow && prevRow < m_visibleIndices.size()) {
+        QModelIndex idx = index(prevRow);
+        emit dataChanged(idx, idx, {SelectedRole});
+      }
+    }
+    QModelIndex idx = index(targetRow);
+    emit dataChanged(idx, idx, {SelectedRole});
   }
+  tm->selectSingle(targetRow);
+  QModelIndex idx = index(targetRow);
+  emit dataChanged(idx, idx, {SelectedRole});
 }
 
 int FileListModel::findNextByPrefix(const QString &prefix) {
   if (prefix.isEmpty() || m_visibleIndices.isEmpty())
     return -1;
+
   QByteArray p = prefix.toUtf8();
   int n = m_visibleIndices.size();
 
@@ -431,5 +457,6 @@ int FileListModel::findNextByPrefix(const QString &prefix) {
       return idx;
     }
   }
+
   return -1;
 }

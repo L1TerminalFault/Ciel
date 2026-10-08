@@ -37,6 +37,7 @@ public:
   Q_INVOKABLE void setPath(const QString &path);
   Q_INVOKABLE bool createFolder(const QString &dirName);
   Q_INVOKABLE void setSettings(const FileViewSettings &settings);
+  Q_INVOKABLE void syncWithTab();
   int focusedRow() const { return m_focusedRow; }
   Q_INVOKABLE void selectAll();
   Q_INVOKABLE void navigate(int targetRow, int modifiers = 0);
@@ -54,6 +55,7 @@ private slots:
   void onLoadFinished(const QString &path, qint64 modifiedTime);
   void onLoadError(const QString &path, int errorCode,
                    const QString &errorMessage);
+  void onCurrentTabChanged();
 
 signals:
   void loadErrorNotify(const QString err);
@@ -61,10 +63,10 @@ signals:
 
 private:
   void applySortAndFilter();
+  void ensureTabManagerConnected();
 
-  int m_focusedRow = 0;
-  QVector<int> m_selectedIndices;
-  int m_anchorIndex = -1;
+  int m_focusedRow = -1;
+  bool m_tabManagerConnected = false;
 
   FileViewSettings m_settings;
   QVector<ItemEntery> m_items;

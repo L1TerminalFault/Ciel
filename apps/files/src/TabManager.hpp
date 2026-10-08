@@ -4,8 +4,8 @@
 #include <QList>
 #include <QString>
 #include <QUuid>
+#include <QVector>
 #include <cstdint>
-#include <qhashfunctions.h>
 #include <qqmlintegration.h>
 #include <qtmetamacros.h>
 
@@ -39,13 +39,14 @@ struct TabItem {
   QString path;
   QString icon;
   int scrollPosition = 0;
-  QSet<QString> selectedFiles;
-  QString selectionAnchor;
+  QVector<int> selectedFiles;
+  int selectionAnchor = -1;
   FileViewSettings settings;
 };
 
 class QJSEngine;
 class QQmlEngine;
+
 class TabManager : public QAbstractListModel {
   Q_OBJECT
   QML_ELEMENT
@@ -55,14 +56,15 @@ class TabManager : public QAbstractListModel {
   Q_PROPERTY(int currentIndex READ currentIndex NOTIFY currentIndexChanged)
   Q_PROPERTY(QString currentPath READ currentPath WRITE setCurrentPath NOTIFY
                  currentPathChanged)
-
   Q_PROPERTY(FileViewSettings currentSettings READ currentSettings NOTIFY
                  currentSettingsChanged)
 
 public:
   enum TabRoles { IdRole = Qt::UserRole + 1, TitleRole, PathRole, IconRole };
   Q_ENUM(TabRoles)
-  TabManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
+
+  static TabManager *instance();
+  static TabManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
   explicit TabManager(QObject *parent = nullptr);
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -70,7 +72,17 @@ public:
                 int role = Qt::DisplayRole) const override;
   QHash<int, QByteArray> roleNames() const override;
   FileViewSettings currentSettings() const;
-  // QML Invokables
+
+  bool isRowSelected(int row) const;
+  const QVector<int> &currentTabSelection() const;
+  int currentTabAnchor() const;
+  void setSelection(const QVector<int> &selection, int anchor);
+  void toggleSelection(int row);
+  void selectRange(int start, int end);
+  void selectSingle(int row);
+  void selectAll(int count);
+  void clearSelection();
+
   Q_INVOKABLE void addTab(const QString &path = QString());
   Q_INVOKABLE void closeTab(const QString &id);
   Q_INVOKABLE void toggleViewMode();
@@ -80,7 +92,6 @@ public:
   Q_INVOKABLE void toggleFoldersFirst();
   Q_INVOKABLE void toggleSymlinks();
 
-  // Getters & Setters
   QString currentTabId() const;
   void setCurrentTabId(const QString &id);
 

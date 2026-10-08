@@ -1,16 +1,20 @@
 #include "TabManager.hpp"
 #include <QDir>
 #include <QFileInfo>
-#include <qfileinfo.h>
-#include <qhashfunctions.h>
+#include <algorithm>
 #include <qqmlengine.h>
-#include <quuid.h>
+
+static TabManager *s_tabManagerInstance = nullptr;
+
+TabManager *TabManager::instance() { return s_tabManagerInstance; }
 
 TabManager *TabManager::create(QQmlEngine *qmlEngine, QJSEngine *jsEngine) {
   return new TabManager(qmlEngine);
 }
 
-TabManager::TabManager(QObject *parent) : QAbstractListModel(parent) {}
+TabManager::TabManager(QObject *parent) : QAbstractListModel(parent) {
+  s_tabManagerInstance = this;
+}
 
 QHash<int, QByteArray> TabManager::roleNames() const {
   return {{IdRole, "id"},
@@ -63,6 +67,94 @@ QString TabManager::currentPath() const {
   return (idx >= 0) ? m_tabs[idx].path : QString();
 }
 
+bool TabManager::isRowSelected(int row) const {
+  int idx = currentIndex();
+  if (idx < 0)
+    return false;
+  const auto &sel = m_tabs[idx].selectedFiles;
+  return std::find(sel.begin(), sel.end(), row) != sel.end();
+}
+
+const QVector<int> &TabManager::currentTabSelection() const {
+  static const QVector<int> empty;
+  int idx = currentIndex();
+  if (idx < 0)
+    return empty;
+  return m_tabs[idx].selectedFiles;
+}
+
+int TabManager::currentTabAnchor() const {
+  int idx = currentIndex();
+  if (idx < 0)
+    return -1;
+  return m_tabs[idx].selectionAnchor;
+}
+
+void TabManager::setSelection(const QVector<int> &selection, int anchor) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  m_tabs[idx].selectedFiles = selection;
+  m_tabs[idx].selectionAnchor = anchor;
+}
+
+void TabManager::toggleSelection(int row) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  auto &sel = m_tabs[idx].selectedFiles;
+  auto it = std::find(sel.begin(), sel.end(), row);
+  if (it != sel.end()) {
+    sel.erase(it);
+  } else {
+    sel.append(row);
+  }
+  m_tabs[idx].selectionAnchor = row;
+}
+
+void TabManager::selectRange(int start, int end) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  auto &sel = m_tabs[idx].selectedFiles;
+  sel.clear();
+  int s = std::min(start, end);
+  int e = std::max(start, end);
+  sel.reserve(e - s + 1);
+  for (int i = s; i <= e; ++i) {
+    sel.append(i);
+  }
+}
+
+void TabManager::selectSingle(int row) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  m_tabs[idx].selectedFiles.clear();
+  m_tabs[idx].selectedFiles.append(row);
+  m_tabs[idx].selectionAnchor = row;
+}
+
+void TabManager::selectAll(int count) {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  auto &sel = m_tabs[idx].selectedFiles;
+  sel.clear();
+  sel.reserve(count);
+  for (int i = 0; i < count; ++i) {
+    sel.append(i);
+  }
+}
+
+void TabManager::clearSelection() {
+  int idx = currentIndex();
+  if (idx < 0)
+    return;
+  m_tabs[idx].selectedFiles.clear();
+  m_tabs[idx].selectionAnchor = -1;
+}
+
 void TabManager::setCurrentTabId(const QString &uuid) {
   QUuid id(uuid);
   if (id == m_activeTabId)
@@ -96,6 +188,8 @@ bool TabManager::setCurrentPath(const QString &path) {
     return true;
 
   m_tabs[idx].path = path;
+  m_tabs[idx].selectedFiles.clear();
+  m_tabs[idx].selectionAnchor = -1;
 
   QString folderName = dir.dirName();
   m_tabs[idx].title = folderName.isEmpty() ? path : folderName;
@@ -117,7 +211,6 @@ void TabManager::addTab(const QString &path) {
   item.id = QUuid::createUuid();
   item.title = folderName;
   item.path = path;
-  // left empty for now probably default to some unique options later on
   item.icon = "";
 
   m_activeTabId = item.id;
@@ -207,19 +300,27 @@ FileViewSettings TabManager::currentSettings() const {
 
 void TabManager::toggleViewMode() {
   auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
   m_tabs[idx].settings.listViewMode = !m_tabs[idx].settings.listViewMode;
   emit currentSettingsChanged();
-};
+}
+
 void TabManager::toggleHiddenFiles() {
   auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
   m_tabs[idx].settings.showHiddenFiles = !m_tabs[idx].settings.showHiddenFiles;
   emit currentSettingsChanged();
-};
+}
+
 void TabManager::setSortBy(FileViewSettings::SortBy criteria) {
   auto idx = indexOf(m_activeTabId);
+  if (idx < 0)
+    return;
   m_tabs[idx].settings.sortBy = criteria;
   emit currentSettingsChanged();
-};
+}
 
 void TabManager::toggleAscending() {
   auto idx = indexOf(m_activeTabId);
