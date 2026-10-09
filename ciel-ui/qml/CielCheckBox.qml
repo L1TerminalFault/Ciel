@@ -26,7 +26,7 @@ Item {
             id: boxContainer
             Layout.preferredWidth: 20
             Layout.preferredHeight: 20
-            Layout.alignment: Qt.AlignTop
+            Layout.alignment: Qt.AlignVCenter
 
             property real boxScale: 1.0
 
@@ -71,7 +71,6 @@ Item {
 
         ColumnLayout {
             Layout.fillWidth: true
-            spacing: 2
             Layout.alignment: Qt.AlignVCenter
 
             Text {

@@ -101,6 +101,7 @@ void FileOperationWorker::processPath(const QString &srcPath,
         return;
       }
     }
+    qDebug() << m_isCut << !QFile::exists(dstPath);
 
     auto result = copyFileChunked(srcPath, dstPath);
     if (result.code == FsResult::Code::Success) {

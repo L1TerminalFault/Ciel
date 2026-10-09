@@ -12,6 +12,100 @@ Item {
     height: parent ? parent.height : 0
     property var breadcrumbModel: []
     property bool editingPath: false
+    Keys.onPressed: function (event) {
+        var cur = FileListModel.focusedRow;
+        var count = FileListModel.rowCount();
+        var mods = event.modifiers;
+
+        switch (event.key) {
+        case Qt.Key_Left:
+            FileListModel.navigate(cur - 1, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_C:
+            if (event.modifiers & Qt.ControlModifier) {
+                TabManager.setCutMode(false);
+                TabManager.addSelectedToClipboard();
+                event.accepted = true;
+            }
+            break;
+        case Qt.Key_X:
+            if (event.modifiers & Qt.ControlModifier) {
+                TabManager.setCutMode(true);
+                TabManager.addSelectedToClipboard();
+                event.accepted = true;
+            }
+            break;
+        case Qt.Key_V:
+            if (event.modifiers & Qt.ControlModifier) {
+                TabManager.paste();
+                event.accepted = true;
+            }
+            break;
+        case Qt.Key_Right:
+            FileListModel.navigate(cur + 1, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_Up:
+            FileListModel.navigate(cur - viewArea.columns, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_Down:
+            FileListModel.navigate(cur + viewArea.columns, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_Home:
+            FileListModel.navigate(0, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_End:
+            FileListModel.navigate(count - 1, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_PageUp:
+            FileListModel.navigate(cur - viewArea.pageSize, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_PageDown:
+            FileListModel.navigate(cur + viewArea.pageSize, mods);
+            event.accepted = true;
+            break;
+        case Qt.Key_A:
+            if (event.modifiers & Qt.ControlModifier) {
+                FileListModel.selectAll();
+                event.accepted = true;
+            }
+            break;
+        case Qt.Key_Escape:
+            FileListModel.clearSelection();
+            event.accepted = true;
+            break;
+        case Qt.Key_Return:
+        case Qt.Key_Enter:
+            var name = FileListModel.data(FileListModel.index(cur, 0), FileListModel.NameRole);
+            var isDir = FileListModel.data(FileListModel.index(cur, 0), FileListModel.IsDirRole);
+            if (isDir) {
+                TabManager.openFolder(name);
+            }
+            event.accepted = true;
+            break;
+        case Qt.Key_Space:
+            FileListModel.handleSelection(cur, mods);
+            event.accepted = true;
+            break;
+        default:
+            if (event.text.length > 0 && !event.modifiers) {
+                viewArea.typeAheadBuffer += event.text.toLowerCase();
+                typeAheadTimer.restart();
+                var target = FileListModel.findNextByPrefix(viewArea.typeAheadBuffer);
+                if (target !== -1) {
+                    FileListModel.navigate(target, 0);
+                }
+                event.accepted = true;
+            }
+            break;
+        }
+    }
     function updateBreadcrumb() {
         const parts = TabManager.currentPath.split("/").filter(p => p !== "");
 
@@ -215,6 +309,7 @@ Item {
 
                             onClicked: {
                                 pathInput.text = TabManager.currentPath;
+                                pathInput.selectAll();
                                 root.editingPath = true;
                                 pathInput.forceActiveFocus();
                             }
@@ -499,100 +594,7 @@ Item {
                                     }
                                 }
                             }
-                            Keys.onPressed: function (event) {
-                                var cur = FileListModel.focusedRow;
-                                var count = FileListModel.rowCount();
-                                var mods = event.modifiers;
 
-                                switch (event.key) {
-                                case Qt.Key_Left:
-                                    FileListModel.navigate(cur - 1, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_C:
-                                    if (event.modifiers & Qt.ControlModifier) {
-                                        TabManager.setCutMode(false);
-                                        TabManager.addSelectedToClipboard();
-                                        event.accepted = true;
-                                    }
-                                    break;
-                                case Qt.Key_X:
-                                    if (event.modifiers & Qt.ControlModifier) {
-                                        TabManager.setCutMode(true);
-                                        TabManager.addSelectedToClipboard();
-                                        event.accepted = true;
-                                    }
-                                    break;
-                                case Qt.Key_V:
-                                    if (event.modifiers & Qt.ControlModifier) {
-                                        TabManager.paste();
-                                        event.accepted = true;
-                                    }
-                                    break;
-                                case Qt.Key_Right:
-                                    FileListModel.navigate(cur + 1, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_Up:
-                                    FileListModel.navigate(cur - viewArea.columns, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_Down:
-                                    FileListModel.navigate(cur + viewArea.columns, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_Home:
-                                    FileListModel.navigate(0, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_End:
-                                    FileListModel.navigate(count - 1, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_PageUp:
-                                    FileListModel.navigate(cur - viewArea.pageSize, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_PageDown:
-                                    FileListModel.navigate(cur + viewArea.pageSize, mods);
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_A:
-                                    if (event.modifiers & Qt.ControlModifier) {
-                                        FileListModel.selectAll();
-                                        event.accepted = true;
-                                    }
-                                    break;
-                                case Qt.Key_Escape:
-                                    FileListModel.clearSelection();
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_Return:
-                                case Qt.Key_Enter:
-                                    var name = FileListModel.data(FileListModel.index(cur, 0), FileListModel.NameRole);
-                                    var isDir = FileListModel.data(FileListModel.index(cur, 0), FileListModel.IsDirRole);
-                                    if (isDir) {
-                                        TabManager.openFolder(name);
-                                    }
-                                    event.accepted = true;
-                                    break;
-                                case Qt.Key_Space:
-                                    FileListModel.handleSelection(cur, mods);
-                                    event.accepted = true;
-                                    break;
-                                default:
-                                    if (event.text.length > 0 && !event.modifiers) {
-                                        viewArea.typeAheadBuffer += event.text.toLowerCase();
-                                        typeAheadTimer.restart();
-                                        var target = FileListModel.findNextByPrefix(viewArea.typeAheadBuffer);
-                                        if (target !== -1) {
-                                            FileListModel.navigate(target, 0);
-                                        }
-                                        event.accepted = true;
-                                    }
-                                    break;
-                                }
-                            }
                             Connections {
                                 target: FileListModel
                                 function onFocusedRowChanged() {
@@ -872,7 +874,7 @@ Item {
             text: "Open Terminal Here"
             onTriggered: {
                 TabManager.addSelectedToClipboard();
-                fileContextMenu.close();
+                emptySpaceContextMenu.close();
             }
         }
         CielMenuSeparator {}
@@ -880,33 +882,30 @@ Item {
             text: "Paste"
             shortcut: "Ctrl+V"
             onTriggered: {
+                emptySpaceContextMenu.close();
                 TabManager.paste();
-                fileContextMenu.close();
             }
         }
         CielMenuItem {
             text: "Copy Path"
             shortcut: "Ctrl+Shift+C"
             onTriggered: {
-                fileContextMenu.close();
+                emptySpaceContextMenu.close();
             }
         }
         CielMenuSeparator {}
         CielMenuItem {
-            visible: fileContextMenu.bookmarkBtn
             text: "Bookmark"
             icon: "bookmark"
             shortcut: "Ctrl+B"
             onTriggered: {
-                fileContextMenu.close();
+                emptySpaceContextMenu.close();
             }
         }
         CielMenuSub {
             text: "Create New"
             icon: "plus"
-            onTriggered: {
-                fileContextMenu.close();
-            }
+
             CielMenuItem {
                 text: "Text Document"
             }
@@ -924,7 +923,7 @@ Item {
             icon: "info"
             shortcut: "Alt+Enter"
             onTriggered: {
-                fileContextMenu.close();
+                emptySpaceContextMenu.close();
             }
         }
     }
@@ -937,9 +936,9 @@ Item {
             text: "Duplicate"
             shortcut: "Ctrl+D"
             onTriggered: {
+                fileContextMenu.close();
                 TabManager.addSelectedToClipboard();
                 TabManager.paste();
-                fileContextMenu.close();
             }
         }
         CielMenuItem {
@@ -953,8 +952,8 @@ Item {
             text: "Paste"
             shortcut: "Ctrl+V"
             onTriggered: {
-                TabManager.paste();
                 fileContextMenu.close();
+                TabManager.paste();
             }
         }
         CielMenuSeparator {}
@@ -964,7 +963,7 @@ Item {
             icon: "scissors"
             shortcut: "Ctrl+X"
             onTriggered: {
-                TabManager.setCutMode(false);
+                TabManager.setCutMode(true);
                 TabManager.addSelectedToClipboard();
                 fileContextMenu.close();
             }
@@ -1030,31 +1029,51 @@ Item {
 
     CielPopup {
         id: transferPopup
-        contentWidth: 420
-        contentHeight: hasConflict ? 160 : 130
-        // closePolicy: Popup.NoAutoClose
+        contentWidth: 440
+        contentHeight: contentLayout.implicitHeight + 40
 
         property string currentFile: ""
         property real progress: 0.0
         property string conflictFile: ""
         readonly property bool hasConflict: conflictFile.length > 0
 
+        Behavior on contentHeight {
+            NumberAnimation {
+                duration: 180
+                easing.type: Easing.OutCubic
+            }
+        }
+
         ColumnLayout {
+            id: contentLayout
             anchors.fill: parent
             anchors.margins: 20
-            spacing: 16
+            spacing: 0
 
             ColumnLayout {
                 visible: !transferPopup.hasConflict
                 Layout.fillWidth: true
-                spacing: 10
+                spacing: 12
 
-                Text {
-                    text: "Copying " + transferPopup.currentFile
-                    color: Theme.textPrimary
-                    font.pixelSize: 14
-                    elide: Text.ElideMiddle
+                RowLayout {
                     Layout.fillWidth: true
+                    spacing: 8
+
+                    Text {
+                        text: "Copying " + transferPopup.currentFile
+                        color: Theme.textPrimary
+                        font.pixelSize: 14
+                        font.weight: Font.Medium
+                        elide: Text.ElideMiddle
+                        Layout.fillWidth: true
+                    }
+
+                    Text {
+                        text: Math.round(transferPopup.progress * 100) + "%"
+                        color: Theme.textSecondary
+                        font.pixelSize: 12
+                        font.weight: Font.Medium
+                    }
                 }
 
                 ProgressBar {
@@ -1082,33 +1101,79 @@ Item {
             ColumnLayout {
                 visible: transferPopup.hasConflict
                 Layout.fillWidth: true
-                spacing: 12
+                spacing: 14
 
-                Text {
-                    text: "File Already Exists"
-                    font.pixelSize: 16
-                    font.weight: Font.DemiBold
-                    color: Theme.textPrimary
-                }
-
-                Text {
-                    text: transferPopup.conflictFile + " already exists in this folder."
-                    color: Theme.textSecondary
-                    font.pixelSize: 13
-                    wrapMode: Text.WordWrap
+                ColumnLayout {
                     Layout.fillWidth: true
+                    spacing: 4
+
+                    Text {
+                        text: "File Already Exists"
+                        font.pixelSize: 16
+                        font.weight: Font.DemiBold
+                        color: Theme.textPrimary
+                    }
+
+                    Text {
+                        text: "\"" + transferPopup.conflictFile + "\" already exists in this destination."
+                        color: Theme.textSecondary
+                        font.pixelSize: 13
+                        wrapMode: Text.WordWrap
+                        Layout.fillWidth: true
+                    }
                 }
 
                 RowLayout {
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignRight
                     spacing: 8
+
+                    CielSearch {
+                        id: renameField
+                        Layout.fillWidth: true
+                        Layout.preferredHeight: 36
+                        placeholder: "New file name"
+                        text: transferPopup.conflictFile
+                        showIcons: false
+                        focus: transferPopup.hasConflict
+
+                        onAccepted: {
+                            if (renameField.text.trim().length > 0) {
+                                var newName = renameField.text.trim();
+                                transferPopup.conflictFile = "";
+                                TabManager.resolveConflict(2, applyAllCheck.checked, newName);
+                            }
+                        }
+                    }
+
+                    CielButton {
+                        text: "Rename"
+                        enabled: renameField.text.trim().length > 0 && renameField.text !== transferPopup.conflictFile
+                        onClicked: {
+                            var newName = renameField.text.trim();
+                            transferPopup.conflictFile = "";
+                            TabManager.resolveConflict(2, applyAllCheck.checked, newName);
+                        }
+                    }
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 8
+
+                    CielCheckBox {
+                        id: applyAllCheck
+                        text: "Apply to all"
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     CielButton {
                         text: "Cancel"
                         onClicked: {
+                            TabManager.cancelOperation();
                             transferPopup.conflictFile = "";
-                            TabManager.resolveConflict(2);
                             transferPopup.close();
                         }
                     }
@@ -1117,16 +1182,16 @@ Item {
                         text: "Skip"
                         onClicked: {
                             transferPopup.conflictFile = "";
-                            TabManager.resolveConflict(0);
+                            TabManager.resolveConflict(0, applyAllCheck.checked);
                         }
                     }
 
                     CielButton {
-                        text: "Replace"
+                        text: "Overwrite"
                         primary: true
                         onClicked: {
                             transferPopup.conflictFile = "";
-                            TabManager.resolveConflict(1);
+                            TabManager.resolveConflict(1, applyAllCheck.checked);
                         }
                     }
                 }
