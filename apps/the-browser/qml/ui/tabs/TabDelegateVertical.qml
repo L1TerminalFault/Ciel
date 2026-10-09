@@ -24,6 +24,10 @@ Item {
     readonly property real slotSpan: tabHeight + 4
     readonly property int totalTabs: tabModel ? tabModel.count : 1
 
+    property bool deferModelRemoval: false
+property var tabRepeater: null
+property var deferredCloseCallback: null
+
     readonly property int localPinnedCount: {
         if (collisionHub && collisionHub.currentPinnedCount > 0)
             return collisionHub.currentPinnedCount;
@@ -100,6 +104,139 @@ Item {
     property real targetHubY: 0.0
     property real clickOffsetX: 0.0
     property real clickOffsetY: 0.0
+
+
+function createTabBelow() {
+    if (!tabModel)
+        return;
+
+    var insertIndex = tabDelegateV.index + 1;
+
+    tabModel.addTab("about:blank");
+
+    var newIndex = tabModel.count - 1;
+
+    if (newIndex !== insertIndex)
+        tabModel.moveTab(newIndex, insertIndex);
+
+    tabModel.currentIndex = insertIndex;
+}
+
+function duplicateTab() {
+    if (!tabModel)
+        return;
+
+    var sourceUrl = tabDelegateV.url;
+    var insertIndex = tabDelegateV.index + 1;
+
+    tabModel.addTab(sourceUrl || "about:blank");
+
+    var newIndex = tabModel.count - 1;
+
+    if (newIndex !== insertIndex)
+        tabModel.moveTab(newIndex, insertIndex);
+
+    tabModel.currentIndex = insertIndex;
+}
+
+function closeOtherTabs() {
+    if (!tabModel || !tabRepeater)
+        return;
+
+    var keepIndex = tabDelegateV.index;
+    var targets = [];
+
+    for (var i = 0; i < tabModel.count; ++i) {
+        if (i === keepIndex)
+            continue;
+
+        var delegate = tabRepeater.itemAt(i);
+        if (delegate)
+            targets.push(delegate);
+    }
+
+    if (targets.length === 0)
+        return;
+
+    var finishedCount = 0;
+    var finalized = false;
+
+    var onTargetFinished = function() {
+        if (finalized)
+            return;
+
+        finishedCount++;
+
+        if (finishedCount < targets.length)
+            return;
+
+        finalized = true;
+
+        for (var j = 0; j < targets.length; ++j) {
+            targets[j].deferredCloseCallback = null;
+            targets[j].deferModelRemoval = false;
+        }
+
+        tabModel.closeOtherTabs(keepIndex);
+    };
+
+    for (var k = 0; k < targets.length; ++k) {
+        targets[k].deferModelRemoval = true;
+        targets[k].deferredCloseCallback = onTargetFinished;
+    }
+
+    for (var n = 0; n < targets.length; ++n) {
+        targets[n].requestClose();
+    }
+}
+
+function closeTabsToBottom() {
+    if (!tabModel || !tabRepeater)
+        return;
+
+    var keepIndex = tabDelegateV.index;
+    var targets = [];
+
+    for (var i = keepIndex + 1; i < tabModel.count; ++i) {
+        var delegate = tabRepeater.itemAt(i);
+        if (delegate)
+            targets.push(delegate);
+    }
+
+    if (targets.length === 0)
+        return;
+
+    var finishedCount = 0;
+    var finalized = false;
+
+    var onTargetFinished = function() {
+        if (finalized)
+            return;
+
+        finishedCount++;
+
+        if (finishedCount < targets.length)
+            return;
+
+        finalized = true;
+
+        for (var j = 0; j < targets.length; ++j) {
+            targets[j].deferredCloseCallback = null;
+            targets[j].deferModelRemoval = false;
+        }
+
+        tabModel.closeTabsToBottom(keepIndex);
+    };
+
+    for (var k = 0; k < targets.length; ++k) {
+        targets[k].deferModelRemoval = true;
+        targets[k].deferredCloseCallback = onTargetFinished;
+    }
+
+    for (var n = 0; n < targets.length; ++n) {
+        targets[n].requestClose();
+    }
+}
 
     function updateDragCoordinates() {
         if (!collisionHub || !isDragging)
@@ -418,9 +555,14 @@ Item {
             }
         }
 
-        onFinished: {
-            tabModel.closeTab(tabDelegateV.index);
-        }
+onFinished: {
+    if (tabDelegateV.deferModelRemoval) {
+        if (tabDelegateV.deferredCloseCallback)
+            tabDelegateV.deferredCloseCallback()
+    } else {
+        tabModel.closeTab(tabDelegateV.index)
+    }
+}
     }
 
     Component.onCompleted: spawnProgress = 1.0
@@ -463,9 +605,14 @@ Item {
                 if (!tabDelegateV.isClosing) {
                     tabModel.currentIndex = tabDelegateV.index;
                 }
-            } else if (mouse.button === Qt.RightButton) {
-                tabModel.togglePin(tabDelegateV.index);
-            }
+              }
+else if (mouse.button === Qt.RightButton) {
+    const globalPos = mapToGlobal(mouse.x, mouse.y);
+    
+    const localPos = window.contentItem.mapFromGlobal(globalPos.x, globalPos.y);
+    
+    tabContextMenu.openAt(localPos.x, localPos.y);
+}
         }
 
         onPositionChanged: mouse => {
@@ -677,13 +824,11 @@ Item {
             anchors.leftMargin: -6
             anchors.topMargin: -6
             
-            // Generate a true circle geometry matching your element size bounds
-            width: closeBtnPop.width - 2  // Adjust padding overflow size as desired
+            width: closeBtnPop.width - 4 
             height: width
             radius: width / 2
             color: Theme.surface
 
-            // Animate target visibility matching state evaluation changes
             opacity: (tabDelegateV.collapsed && visualContentV.morphP < 0.1 && tabModel.count > 1 && tabDelegateV.isHovered) ? 1.0 : 0.0
             scale: (tabDelegateV.collapsed && visualContentV.morphP < 0.1 && tabModel.count > 1 && tabDelegateV.isHovered) ? 1.0 : 0.0
             visible: opacity > 0.0
@@ -709,16 +854,16 @@ Item {
             layer.enabled: true
             layer.effect: MultiEffect {
                 shadowEnabled: true
-                shadowColor: Qt.rgba(0, 0, 0, 0.15) // Subtle black shadow
-                shadowBlur: 0.3                     // Softness of the shadow edge
-                shadowVerticalOffset: 2             // Drops the shadow slightly downward
+                shadowColor: Qt.rgba(0, 0, 0, 0.15)
+                shadowBlur: 0.3                   
+                shadowVerticalOffset: 2          
             }
 
             CielIconButton {
                 id: closeBtnPop
-                anchors.centerIn: parent // Center the button perfectly inside the surface circle
+                anchors.centerIn: parent 
                 icon: "x"
-                size: Theme.XSMALL
+                size: Theme.XXSMALL
                 onClicked: tabDelegateV.requestClose()
             }
         }
@@ -797,4 +942,89 @@ Item {
             onClicked: tabDelegateV.requestClose()
         }
     }
+
+
+CielDropDown {
+    id: tabContextMenu
+    trigger: visualContentV
+    useAbsoluteCoordinates: true
+
+
+    CielMenuItem {
+        text: "New tab to the bottom"
+        icon: ""
+
+        onTriggered: {
+            tabDelegateV.createTabBelow("about:blank");
+            tabContextMenu.close();
+        }
+    }
+
+    
+    CielMenuItem {
+        text: "Duplicate"
+        icon: ""
+
+        onTriggered: {
+            tabDelegateV.duplicateTab();
+            tabContextMenu.close();
+        }
+    }
+
+    CielMenuSeparator {}
+
+    CielMenuItem {
+        text: "Reload"
+        icon: "arrow-clockwise"
+        onTriggered: {
+            var page = tabDelegateV.currentTabView;
+            if (page && page.engine)
+                page.engine.reload();
+
+            tabContextMenu.close();
+        }
+    }
+
+    CielMenuItem {
+        text: "Pin"
+        icon: "push-pin"
+
+        onTriggered: {
+            tabModel.togglePin(tabDelegateV.index);
+            tabContextMenu.close();
+        }
+    }
+
+    CielMenuItem {
+        text: "Close"
+        icon: "x"
+
+        onTriggered: {
+            tabContextMenu.close();
+            tabDelegateV.requestClose();
+        }
+    }
+
+    CielMenuSeparator {}
+
+    CielMenuItem {
+        text: "Close other tabs"
+        icon: ""
+
+        onTriggered: {
+            tabContextMenu.close();
+            tabDelegateV.closeOtherTabs();
+        }
+    }
+
+    CielMenuItem {
+        text: "Close tabs to the bottom"
+        icon: ""
+
+        onTriggered: {
+            tabContextMenu.close();
+            tabDelegateV.closeTabsToBottom();
+        }
+    }
+}
 }
