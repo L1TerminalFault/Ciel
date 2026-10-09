@@ -76,5 +76,5 @@ QString AppPaths::templates() const {
 }
 QString AppPaths::trash() const {
   return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
-         "/ciel/trash";
+         "/Trash";
 }

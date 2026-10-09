@@ -1,11 +1,20 @@
 #include "TabManager.hpp"
 #include "FileModel.hpp"
+#include <QClipboard>
 #include <QDir>
 #include <QFileInfo>
+#include <QStandardPaths>
 #include <algorithm>
-#include <cstdio>
-#include <iostream>
+#include <qdir.h>
+#include <qfileinfo.h>
+#include <qguiapplication.h>
+#include <qhashfunctions.h>
+#include <qiodevicebase.h>
+#include <qlogging.h>
 #include <qqmlengine.h>
+#include <qstandardpaths.h>
+#include <qtenvironmentvariables.h>
+#include <qwindowdefs.h>
 
 static TabManager *s_tabManagerInstance = nullptr;
 
@@ -467,3 +476,71 @@ void TabManager::cancelOperation() {
     m_activeWorker->cancel();
   }
 }
+
+void TabManager::deleteSelected(bool perm) {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0) {
+    return;
+  }
+  auto flm = FileListModel::instance();
+  auto paths = flm->selectedPaths();
+  auto cannotDeleteErr = [&](const QString &path) {
+    emit operationFailed("Failed to remove file: " + path);
+  };
+  if (!perm) {
+    for (const auto &path : paths) {
+      if (QFile::moveToTrash(path)) {
+        flm->refresh();
+      };
+    }
+  } else {
+    for (const auto &path : paths) {
+      if (QFileInfo(path).isDir()) {
+        if (!QDir(path).removeRecursively()) {
+          cannotDeleteErr(path);
+          return;
+        }
+        flm->refresh();
+      } else {
+        if (!QFile::remove(path)) {
+          cannotDeleteErr(path);
+          return;
+        };
+        flm->refresh();
+      }
+    }
+  }
+}
+
+void TabManager::createFile(const QString &fileName) {
+  auto idx = indexOf(m_activeTabId);
+  if (idx < 0) {
+    return;
+  }
+  auto currPath = m_tabs[idx].path;
+  QString fullPath = QDir(currPath).filePath(fileName);
+  QFile file(fullPath);
+  if (file.open(QIODevice::WriteOnly)) {
+    file.close();
+    if (auto flm = FileListModel::instance()) {
+      flm->refresh();
+    }
+  }
+}
+void TabManager::setClipboardText(const QString &text) {
+  QClipboard *clipboard = QGuiApplication::clipboard();
+  if (clipboard) {
+    clipboard->setText(text);
+  } else {
+    qWarning() << "cannot find clipboard to set to ";
+  }
+};
+
+QString TabManager::getClipboardText() {
+  QClipboard *clipboard = QGuiApplication::clipboard();
+  if (clipboard) {
+    return clipboard->text();
+  } else {
+    return QString();
+  }
+};

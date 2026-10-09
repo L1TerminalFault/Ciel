@@ -97,6 +97,11 @@ public:
   Q_INVOKABLE void toggleAscending();
   Q_INVOKABLE void toggleFoldersFirst();
   Q_INVOKABLE void toggleSymlinks();
+  Q_INVOKABLE void deleteSelected(bool permanent);
+  Q_INVOKABLE void createFile(const QString &fileName);
+
+  Q_INVOKABLE void setClipboardText(const QString &text);
+  Q_INVOKABLE QString getClipboardText();
 
   QString currentTabId() const;
   void setCurrentTabId(const QString &id);

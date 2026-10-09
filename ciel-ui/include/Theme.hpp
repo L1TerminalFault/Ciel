@@ -77,7 +77,7 @@ private:
   OrgCielThemeInterface *m_iface = nullptr;
 
   bool m_isDark = true;
-  QString m_accentHex = "#0A84FF";
+  QString m_accentHex = "#64c5fa";
   bool m_reducedMotion = false;
 
   // Resolved cache

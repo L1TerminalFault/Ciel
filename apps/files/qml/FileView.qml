@@ -11,6 +11,11 @@ Item {
     width: parent ? parent.width : 0
     height: parent ? parent.height : 0
     property var breadcrumbModel: []
+
+    property int quickSidebarWidth: 200
+    property int quickSidebarMinWidth: 130
+    property int quickSidebarMaxWidth: 300
+
     property bool editingPath: false
     Keys.onPressed: function (event) {
         var cur = FileListModel.focusedRow;
@@ -24,6 +29,9 @@ Item {
             break;
         case Qt.Key_C:
             if (event.modifiers & Qt.ControlModifier) {
+              if(event.modifiers & Qt.ShiftModifier){
+                  TabManager.setClipboardText(TabManager.currentPath);
+                }
                 TabManager.setCutMode(false);
                 TabManager.addSelectedToClipboard();
                 event.accepted = true;
@@ -93,6 +101,13 @@ Item {
             FileListModel.handleSelection(cur, mods);
             event.accepted = true;
             break;
+        case Qt.Key_Delete:
+            if (event.modifiers & Qt.ShiftModifier) {
+                permDeletePopup.open();
+            } else {
+                TabManager.deleteSelected(false);
+                event.accepted = true;
+            }
         default:
             if (event.text.length > 0 && !event.modifiers) {
                 viewArea.typeAheadBuffer += event.text.toLowerCase();
@@ -331,9 +346,10 @@ Item {
                 spacing: 0
 
                 ColumnLayout {
+                    id: quickSidebar
                     Layout.fillHeight: true
                     Layout.fillWidth: false
-                    Layout.preferredWidth: 200
+                    Layout.preferredWidth: quickSidebarWidth
                     Layout.margins: 24
                     Layout.alignment: Qt.AlignTop
                     spacing: 8
@@ -418,8 +434,44 @@ Item {
                 }
 
                 CielSeparator {
+                    id: separator
                     vertical: true
-                }
+                    color: (hoverHandler.hovered || dragHandler.active) ? Theme.accent : Theme.border
+                    Behavior on color {
+                            ColorAnimation {
+                                duration: 150
+                            }
+                        }
+                    HoverHandler {
+                      id: hoverHandler
+                      margin: 5
+                      cursorShape: Qt.SplitHCursor
+                    }
+
+                    DragHandler {
+                      id: dragHandler
+                      target: null
+                      margin: 5
+                      xAxis.enabled: true
+                      yAxis.enabled: false
+                      cursorShape: Qt.SplitHCursor
+
+                      property real startWidth: 0
+
+                      onActiveChanged: {
+                          if (active) {
+                              startWidth = quickSidebarWidth;
+                          }
+                      }
+
+                      onTranslationChanged: {
+                          if (active) {
+                              var targetWidth = startWidth + translation.x;
+                              quickSidebarWidth = Math.max(quickSidebarMinWidth, Math.min(quickSidebarMaxWidth, targetWidth));
+                          }
+                      }
+                    }
+                  }
 
                 ColumnLayout {
                     Layout.fillHeight: true
@@ -435,10 +487,7 @@ Item {
                         Layout.topMargin: 4
                         Layout.bottomMargin: 5
 
-                        CielIconButton {
-                            icon: "folder-plus"
-                            onClicked: createFolderPopup.open()
-                        }
+
                         Item {
                             Layout.fillWidth: true
                         }
@@ -890,6 +939,7 @@ Item {
             text: "Copy Path"
             shortcut: "Ctrl+Shift+C"
             onTriggered: {
+                TabManager.setClipboardText(TabManager.currentPath);
                 emptySpaceContextMenu.close();
             }
         }
@@ -903,18 +953,23 @@ Item {
             }
         }
         CielMenuSub {
-            text: "Create New"
+            text: "Create "
             icon: "plus"
-
-            CielMenuItem {
-                text: "Text Document"
+            CielMenuItem{
+              text: "Create File"
+              icon: "file"
+              onTriggered: {
+                emptySpaceContextMenu.close();
+                createFilePopup.open();
+              }
             }
-            CielMenuSeparator {}
-            CielMenuItem {
-                text: "Word Document"
-            }
-            CielMenuItem {
-                text: "PPT Presentation"
+            CielMenuItem{
+              text: "Create Folder"
+              icon: "folder"
+              onTriggered: {
+                emptySpaceContextMenu.close();
+                createFolderPopup.open();
+              }
             }
         }
         CielMenuSeparator {}
@@ -1240,6 +1295,133 @@ Item {
                 Layout.alignment: Qt.AlignRight
                 text: "OK"
                 onClicked: pathErrorPopup.close()
+            }
+        }
+    }
+    CielPopup {
+        id: createFilePopup
+
+        contentWidth: 400
+        contentHeight: 180
+
+        onOpened: {
+          fileCreatedName.forceActiveFocus();
+        }
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 16
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "File Name"
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                CielSearch {
+                    id: fileCreatedName
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 36
+                    showIcons: false
+                    isPrimary: true
+                    text: "file.txt"
+                    placeholder: "file name"
+                }
+            }
+
+            Item {
+                Layout.fillHeight: true
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Item {
+                    Layout.fillWidth: true
+                }
+                CielButton {
+                    Layout.alignment: Qt.AlignRight
+                    text: "Cancel"
+                    onClicked: {
+                        createFilePopup.close();
+                    }
+                }
+                CielButton {
+                    Layout.alignment: Qt.AlignRight
+                    text: "Create"
+                    primary: true
+                    onClicked: {
+                        // permanent delete
+                        TabManager.createFile(fileCreatedName.text);
+                        createFilePopup.close();
+                    }
+                }
+            }
+        }
+    }
+    CielPopup {
+        id: permDeletePopup
+
+        contentWidth: 400
+        contentHeight: 180
+
+        ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 24
+            spacing: 16
+
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "Delete Permanently!"
+                    font.pixelSize: 18
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    text: "This action is not reversable!"
+                    color: Theme.textSecondary
+                    wrapMode: Text.WordWrap
+                }
+            }
+
+            Item {
+                Layout.fillHeight: true
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+                Item {
+                    Layout.fillWidth: true
+                }
+                CielButton {
+                    Layout.alignment: Qt.AlignRight
+                    text: "Cancel"
+                    onClicked: {
+                        permDeletePopup.close();
+                    }
+                }
+                CielButton {
+                    Layout.alignment: Qt.AlignRight
+                    text: "OK"
+                    primary: true
+                    onClicked: {
+                        // permanent delete
+                        TabManager.deleteSelected(true);
+                        permDeletePopup.close();
+                    }
+                }
             }
         }
     }
