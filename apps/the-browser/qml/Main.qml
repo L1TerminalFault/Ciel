@@ -307,6 +307,9 @@ ApplicationWindow {
 
                                 backgroundColor: Theme.background
 
+				layer.enabled: true
+			        layer.live: true // window.active && pageContainer.isCurrentPage
+
                                 visible:
                                     !pageContainer.isBlank &&
                                     !pageContainer.isHistory &&
