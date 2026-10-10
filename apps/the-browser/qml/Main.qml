@@ -500,9 +500,11 @@ ApplicationWindow {
                             Item {
                                 id: menuCard
                                 anchors.top: parent.top
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.margins: 16
+                                // anchors.left: parent.left
+                                // anchors.right: parent.right
+                                anchors.topMargin: 16
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                width: Math.min(parent.width - 32, 800)
                                 
                                 height: menuColumn.implicitHeight + 32
                                 
