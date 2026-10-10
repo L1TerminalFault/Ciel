@@ -35,7 +35,8 @@ public:
 
     /* One callback per D-Bus signal; any may be left empty. */
     struct Events {
-        std::function<void(const std::string &dev)> inserted;
+        // std::function<void(const std::string &dev)> inserted;
+        std::function<void(const std::string &devicePath, const std::string &label)> inserted;
         std::function<void(const std::string &dev, const std::string &label,
                            const std::string &mountPoint)> mounted;
         std::function<void(const std::string &dev, const std::string &reason)> mountFailed;
@@ -133,6 +134,7 @@ private:
 
     std::set<std::string> pendingMounts_; /* mount in flight                       */
     std::set<std::string> ejecting_;      /* user eject in flight                  */
+    std::set<std::string> refreshing_;      /* user refresh in flight                  */
     std::set<std::string> ejected_;       /* ejected by user, still plugged in     */
     std::map<std::string, ProbeState> probes_; /* MTP devices waiting for access   */
 };
