@@ -1,3 +1,4 @@
+#include "ThumbnailImageProvider.hpp"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <qqml.h>
@@ -13,6 +14,7 @@ int main(int argc, char *argv[]) {
 
   engine.addImportPath("/home/k/projects/ciel/ciel-ui/build");
 
+  engine.addImageProvider("thumbnail", new AsyncThumbnailProvider);
   engine.loadFromModule("Ciel.Files", "Main");
 
   if (engine.rootObjects().isEmpty())

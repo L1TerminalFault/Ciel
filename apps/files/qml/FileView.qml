@@ -29,8 +29,8 @@ Item {
             break;
         case Qt.Key_C:
             if (event.modifiers & Qt.ControlModifier) {
-              if(event.modifiers & Qt.ShiftModifier){
-                  TabManager.setClipboardText(TabManager.currentPath);
+                if (event.modifiers & Qt.ShiftModifier) {
+                    TabManager.setClipboardText(TabManager.currentPath);
                 }
                 TabManager.setCutMode(false);
                 TabManager.addSelectedToClipboard();
@@ -352,6 +352,7 @@ Item {
                     Layout.preferredWidth: quickSidebarWidth
                     Layout.margins: 24
                     Layout.alignment: Qt.AlignTop
+                    clip: true
                     spacing: 8
 
                     Text {
@@ -438,40 +439,40 @@ Item {
                     vertical: true
                     color: (hoverHandler.hovered || dragHandler.active) ? Theme.accent : Theme.border
                     Behavior on color {
-                            ColorAnimation {
-                                duration: 150
-                            }
+                        ColorAnimation {
+                            duration: 150
                         }
+                    }
                     HoverHandler {
-                      id: hoverHandler
-                      margin: 5
-                      cursorShape: Qt.SplitHCursor
+                        id: hoverHandler
+                        margin: 5
+                        cursorShape: Qt.SplitHCursor
                     }
 
                     DragHandler {
-                      id: dragHandler
-                      target: null
-                      margin: 5
-                      xAxis.enabled: true
-                      yAxis.enabled: false
-                      cursorShape: Qt.SplitHCursor
+                        id: dragHandler
+                        target: null
+                        margin: 5
+                        xAxis.enabled: true
+                        yAxis.enabled: false
+                        cursorShape: Qt.SplitHCursor
 
-                      property real startWidth: 0
+                        property real startWidth: 0
 
-                      onActiveChanged: {
-                          if (active) {
-                              startWidth = quickSidebarWidth;
-                          }
-                      }
+                        onActiveChanged: {
+                            if (active) {
+                                startWidth = quickSidebarWidth;
+                            }
+                        }
 
-                      onTranslationChanged: {
-                          if (active) {
-                              var targetWidth = startWidth + translation.x;
-                              quickSidebarWidth = Math.max(quickSidebarMinWidth, Math.min(quickSidebarMaxWidth, targetWidth));
-                          }
-                      }
+                        onTranslationChanged: {
+                            if (active) {
+                                var targetWidth = startWidth + translation.x;
+                                quickSidebarWidth = Math.max(quickSidebarMinWidth, Math.min(quickSidebarMaxWidth, targetWidth));
+                            }
+                        }
                     }
-                  }
+                }
 
                 ColumnLayout {
                     Layout.fillHeight: true
@@ -486,7 +487,6 @@ Item {
                         Layout.rightMargin: 8
                         Layout.topMargin: 4
                         Layout.bottomMargin: 5
-
 
                         Item {
                             Layout.fillWidth: true
@@ -773,7 +773,7 @@ Item {
 
                                         CielSquircle {
                                             anchors.fill: parent
-                                            anchors.margins: 6
+                                            anchors.margins: 8
                                             color: isSelected ? "#b4e2fa" : gridHover.hovered ? Theme.background : Theme.surface
                                             borderWidth: 2
                                             borderColor: isFocused ? "#64c5fa" : "white"
@@ -784,23 +784,35 @@ Item {
 
                                             ColumnLayout {
                                                 anchors.fill: parent
-                                                anchors.margins: 8
-                                                spacing: 8
+                                                anchors.margins: 4
+                                                spacing: 4
+                                                Item {
+                                                    Layout.fillWidth: true
+                                                    Layout.preferredHeight: 68
+                                                    Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
+                                                    Image {
+                                                        id: thumbnailImage
+                                                        visible: !model.isDir && thumbnailImage.status === Image.Ready
+                                                        anchors.fill: parent
+                                                        source: "image://thumbnail/" + TabManager.currentPath + "/" + model.name
+                                                        sourceSize.width: 280
+                                                        fillMode: Image.PreserveAspectFit
+                                                        asynchronous: true
+                                                    }
+                                                    FileIcon {
+                                                        visible: !model.isDir && thumbnailImage.status === Image.Error
+                                                        anchors.centerIn: parent
+                                                    }
+
+                                                    FolderIcon {
+                                                        visible: model.isDir && thumbnailImage.status === Image.Error
+                                                        anchors.centerIn: parent
+                                                    }
+                                                }
                                                 Item {
                                                     Layout.fillHeight: true
                                                 }
-
-                                                FileIcon {
-                                                    visible: !model.isDir
-                                                    Layout.alignment: Qt.AlignHCenter
-                                                }
-
-                                                FolderIcon {
-                                                    visible: model.isDir
-                                                    Layout.alignment: Qt.AlignHCenter
-                                                }
-
                                                 Text {
                                                     text: model.name
                                                     color: Theme.textPrimary
@@ -808,7 +820,6 @@ Item {
                                                     horizontalAlignment: Text.AlignHCenter
                                                     elide: Text.ElideMiddle
                                                     maximumLineCount: 2
-                                                    wrapMode: Text.WrapAnywhere
                                                 }
 
                                                 Item {
@@ -955,21 +966,21 @@ Item {
         CielMenuSub {
             text: "Create "
             icon: "plus"
-            CielMenuItem{
-              text: "Create File"
-              icon: "file"
-              onTriggered: {
-                emptySpaceContextMenu.close();
-                createFilePopup.open();
-              }
+            CielMenuItem {
+                text: "Create File"
+                icon: "file"
+                onTriggered: {
+                    emptySpaceContextMenu.close();
+                    createFilePopup.open();
+                }
             }
-            CielMenuItem{
-              text: "Create Folder"
-              icon: "folder"
-              onTriggered: {
-                emptySpaceContextMenu.close();
-                createFolderPopup.open();
-              }
+            CielMenuItem {
+                text: "Create Folder"
+                icon: "folder"
+                onTriggered: {
+                    emptySpaceContextMenu.close();
+                    createFolderPopup.open();
+                }
             }
         }
         CielMenuSeparator {}
@@ -1305,7 +1316,7 @@ Item {
         contentHeight: 180
 
         onOpened: {
-          fileCreatedName.forceActiveFocus();
+            fileCreatedName.forceActiveFocus();
         }
 
         ColumnLayout {
