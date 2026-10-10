@@ -2,6 +2,7 @@
 #include "MountManager.hpp"
 
 #include <QAbstractEventDispatcher>
+#include <QRegularExpression>
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusMetaType>
@@ -62,11 +63,15 @@ MountService::MountService(QObject *parent)
 
     ciel::MountManager::Events ev;
 
-    ev.inserted = [this](const std::string &dev) {
-        const QString key = q(dev);
-        notify(key, tr_("Device connected"), key, QStringLiteral("drive-removable-media-usb"));
-        Q_EMIT DeviceInserted(key);
-    };
+ev.inserted = [this](const std::string &dev, const std::string &label) {
+    const QString key = q(dev);
+    if (!label.empty())
+        m_labels.insert(key, q(label));          // store the friendly name early
+    notify(key, tr_("Device connected"), nameFor(key),
+           QStringLiteral("drive-removable-media-usb"));
+    Q_EMIT DeviceInserted(key);
+};
+
     ev.mounted = [this](const std::string &dev, const std::string &label, const std::string &mp) {
         const QString key = q(dev);
         if (!label.empty())
@@ -221,8 +226,37 @@ void MountService::emitPropertiesChanged(const QVariantMap &changed)
 QString MountService::nameFor(const QString &key) const
 {
     const QString label = m_labels.value(key);
-    return label.isEmpty() ? key : label;
+    if (!label.isEmpty())
+        return label;
+
+    // Make the raw key more human-readable when we have no label yet
+    if (key.startsWith(QLatin1String("mtp://"))) {
+        // mtp://SAMSUNG_SAMSUNG_Android_R3CM60C5Q1R/  →  Samsung Android
+        QString name = key.mid(6);                     // strip "mtp://"
+        name.remove(QRegularExpression(QStringLiteral("/$")));  // trailing /
+        name.replace(QLatin1Char('_'), QLatin1Char(' '));
+        // Drop the long serial if present
+        const int lastSpace = name.lastIndexOf(QLatin1Char(' '));
+        if (lastSpace > 0 && name.mid(lastSpace + 1).length() > 8)
+            name = name.left(lastSpace);
+        return name.isEmpty() ? tr_("Phone") : name;
+    }
+
+    if (key.startsWith(QLatin1String("/dev/bus/usb/")))
+        return tr_("USB device");
+
+    if (key.startsWith(QLatin1String("/dev/")))
+        return tr_("Removable drive");
+
+    // Fallback: just the last component of the path/URI
+    const int slash = key.lastIndexOf(QLatin1Char('/'));
+    return slash >= 0 ? key.mid(slash + 1) : key;
 }
+// QString MountService::nameFor(const QString &key) const
+// {
+//     const QString label = m_labels.value(key);
+//     return label.isEmpty() ? key : label;
+// }
 
 void MountService::notify(const QString &key, const QString &summary, const QString &body,
                           const QString &icon, uchar urgency, bool terminal)
