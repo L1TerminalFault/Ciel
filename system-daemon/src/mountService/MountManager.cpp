@@ -321,9 +321,10 @@ void MountManager::handleVolumeAdded(GVolume *v)
     if (existing)
         return; /* already mounted by someone else; mount-added handles it */
 
-    LOG_INFO("Device inserted: %s", key.c_str());
+    std::string label = takeString(g_volume_get_name(v));
+    LOG_INFO("Device inserted: %s (%s)", key.c_str(), label.c_str());
     if (events_.inserted)
-        events_.inserted(key);
+        events_.inserted(key, label);
 
     if (!autoMount_) {
         LOG_INFO("Auto-mount disabled, not mounting %s", key.c_str());
@@ -428,6 +429,10 @@ void MountManager::handleMountRemoved(GMount *m)
         return;
     }
 
+if (refreshing_.erase(key)) {
+    LOG_DEBUG("Controlled remount of %s", key.c_str());
+    return;   // do not emit unmounted / do not treat as failure
+}
     if (!ejecting_.count(key))
         LOG_WARN("%s was unmounted unexpectedly (unplugged or unmounted by another program); "
                  "GVfs cleans up %s", key.c_str(), mp.c_str());
@@ -820,6 +825,45 @@ void MountManager::probeResult(const std::string &key, bool hasStorage)
     scheduleProbe(key, kProbeIntervalSec);
 }
 
+// void MountManager::remountForProbe(const std::string &key)
+// {
+//     // Disabled for now – the force-unmount races with GVfs remote-volume-monitor
+//     // and causes a SIGSEGV (null function pointer). Just keep probing the
+//     // existing mount instead.
+//     LOG_INFO("%s: skipping remount (disabled), will keep probing", key.c_str());
+//     scheduleProbe(key, kProbeIntervalSec);
+// }
+// void MountManager::remountForProbe(const std::string &key)
+// {
+//     MountInfo *mi = findMountByKey(key);
+//     if (!mi) {
+//         scheduleProbe(key, kProbeIntervalSec);
+//         return;
+//     }
+//
+//     // Mark that we are doing a controlled refresh so handleMountRemoved
+//     // does not treat it as an unexpected disappearance.
+//     refreshing_.insert(key);          // new set similar to ejecting_
+//
+//     auto *ctx = new TimerCtx{this, key};
+//     GMountOperation *op = makeAbortingOperation();
+//
+//     g_mount_unmount_with_operation(
+//         mi->ref.get(), G_MOUNT_UNMOUNT_NONE, op, cancel_.get(),
+//         +[](GObject *src, GAsyncResult *res, gpointer d) {
+//             std::unique_ptr<TimerCtx> c(static_cast<TimerCtx *>(d));
+//             GErr err;
+//             g_mount_unmount_with_operation_finish(G_MOUNT(src), res, err.out());
+//
+//             // Only schedule the next probe *after* we know the unmount
+//             // finished (or failed). The mount-removed handler will
+//             // have cleaned the map by now.
+//             if (!err.is(G_IO_ERROR, G_IO_ERROR_CANCELLED))
+//                 c->self->scheduleProbe(c->key, 1);
+//         },
+//         ctx);
+//     g_object_unref(op);
+// }
 void MountManager::remountForProbe(const std::string &key)
 {
     MountInfo *mi = findMountByKey(key);
@@ -858,14 +902,32 @@ void MountManager::giveUpProbe(const std::string &key)
         events_.mountFailed(key, "Phone did not grant access: unlock it, select File transfer "
                                  "and tap Allow, then call MountDevice again");
 
-    /* Clean up the empty, never-announced mount. */
-    if (MountInfo *mi = findMountByKey(key)) {
-        GMountOperation *op = makeAbortingOperation();
-        g_mount_unmount_with_operation(mi->ref.get(), G_MOUNT_UNMOUNT_NONE, op, cancel_.get(),
-                                       nullptr, nullptr);
-        g_object_unref(op);
-    }
+    /* Do NOT force-unmount here.
+     * A fire-and-forget unmount races with the remote-volume-monitor
+     * and causes a null-function-pointer crash inside
+     * libgioremote-volume-monitor.so (call *0x8(%rbx) with a null callback).
+     *
+     * Leave the empty mount alone; it will disappear when the phone is
+     * unplugged or the user calls EjectDevice / MountDevice later.
+     */
 }
+// void MountManager::giveUpProbe(const std::string &key)
+// {
+//     LOG_WARN("%s: no storage after %d s, giving up", key.c_str(), (int)kProbeTimeoutSec);
+//     cancelProbe(key);
+//
+//     if (events_.mountFailed)
+//         events_.mountFailed(key, "Phone did not grant access: unlock it, select File transfer "
+//                                  "and tap Allow, then call MountDevice again");
+//
+//     /* Clean up the empty, never-announced mount. */
+//     if (MountInfo *mi = findMountByKey(key)) {
+//         GMountOperation *op = makeAbortingOperation();
+//         g_mount_unmount_with_operation(mi->ref.get(), G_MOUNT_UNMOUNT_NONE, op, cancel_.get(),
+//                                        nullptr, nullptr);
+//         g_object_unref(op);
+//     }
+// }
 
 /* ------------------------------------------------------------------ */
 /* Queries and settings                                                */
