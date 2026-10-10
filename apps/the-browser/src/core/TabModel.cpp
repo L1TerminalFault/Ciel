@@ -387,3 +387,132 @@ void TabModel::persistCurrentTab() {
       QStringLiteral("active_tab:") + m_workspaceId,
       m_tabs.at(m_currentIndex).id);
 }
+
+void TabModel::closeOtherTabs(int keepIndex) {
+  const int originalCount = m_tabs.size();
+
+  if (originalCount <= 1 ||
+      keepIndex < 0 ||
+      keepIndex >= originalCount) {
+    return;
+  }
+
+  const QString keepId = m_tabs.at(keepIndex).id;
+
+  // Delete the database records in one statement.
+  if (!m_workspaceId.isEmpty()) {
+    Database *db = ProfileManager::instance()->database();
+    db->execute(
+        QStringLiteral(
+            "DELETE FROM tabs "
+            "WHERE workspace_id = :ws_id AND id != :keep_id;"),
+        {{QStringLiteral(":ws_id"), m_workspaceId},
+         {QStringLiteral(":keep_id"), keepId}});
+  }
+
+  // Remove the suffix as one contiguous model operation.
+  if (keepIndex + 1 < m_tabs.size()) {
+    const int first = keepIndex + 1;
+    const int last = m_tabs.size() - 1;
+
+    beginRemoveRows(QModelIndex(), first, last);
+
+    for (int i = last; i >= first; --i) {
+      m_tabs.removeAt(i);
+    }
+
+    endRemoveRows();
+  }
+
+  // Remove the prefix as one contiguous model operation.
+  if (keepIndex > 0) {
+    beginRemoveRows(QModelIndex(), 0, keepIndex - 1);
+
+    for (int i = keepIndex - 1; i >= 0; --i) {
+      m_tabs.removeAt(i);
+    }
+
+    endRemoveRows();
+  }
+
+  // The preserved tab is now the only tab, at index 0.
+  const bool selectionChanged = (m_currentIndex != 0);
+  m_currentIndex = 0;
+
+  emit countChanged();
+
+  if (selectionChanged) {
+    emit currentIndexChanged();
+  }
+
+  persistOrder();
+  persistCurrentTab();
+}
+
+void TabModel::closeTabsToBottom(int index) {
+  const int originalCount = m_tabs.size();
+
+  if (originalCount <= 1 ||
+      index < 0 ||
+      index >= originalCount - 1) {
+    return;
+  }
+
+  // Capture the IDs before changing the model.
+  QStringList idsToDelete;
+
+  for (int i = index + 1; i < originalCount; ++i) {
+    idsToDelete.append(m_tabs.at(i).id);
+  }
+
+  // Delete all affected records in one database statement.
+  if (!m_workspaceId.isEmpty()) {
+    Database *db = ProfileManager::instance()->database();
+
+    QVariantMap params;
+    params.insert(QStringLiteral(":ws_id"), m_workspaceId);
+
+    QStringList placeholders;
+
+    for (int i = 0; i < idsToDelete.size(); ++i) {
+      const QString placeholder =
+          QStringLiteral(":id%1").arg(i);
+
+      placeholders.append(placeholder);
+      params.insert(placeholder, idsToDelete.at(i));
+    }
+
+    const QString sql =
+        QStringLiteral(
+            "DELETE FROM tabs "
+            "WHERE workspace_id = :ws_id AND id IN (%1);")
+            .arg(placeholders.join(QStringLiteral(", ")));
+
+    db->execute(sql, params);
+  }
+
+  // Remove the entire suffix in one model operation.
+  const int first = index + 1;
+  const int last = originalCount - 1;
+
+  beginRemoveRows(QModelIndex(), first, last);
+
+  for (int i = last; i >= first; --i) {
+    m_tabs.removeAt(i);
+  }
+
+  endRemoveRows();
+
+  // If the active tab was closed, select the tab at the boundary.
+  const bool selectionChanged = (m_currentIndex > index);
+
+  if (selectionChanged) {
+    m_currentIndex = index;
+    emit currentIndexChanged();
+  }
+
+  emit countChanged();
+
+  persistOrder();
+  persistCurrentTab();
+}

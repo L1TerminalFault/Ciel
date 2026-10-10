@@ -65,6 +65,9 @@ public:
   Q_INVOKABLE void togglePin(int index);
   Q_INVOKABLE void setPinned(int index, bool pinned);
 
+  Q_INVOKABLE void closeOtherTabs(int keepIndex);
+  Q_INVOKABLE void closeTabsToBottom(int index);
+
 signals:
   void currentIndexChanged();
   void countChanged();
