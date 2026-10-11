@@ -57,6 +57,9 @@ public:
                                 const QString &profileImage = QString());
   Q_INVOKABLE bool deleteProfile(const QString &id);
   Q_INVOKABLE QVariantMap profileInfo(const QString &id) const;
+  Q_INVOKABLE QVariantList fetchBookmarks(const QString &search = QString());
+  Q_INVOKABLE void deleteBookmark(const QString &id);
+  Q_INVOKABLE QString completeUrl(const QString &input);
   QString stateValue(const QString &key, const QString &fallback = QString());
   void setStateValue(const QString &key, const QString &value);
   void removeStateValue(const QString &key);
