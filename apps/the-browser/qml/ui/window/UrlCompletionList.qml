@@ -7,84 +7,88 @@ Item {
     id: root
 
     property string query: ""
-    property int maxItems: 40            
+    property int maxItems: 40
     property int maxBookmarksWhenEmpty: 5
     property int rowHeight: 44
-    property int maxVisibleHeight: 280   
+    property int maxVisibleHeight: 280
     property int selectedIndex: -1
 
     readonly property int count: suggestionModel.count
 
     signal activated(string url)
     readonly property real headerHeight: headerLabel.implicitHeight + 2
-    readonly property real targetHeight: count > 0
-        ? headerHeight + Math.min(list.contentHeight, maxVisibleHeight) : 0
+    readonly property real targetHeight: count > 0 ? headerHeight + Math.min(list.contentHeight, maxVisibleHeight) : 0
     property real shownHeight: targetHeight
     Behavior on shownHeight {
-        CielSpring { damping: 0.5; spring: 5.0; mass: 1.0; epsilon: 0.01 }
+        CielSpring {
+            damping: 0.5
+            spring: 5.0
+            mass: 1.0
+            epsilon: 0.01
+        }
     }
 
     implicitHeight: Math.max(0, Math.min(shownHeight, headerHeight + maxVisibleHeight))
     clip: true
 
     function reload() {
-        suggestionModel.clear()
-        var seen = ({})
+        suggestionModel.clear();
+        var seen = ({});
 
         function add(entry, kind) {
-            var u = entry && entry.url ? ("" + entry.url) : ""
+            var u = entry && entry.url ? ("" + entry.url) : "";
             if (u === "" || seen[u] || suggestionModel.count >= maxItems)
-                return false
-            seen[u] = true
+                return false;
+            seen[u] = true;
             suggestionModel.append({
                 title: entry.title ? ("" + entry.title) : "",
                 url: u,
                 kind: kind
-            })
-            return true
+            });
+            return true;
         }
 
-        var marks = ProfileManager.fetchBookmarks(query) || []
-        var bookmarkCap = query === "" ? maxBookmarksWhenEmpty : maxItems
-        var added = 0
+        var marks = ProfileManager.fetchBookmarks(query) || [];
+        var bookmarkCap = query === "" ? maxBookmarksWhenEmpty : maxItems;
+        var added = 0;
         for (var i = 0; i < marks.length && added < bookmarkCap; ++i) {
             if (add(marks[i], "bookmark"))
-                added++
+                added++;
         }
 
-        var items = ProfileManager.fetchHistory(query) || []
+        var items = ProfileManager.fetchHistory(query) || [];
         for (var j = 0; j < items.length && suggestionModel.count < maxItems; ++j)
-            add(items[j], "history")
+            add(items[j], "history");
 
         if (selectedIndex >= suggestionModel.count)
-            selectedIndex = suggestionModel.count - 1
+            selectedIndex = suggestionModel.count - 1;
 
-        list.positionViewAtBeginning()
+        list.positionViewAtBeginning();
     }
 
     function move(delta) {
         if (count === 0) {
-            selectedIndex = -1
-            return
+            selectedIndex = -1;
+            return;
         }
-        var next = selectedIndex + delta
+        var next = selectedIndex + delta;
         if (next < -1)
-            next = -1
+            next = -1;
         if (next > count - 1)
-            next = count - 1
-        selectedIndex = next
+            next = count - 1;
+        selectedIndex = next;
         if (selectedIndex >= 0)
-            list.positionViewAtIndex(selectedIndex, ListView.Contain)
+            list.positionViewAtIndex(selectedIndex, ListView.Contain);
         else
-            list.positionViewAtBeginning()
+            list.positionViewAtBeginning();
     }
 
     function activateCurrent() {
         if (selectedIndex < 0 || selectedIndex >= suggestionModel.count)
-            return
-        var row = suggestionModel.get(selectedIndex)
+            return;
+        var row = suggestionModel.get(selectedIndex);
         if (row && row.url)
-            activated("" + row.url)
+            activated("" + row.url);
     }
 
     onQueryChanged: reload()
@@ -130,12 +134,12 @@ Item {
             Rectangle {
                 anchors.fill: parent
                 radius: 8
-                color: suggestionRow.isSelected
-                      ? Qt.alpha(Theme.accent, 0.16)
-                      : (rowMouse.containsMouse ? Qt.alpha(Theme.textPrimary, 0.05) : "transparent")
+                color: suggestionRow.isSelected ? Qt.alpha(Theme.accent, 0.16) : (rowMouse.containsMouse ? Qt.alpha(Theme.textPrimary, 0.05) : "transparent")
 
                 Behavior on color {
-                    ColorAnimation { duration: 120 }
+                    ColorAnimation {
+                        duration: 120
+                    }
                 }
             }
 
@@ -148,8 +152,7 @@ Item {
                 CielIcon {
                     icon: suggestionRow.isBookmark ? "bookmark-simple" : "clock-counter-clockwise"
                     size: Theme.XSMALL
-                    color: (suggestionRow.isSelected || suggestionRow.isBookmark)
-                           ? Theme.accent : Theme.textSecondary
+                    color: (suggestionRow.isSelected || suggestionRow.isBookmark) ? Theme.accent : Theme.textSecondary
                     Layout.alignment: Qt.AlignVCenter
                 }
 
