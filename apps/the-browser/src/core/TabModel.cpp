@@ -248,27 +248,6 @@ void TabModel::updateUrl(int index, const QUrl &url) {
                      QList<int>{UrlRole});
   }
 }
-// void TabModel::updateUrl(int index, const QUrl &url) {
-//   if (index < 0 || index >= m_tabs.size()) {
-//     return;
-//   }
-//   if (m_tabs[index].url != url) {
-//     m_tabs[index].url = url;
-//
-//     if (!m_workspaceId.isEmpty()) {
-//       Database *db = ProfileManager::instance()->database();
-//       db->execute(QStringLiteral("UPDATE tabs SET url = :url WHERE id = :id;"),
-//                   {{QStringLiteral(":url"), url.toString()},
-//                    {QStringLiteral(":id"), m_tabs[index].id}});
-//
-//       ProfileManager::instance()->recordVisit(
-//           url.toString(), m_tabs[index].title, m_workspaceId);
-//     }
-//
-//     emit dataChanged(this->index(index), this->index(index),
-//                      QList<int>{UrlRole});
-//   }
-// }
 
 void TabModel::updateLoading(int index, bool loading) {
   if (index < 0 || index >= m_tabs.size()) {
@@ -432,13 +411,10 @@ void TabModel::closeOtherTabs(int keepIndex) {
   }
 
   const QString keepId = m_tabs.at(keepIndex).id;
-  // Highest index first, so restoring pops the lowest index first
-  // and each tab lands back at its exact original position.
   for (int i = originalCount - 1; i >= 0; --i)
     if (i != keepIndex)
       rememberClosedTab(i);
 
-  // Delete the database records in one statement.
   if (!m_workspaceId.isEmpty()) {
     Database *db = ProfileManager::instance()->database();
     db->execute(
@@ -449,7 +425,6 @@ void TabModel::closeOtherTabs(int keepIndex) {
          {QStringLiteral(":keep_id"), keepId}});
   }
 
-  // Remove the suffix as one contiguous model operation.
   if (keepIndex + 1 < m_tabs.size()) {
     const int first = keepIndex + 1;
     const int last = m_tabs.size() - 1;
@@ -463,7 +438,6 @@ void TabModel::closeOtherTabs(int keepIndex) {
     endRemoveRows();
   }
 
-  // Remove the prefix as one contiguous model operation.
   if (keepIndex > 0) {
     beginRemoveRows(QModelIndex(), 0, keepIndex - 1);
 
@@ -474,7 +448,6 @@ void TabModel::closeOtherTabs(int keepIndex) {
     endRemoveRows();
   }
 
-  // The preserved tab is now the only tab, at index 0.
   const bool selectionChanged = (m_currentIndex != 0);
   m_currentIndex = 0;
 
@@ -497,14 +470,12 @@ void TabModel::closeTabsToBottom(int index) {
     return;
   }
 
-  // Capture the IDs before changing the model.
   QStringList idsToDelete;
 
   for (int i = index + 1; i < originalCount; ++i) {
     idsToDelete.append(m_tabs.at(i).id);
   }
 
-  // Delete all affected records in one database statement.
   if (!m_workspaceId.isEmpty()) {
     Database *db = ProfileManager::instance()->database();
 
@@ -533,7 +504,6 @@ void TabModel::closeTabsToBottom(int index) {
     db->execute(sql, params);
   }
 
-  // Remove the entire suffix in one model operation.
   const int first = index + 1;
   const int last = originalCount - 1;
 
@@ -545,7 +515,6 @@ void TabModel::closeTabsToBottom(int index) {
 
   endRemoveRows();
 
-  // If the active tab was closed, select the tab at the boundary.
   const bool selectionChanged = (m_currentIndex > index);
 
   if (selectionChanged) {
@@ -566,7 +535,7 @@ void TabModel::rememberClosedTab(int index) {
   const auto &tab = m_tabs.at(index);
   const QString u = tab.url.toString();
   if (u.isEmpty() || u == QStringLiteral("about:blank"))
-    return; // don't remember empty new tabs
+    return; 
 
   m_closedTabs.append({tab.url, tab.title, tab.isPinned, index});
   while (m_closedTabs.size() > kMaxClosedTabs)
@@ -586,7 +555,7 @@ void TabModel::restoreClosedTab() {
     if (t.isPinned)
       ++pinnedCount;
 
-  // Pinned tabs live at the front, unpinned after them.
+  
   const int pos = closed.isPinned
                       ? qBound(0, closed.index, pinnedCount)
                       : qBound(pinnedCount, closed.index, int(m_tabs.size()));
@@ -619,7 +588,7 @@ void TabModel::restoreClosedTab() {
   emit countChanged();
   emit closedTabsChanged();
 
-  persistOrder(); // fixes sort_order for everything after pos
+  persistOrder(); 
 
   m_currentIndex = pos;
   persistCurrentTab();
