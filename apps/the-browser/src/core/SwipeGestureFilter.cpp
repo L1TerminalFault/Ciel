@@ -55,8 +55,6 @@ void SwipeGestureFilter::setThreshold(double val) {
   }
 }
 
-// SwipeGestureFilter::~SwipeGestureFilter() = default;
-
 bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
   if (event->type() != QEvent::Wheel)
     return QQuickItem::eventFilter(watched, event);
@@ -69,14 +67,12 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
     return QQuickItem::eventFilter(watched, event);
   }
 
-  // New gesture starts.
   if (we->phase() == Qt::ScrollBegin) {
     m_hasPhase = true;
     m_gestureRejected = false;
     m_inactivityTimer.stop();
   }
 
-  // If this gesture started vertically, completely ignore it.
   if (m_gestureRejected) {
     if (we->phase() == Qt::ScrollEnd ||
         we->phase() == Qt::NoScrollPhase) {
@@ -112,16 +108,9 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
                   ? pixelDelta.y()
                   : (angleDelta.y() / 4.0);
 
-  // Don't classify zero movement.
   if (dx == 0.0 && dy == 0.0)
     return QQuickItem::eventFilter(watched, event);
 
-  // ---------------------------------------------------------
-  // AXIS LOCK
-  //
-  // The first meaningful movement decides the gesture axis.
-  // If it starts vertically, abandon the gesture entirely.
-  // ---------------------------------------------------------
   if (!m_active) {
 
     if (std::abs(dy) >= std::abs(dx)) {
@@ -129,7 +118,6 @@ bool SwipeGestureFilter::eventFilter(QObject *watched, QEvent *event) {
       return QQuickItem::eventFilter(watched, event);
     }
 
-    // Horizontal gesture.
     if (std::abs(dx) < 2.0)
       return QQuickItem::eventFilter(watched, event);
 
