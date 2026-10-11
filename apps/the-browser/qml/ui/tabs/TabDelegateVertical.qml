@@ -25,8 +25,8 @@ Item {
     readonly property int totalTabs: tabModel ? tabModel.count : 1
 
     property bool deferModelRemoval: false
-property var tabRepeater: null
-property var deferredCloseCallback: null
+    property var tabRepeater: null
+    property var deferredCloseCallback: null
 
     readonly property int localPinnedCount: {
         if (collisionHub && collisionHub.currentPinnedCount > 0)
@@ -105,138 +105,137 @@ property var deferredCloseCallback: null
     property real clickOffsetX: 0.0
     property real clickOffsetY: 0.0
 
+    function createTabBelow() {
+        if (!tabModel)
+            return;
 
-function createTabBelow() {
-    if (!tabModel)
-        return;
+        var insertIndex = tabDelegateV.index + 1;
 
-    var insertIndex = tabDelegateV.index + 1;
+        tabModel.addTab("about:blank");
 
-    tabModel.addTab("about:blank");
+        var newIndex = tabModel.count - 1;
 
-    var newIndex = tabModel.count - 1;
+        if (newIndex !== insertIndex)
+            tabModel.moveTab(newIndex, insertIndex);
 
-    if (newIndex !== insertIndex)
-        tabModel.moveTab(newIndex, insertIndex);
-
-    tabModel.currentIndex = insertIndex;
-}
-
-function duplicateTab() {
-    if (!tabModel)
-        return;
-
-    var sourceUrl = tabDelegateV.url;
-    var insertIndex = tabDelegateV.index + 1;
-
-    tabModel.addTab(sourceUrl || "about:blank");
-
-    var newIndex = tabModel.count - 1;
-
-    if (newIndex !== insertIndex)
-        tabModel.moveTab(newIndex, insertIndex);
-
-    tabModel.currentIndex = insertIndex;
-}
-
-function closeOtherTabs() {
-    if (!tabModel || !tabRepeater)
-        return;
-
-    var keepIndex = tabDelegateV.index;
-    var targets = [];
-
-    for (var i = 0; i < tabModel.count; ++i) {
-        if (i === keepIndex)
-            continue;
-
-        var delegate = tabRepeater.itemAt(i);
-        if (delegate)
-            targets.push(delegate);
+        tabModel.currentIndex = insertIndex;
     }
 
-    if (targets.length === 0)
-        return;
-
-    var finishedCount = 0;
-    var finalized = false;
-
-    var onTargetFinished = function() {
-        if (finalized)
+    function duplicateTab() {
+        if (!tabModel)
             return;
 
-        finishedCount++;
+        var sourceUrl = tabDelegateV.url;
+        var insertIndex = tabDelegateV.index + 1;
 
-        if (finishedCount < targets.length)
+        tabModel.addTab(sourceUrl || "about:blank");
+
+        var newIndex = tabModel.count - 1;
+
+        if (newIndex !== insertIndex)
+            tabModel.moveTab(newIndex, insertIndex);
+
+        tabModel.currentIndex = insertIndex;
+    }
+
+    function closeOtherTabs() {
+        if (!tabModel || !tabRepeater)
             return;
 
-        finalized = true;
+        var keepIndex = tabDelegateV.index;
+        var targets = [];
 
-        for (var j = 0; j < targets.length; ++j) {
-            targets[j].deferredCloseCallback = null;
-            targets[j].deferModelRemoval = false;
+        for (var i = 0; i < tabModel.count; ++i) {
+            if (i === keepIndex)
+                continue;
+
+            var delegate = tabRepeater.itemAt(i);
+            if (delegate)
+                targets.push(delegate);
         }
 
-        tabModel.closeOtherTabs(keepIndex);
-    };
-
-    for (var k = 0; k < targets.length; ++k) {
-        targets[k].deferModelRemoval = true;
-        targets[k].deferredCloseCallback = onTargetFinished;
-    }
-
-    for (var n = 0; n < targets.length; ++n) {
-        targets[n].requestClose();
-    }
-}
-
-function closeTabsToBottom() {
-    if (!tabModel || !tabRepeater)
-        return;
-
-    var keepIndex = tabDelegateV.index;
-    var targets = [];
-
-    for (var i = keepIndex + 1; i < tabModel.count; ++i) {
-        var delegate = tabRepeater.itemAt(i);
-        if (delegate)
-            targets.push(delegate);
-    }
-
-    if (targets.length === 0)
-        return;
-
-    var finishedCount = 0;
-    var finalized = false;
-
-    var onTargetFinished = function() {
-        if (finalized)
+        if (targets.length === 0)
             return;
 
-        finishedCount++;
+        var finishedCount = 0;
+        var finalized = false;
 
-        if (finishedCount < targets.length)
-            return;
+        var onTargetFinished = function () {
+            if (finalized)
+                return;
 
-        finalized = true;
+            finishedCount++;
 
-        for (var j = 0; j < targets.length; ++j) {
-            targets[j].deferredCloseCallback = null;
-            targets[j].deferModelRemoval = false;
+            if (finishedCount < targets.length)
+                return;
+
+            finalized = true;
+
+            for (var j = 0; j < targets.length; ++j) {
+                targets[j].deferredCloseCallback = null;
+                targets[j].deferModelRemoval = false;
+            }
+
+            tabModel.closeOtherTabs(keepIndex);
+        };
+
+        for (var k = 0; k < targets.length; ++k) {
+            targets[k].deferModelRemoval = true;
+            targets[k].deferredCloseCallback = onTargetFinished;
         }
 
-        tabModel.closeTabsToBottom(keepIndex);
-    };
-
-    for (var k = 0; k < targets.length; ++k) {
-        targets[k].deferModelRemoval = true;
-        targets[k].deferredCloseCallback = onTargetFinished;
+        for (var n = 0; n < targets.length; ++n) {
+            targets[n].requestClose();
+        }
     }
 
-    for (var n = 0; n < targets.length; ++n) {
-        targets[n].requestClose();
+    function closeTabsToBottom() {
+        if (!tabModel || !tabRepeater)
+            return;
+
+        var keepIndex = tabDelegateV.index;
+        var targets = [];
+
+        for (var i = keepIndex + 1; i < tabModel.count; ++i) {
+            var delegate = tabRepeater.itemAt(i);
+            if (delegate)
+                targets.push(delegate);
+        }
+
+        if (targets.length === 0)
+            return;
+
+        var finishedCount = 0;
+        var finalized = false;
+
+        var onTargetFinished = function () {
+            if (finalized)
+                return;
+
+            finishedCount++;
+
+            if (finishedCount < targets.length)
+                return;
+
+            finalized = true;
+
+            for (var j = 0; j < targets.length; ++j) {
+                targets[j].deferredCloseCallback = null;
+                targets[j].deferModelRemoval = false;
+            }
+
+            tabModel.closeTabsToBottom(keepIndex);
+        };
+
+        for (var k = 0; k < targets.length; ++k) {
+            targets[k].deferModelRemoval = true;
+            targets[k].deferredCloseCallback = onTargetFinished;
+        }
+
+        for (var n = 0; n < targets.length; ++n) {
+            targets[n].requestClose();
+        }
     }
-}
 
     function updateDragCoordinates() {
         if (!collisionHub || !isDragging)
@@ -555,14 +554,14 @@ function closeTabsToBottom() {
             }
         }
 
-onFinished: {
-    if (tabDelegateV.deferModelRemoval) {
-        if (tabDelegateV.deferredCloseCallback)
-            tabDelegateV.deferredCloseCallback()
-    } else {
-        tabModel.closeTab(tabDelegateV.index)
-    }
-}
+        onFinished: {
+            if (tabDelegateV.deferModelRemoval) {
+                if (tabDelegateV.deferredCloseCallback)
+                    tabDelegateV.deferredCloseCallback();
+            } else {
+                tabModel.closeTab(tabDelegateV.index);
+            }
+        }
     }
 
     Component.onCompleted: spawnProgress = 1.0
@@ -605,9 +604,9 @@ onFinished: {
                 if (!tabDelegateV.isClosing) {
                     tabModel.currentIndex = tabDelegateV.index;
                 }
-              } else if (mouse.button === Qt.RightButton) {
-                  tabContextMenu.popup(mouse.x, mouse.y, this);
-              }
+            } else if (mouse.button === Qt.RightButton) {
+                tabContextMenu.popup(mouse.x, mouse.y, this);
+            }
         }
 
         onPositionChanged: mouse => {
@@ -818,8 +817,8 @@ onFinished: {
             anchors.top: parent.top
             anchors.leftMargin: -6
             anchors.topMargin: -6
-            
-            width: closeBtnPop.width - 4 
+
+            width: closeBtnPop.width - 4
             height: width
             radius: width / 2
             color: Theme.surface
@@ -850,13 +849,13 @@ onFinished: {
             layer.effect: MultiEffect {
                 shadowEnabled: true
                 shadowColor: Qt.rgba(0, 0, 0, 0.15)
-                shadowBlur: 0.3                   
-                shadowVerticalOffset: 2          
+                shadowBlur: 0.3
+                shadowVerticalOffset: 2
             }
 
             CielIconButton {
                 id: closeBtnPop
-                anchors.centerIn: parent 
+                anchors.centerIn: parent
                 icon: "x"
                 size: Theme.XXSMALL
                 onClicked: tabDelegateV.requestClose()
@@ -938,86 +937,84 @@ onFinished: {
         }
     }
 
+    CielContextMenu {
+        id: tabContextMenu
 
-CielContextMenu {
-    id: tabContextMenu
+        CielMenuItem {
+            text: "New tab to the bottom"
+            icon: ""
 
-    CielMenuItem {
-        text: "New tab to the bottom"
-        icon: ""
+            onTriggered: {
+                tabDelegateV.createTabBelow("about:blank");
+                tabContextMenu.close();
+            }
+        }
 
-        onTriggered: {
-            tabDelegateV.createTabBelow("about:blank");
-            tabContextMenu.close();
+        CielMenuItem {
+            text: "Duplicate"
+            icon: ""
+
+            onTriggered: {
+                tabDelegateV.duplicateTab();
+                tabContextMenu.close();
+            }
+        }
+
+        CielMenuSeparator {}
+
+        CielMenuItem {
+            text: "Reload"
+            icon: "arrow-clockwise"
+            onTriggered: {
+                var page = tabDelegateV.currentTabView;
+                if (page && page.engine)
+                    page.engine.reload();
+
+                tabContextMenu.close();
+            }
+        }
+
+        CielMenuItem {
+            text: "Pin"
+            icon: "push-pin"
+
+            onTriggered: {
+                tabModel.togglePin(tabDelegateV.index);
+                tabContextMenu.close();
+            }
+        }
+
+        CielMenuItem {
+            text: "Close"
+            icon: "x"
+            enabled: tabModel.count > 1
+
+            onTriggered: {
+                tabContextMenu.close();
+                tabDelegateV.requestClose();
+            }
+        }
+
+        CielMenuSeparator {}
+
+        CielMenuItem {
+            text: "Close other tabs"
+            icon: ""
+
+            onTriggered: {
+                tabContextMenu.close();
+                tabDelegateV.closeOtherTabs();
+            }
+        }
+
+        CielMenuItem {
+            text: "Close tabs to the bottom"
+            icon: ""
+
+            onTriggered: {
+                tabContextMenu.close();
+                tabDelegateV.closeTabsToBottom();
+            }
         }
     }
-
-    
-    CielMenuItem {
-        text: "Duplicate"
-        icon: ""
-
-        onTriggered: {
-            tabDelegateV.duplicateTab();
-            tabContextMenu.close();
-        }
-    }
-
-    CielMenuSeparator {}
-
-    CielMenuItem {
-        text: "Reload"
-        icon: "arrow-clockwise"
-        onTriggered: {
-            var page = tabDelegateV.currentTabView;
-            if (page && page.engine)
-                page.engine.reload();
-
-            tabContextMenu.close();
-        }
-    }
-
-    CielMenuItem {
-        text: "Pin"
-        icon: "push-pin"
-
-        onTriggered: {
-            tabModel.togglePin(tabDelegateV.index);
-            tabContextMenu.close();
-        }
-    }
-
-    CielMenuItem {
-        text: "Close"
-        icon: "x"
-        enabled: tabModel.count > 1
-
-        onTriggered: {
-            tabContextMenu.close();
-            tabDelegateV.requestClose();
-        }
-    }
-
-    CielMenuSeparator {}
-
-    CielMenuItem {
-        text: "Close other tabs"
-        icon: ""
-
-        onTriggered: {
-            tabContextMenu.close();
-            tabDelegateV.closeOtherTabs();
-        }
-    }
-
-    CielMenuItem {
-        text: "Close tabs to the bottom"
-        icon: ""
-
-        onTriggered: {
-            tabContextMenu.close();
-            tabDelegateV.closeTabsToBottom();
-        }
-    }
-}
 }
