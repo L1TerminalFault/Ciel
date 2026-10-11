@@ -115,7 +115,8 @@ Item {
 
     Item {
         id: menuCard
-        width: Math.max(60, Math.min(400, tooltipText.implicitWidth + 24))
+        // width: Math.max(60, Math.min(400, tooltipText.implicitWidth + 24))
+        width: Math.max(60, tooltipText.implicitWidth + 24)
         height: tooltipText.implicitHeight + 16
         
         scale: 0.94 + (root.openProgress * 0.06)
