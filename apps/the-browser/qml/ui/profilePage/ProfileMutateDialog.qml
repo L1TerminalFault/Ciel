@@ -12,9 +12,6 @@ CielPopup {
     contentWidth: 320
     contentHeight: 300
 
-    // property string profileId: ""
-    // property string profileColor: ""
-    // property string chosenImage: ""
     property string profileId: ""
     property string profileColor: ""
     property string chosenImage: ""
@@ -53,47 +50,15 @@ CielPopup {
 
     onAfterClosed: reset()
 
-    // function openForProfile(id) {
-    //     profileId = id;
-
-    //     const info = ProfileManager.profileInfo(id);
-
-    //     nameField.text = info.displayName || "";
-    //     profileColor = info.color || "";
-    //     chosenImage = info.profileImage || "";
-
-    //     open();
-    // }
-
-    // function reset() {
-    //     profileId = "";
-    //     profileColor = "";
-    //     chosenImage = "";
-    //     nameField.text = "";
-    // }
-
-    // onClosed: reset()
-
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 24
         spacing: 20
 
-        // Text {
-        //     // text: "Edit Profile"
-        //     text: editMode ? "Edit Profile" : "New Profile"
-        //     font.pixelSize: 14
-        //     font.weight: Font.DemiBold
-        //     color: Theme.textPrimary
-        //     Layout.fillWidth: true
-        // }
-
-        // Profile image + display name
         ColumnLayout {
             Layout.fillWidth: true
             spacing: 24
 
-            // Avatar
             Item {
                 Layout.alignment: Qt.AlignHCenter
                 Layout.preferredWidth: 110
@@ -136,7 +101,7 @@ CielPopup {
 
                         Text {
                             anchors.centerIn: parent
-                            text: nameField.text.charAt(0).toUpperCase() // model.displayName.charAt(0).toUpperCase()
+                            text: nameField.text.charAt(0).toUpperCase()
                             visible: editProfileDialog.chosenImage === "" && editProfileDialog.editMode
                             font.bold: true
                             font.pixelSize: 18
@@ -150,7 +115,6 @@ CielPopup {
                     visible: !editProfileDialog.editMode
                 }
 
-                // Clickable avatar
                 MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
@@ -158,40 +122,6 @@ CielPopup {
                     onClicked: imagePicker.open()
                 }
 
-                // Optional camera/edit indicator
-                // Rectangle {
-                //     id: deleteIconContainer
-                //     width: 26
-                //     height: 26
-                //     radius: 13
-                //
-                //     // Position it explicitly via a fixed anchor offset boundary
-                //     anchors.right: parent.right
-                //     anchors.bottom: parent.bottom
-                //     anchors.margins: 4
-                //
-                //     color: Theme.surface
-                //     border.width: 1
-                //     border.color: Theme.border
-                //     visible: editProfileDialog.chosenImage !== ""
-                //
-                //     CielIcon {
-                //         // Enforces structural width and height dimensions to allow parent alignment
-                //         width: 16
-                //         height: 16
-                //         anchors.centerIn: parent
-                //
-                //         icon: "trash"
-                //         size: Theme.SMALL
-                //         color: "#ff2589"
-                //     }
-                //
-                //     MouseArea {
-                //         anchors.fill: parent
-                //         cursorShape: Qt.PointingHandCursor
-                //         onClicked: editProfileDialog.chosenImage = ""
-                //     }
-                // }
                 Rectangle {
                     width: 32
                     height: 32
@@ -204,14 +134,11 @@ CielPopup {
                     border.width: 1
                     border.color: Theme.border
 
-                    // visible: editProfileDialog.editMode
-
                     CielIcon {
                         anchors.centerIn: parent
                         icon: editProfileDialog.chosenImage !== "" ? "trash" : "pencil"
                         size: Theme.SMALL
                         color: editProfileDialog.chosenImage !== "" ? "#ff2589" : Theme.textSecondary
-                        // color: Theme.textSecondary
                     }
 
                     MouseArea {
@@ -221,37 +148,8 @@ CielPopup {
                         onClicked: editProfileDialog.chosenImage === "" ? imagePicker.open() : editProfileDialog.chosenImage = ""
                     }
                 }
-                // Rectangle {
-                //     width: 22
-                //     height: 22
-                //     radius: 11
-                //
-                //     anchors.right: parent.right
-                //     anchors.bottom: parent.bottom
-                //
-                //     color: Theme.surface
-                //     border.width: 1
-                //     border.color: Theme.border
-                //
-                //     visible: editProfileDialog.chosenImage !== ""
-                //
-                //     CielIcon {
-                //         anchors.centerIn: parent
-                //         icon: "trash"
-                //         size: Theme.SMALL
-                //         color: Theme.textSecondary
-                //     }
-                //
-                //     MouseArea {
-                //         anchors.fill: parent
-                //         cursorShape: Qt.PointingHandCursor
-                //
-                //         onClicked: editProfileDialog.chosenImage = ""
-                //     }
-                // }
             }
 
-            // Display name
             Item {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 42
@@ -297,7 +195,6 @@ CielPopup {
             Layout.fillHeight: true
         }
 
-        // Actions
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
@@ -309,12 +206,10 @@ CielPopup {
             CielButton {
                 text: "Cancel"
 
-                // onClicked: editProfileDialog.close()
                 onClicked: close()
             }
 
             CielButton {
-                // text: "Save"
                 text: editMode ? "Save" : "Create"
                 primary: true
 
@@ -341,24 +236,6 @@ CielPopup {
                         }
                     }
                 }
-                // onClicked: {
-                //     const name = nameField.text.trim();
-
-                //     if (name.length === 0 || editProfileDialog.profileId === "")
-                //         return;
-
-                //     const updated = ProfileManager.updateProfile(
-                //         editProfileDialog.profileId,
-                //         name,
-                //         editProfileDialog.profileColor,
-                //         editProfileDialog.chosenImage
-                //     );
-
-                //     if (updated)
-                //         editProfileDialog.close();
-                //     else
-                //         console.warn("Failed to update profile");
-                // }
             }
         }
     }
