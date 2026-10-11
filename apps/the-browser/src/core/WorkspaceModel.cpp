@@ -169,10 +169,11 @@ void WorkspaceModel::persistCurrentWorkspace() {
 void WorkspaceModel::persistWorkspaceOrder() {
   Database *db = ProfileManager::instance()->database();
   for (int i = 0; i < m_workspaces.size(); ++i) {
-    db->execute(QStringLiteral(
-                    "UPDATE workspaces SET sort_order = :order WHERE id = :id;"),
-                {{QStringLiteral(":order"), i},
-                 {QStringLiteral(":id"), m_workspaces.at(i).id}});
+    db->execute(
+        QStringLiteral(
+            "UPDATE workspaces SET sort_order = :order WHERE id = :id;"),
+        {{QStringLiteral(":order"), i},
+         {QStringLiteral(":id"), m_workspaces.at(i).id}});
   }
 }
 
@@ -264,17 +265,16 @@ void WorkspaceModel::seedDefaultWorkspaces() {
 
   int order = 0;
   for (const auto &def : kDefaultWorkspaces) {
-    db->execute(
-        QStringLiteral(
-            "INSERT OR IGNORE INTO workspaces (id, name, color, icon, "
-            "preset_id, sort_order) "
-            "VALUES (:id, :name, :color, :icon, NULL, :sort_order);"),
-        {{QStringLiteral(":id"),
-          QStringLiteral("default-workspace-%1").arg(order + 1)},
-         {QStringLiteral(":name"), QString::fromLatin1(def.name)},
-         {QStringLiteral(":color"), QString::fromLatin1(def.color)},
-         {QStringLiteral(":icon"), QStringLiteral("browser")},
-         {QStringLiteral(":sort_order"), order}});
+    db->execute(QStringLiteral(
+                    "INSERT OR IGNORE INTO workspaces (id, name, color, icon, "
+                    "preset_id, sort_order) "
+                    "VALUES (:id, :name, :color, :icon, NULL, :sort_order);"),
+                {{QStringLiteral(":id"),
+                  QStringLiteral("default-workspace-%1").arg(order + 1)},
+                 {QStringLiteral(":name"), QString::fromLatin1(def.name)},
+                 {QStringLiteral(":color"), QString::fromLatin1(def.color)},
+                 {QStringLiteral(":icon"), QStringLiteral("browser")},
+                 {QStringLiteral(":sort_order"), order}});
     ++order;
   }
 }
@@ -436,10 +436,9 @@ void WorkspaceModel::loadEphemeralWorkspaces() {
   for (const auto &def : kDefaultWorkspaces) {
     if (n >= kEphemeralWorkspaceCount)
       break;
-    m_workspaces.append({QStringLiteral("ephemeral-%1").arg(++n),
-                         QString::fromLatin1(def.name),
-                         QString::fromLatin1(def.color),
-                         QStringLiteral("browser"), QString()});
+    m_workspaces.append(
+        {QStringLiteral("ephemeral-%1").arg(++n), QString::fromLatin1(def.name),
+         QString::fromLatin1(def.color), QStringLiteral("browser"), QString()});
   }
   m_currentIndex = 0;
   endResetModel();
