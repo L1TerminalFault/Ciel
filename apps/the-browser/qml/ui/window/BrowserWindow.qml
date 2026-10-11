@@ -31,39 +31,38 @@ ApplicationWindow {
     property alias appSettings: browserSettings
 
     function openNewTab(url) {
-        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
+        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
         if (!model)
-            return
+            return;
         if (!url) {
-            var home = (browserSettings.homepage || "").trim()
+            var home = (browserSettings.homepage || "").trim();
             if (home === "")
-                model.addTab()
+                model.addTab();
             else
                 model.addTab(browserSettings.resolveInput(home, function (text) {
-                    return browserConfig.resolveQueryOrUrl(text)
-                }))
+                    return browserConfig.resolveQueryOrUrl(text);
+                }));
         } else {
             model.addTab(browserConfig.resolveQueryOrUrl(url));
         }
-
     }
 
     function openSettings() {
-        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
+        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
         if (model)
-            model.addTab("ciel://settings")
+            model.addTab("ciel://settings");
     }
 
     function applyProfileSettings() {
-        var p = currentWebProfile
+        var p = currentWebProfile;
         if (!p)
-            return
+            return;
         if (!browserSettings.stockUserAgent && p.httpUserAgent)
-            browserSettings.stockUserAgent = p.httpUserAgent
-        var ua = browserSettings.uaFor(browserSettings.userAgentPreset)
+            browserSettings.stockUserAgent = p.httpUserAgent;
+        var ua = browserSettings.uaFor(browserSettings.userAgentPreset);
         if (ua)
-            p.httpUserAgent = ua
-        p.spellCheckEnabled = browserSettings.spellCheckEnabled
+            p.httpUserAgent = ua;
+        p.spellCheckEnabled = browserSettings.spellCheckEnabled;
     }
 
     title: isPrivate ? "Browser — Private" : "Browser"
@@ -71,221 +70,278 @@ ApplicationWindow {
     color: Theme.background
     property int railOrientation: Qt.Vertical
 
-    readonly property var currentWebProfile: !windowManager ? null
-        : (isPrivate ? windowManager.privateProfile()
-                     : windowManager.profileFor(ProfileManager.activeProfileId))
+    readonly property var currentWebProfile: !windowManager ? null : (isPrivate ? windowManager.privateProfile() : windowManager.profileFor(ProfileManager.activeProfileId))
 
     function startDownload(downloadUrl, fileName, mimeType) {
-        browserConfig.startDownload(downloadUrl, fileName, mimeType)
-        tabRail.downloadsPopup.open()
+        browserConfig.startDownload(downloadUrl, fileName, mimeType);
+        tabRail.downloadsPopup.open();
     }
 
     readonly property var pageScripts: {
-        var list = [{
-            name: "ciel-passwords",
-            sourceCode: PasswordManager.injectedScript(),
-            injectionPoint: WebEngineScript.DocumentReady,
-            worldId: WebEngineScript.ApplicationWorld,
-            runsOnSubFrames: false
-        }]
+        var list = [
+            {
+                name: "ciel-passwords",
+                sourceCode: PasswordManager.injectedScript(),
+                injectionPoint: WebEngineScript.DocumentReady,
+                worldId: WebEngineScript.ApplicationWorld,
+                runsOnSubFrames: false
+            }
+        ];
 
         if (isPrivate)
-            return list
+            return list;
 
-        var ext = ExtensionManager.scripts
+        var ext = ExtensionManager.scripts;
         var points = {
             start: WebEngineScript.DocumentCreation,
             end: WebEngineScript.DocumentReady,
             idle: WebEngineScript.Deferred
-        }
+        };
         for (var i = 0; i < ext.length; ++i) {
             list.push({
                 name: ext[i].name,
                 sourceCode: ext[i].sourceCode,
                 injectionPoint: points[ext[i].runAt] ?? WebEngineScript.Deferred,
-                worldId: ext[i].world === "main" ? WebEngineScript.MainWorld
-                                                 : WebEngineScript.UserWorld,
+                worldId: ext[i].world === "main" ? WebEngineScript.MainWorld : WebEngineScript.UserWorld,
                 runsOnSubFrames: ext[i].allFrames
-            })
+            });
         }
-        return list
+        return list;
     }
 
     function openFind() {
-        var v = webContainer.currentActiveView
+        var v = webContainer.currentActiveView;
         if (!v || !v.visible)
-            return
-        locationPopup.dismiss()
-        findBar.open(v)
+            return;
+        locationPopup.dismiss();
+        findBar.open(v);
     }
 
     function openLocation(mode) {
         if (!mode) {
-            var v = webContainer.currentActiveView
+            var v = webContainer.currentActiveView;
             if (!v)
-                return
+                return;
             if (findBar.isOpen)
-                findBar.close()
-            locationPopup.open(v)
+                findBar.close();
+            locationPopup.open(v);
         } else {
-            locationPopup.newTab = true
-            locationPopup.open()
+            locationPopup.newTab = true;
+            locationPopup.open();
         }
     }
 
     function restoreClosedTab() {
-        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-        if (model) model.restoreClosedTab()
+        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+        if (model)
+            model.restoreClosedTab();
     }
     function permissionInfo(feature) {
         switch (feature) {
         case WebEngineView.MediaAudioCapture:
-            return { keys: ["microphone"], name: "Microphone", icon: "microphone", persist: true }
+            return {
+                keys: ["microphone"],
+                name: "Microphone",
+                icon: "microphone",
+                persist: true
+            };
         case WebEngineView.MediaVideoCapture:
-            return { keys: ["camera"], name: "Camera", icon: "camera", persist: true }
+            return {
+                keys: ["camera"],
+                name: "Camera",
+                icon: "camera",
+                persist: true
+            };
         case WebEngineView.MediaAudioVideoCapture:
-            return { keys: ["microphone", "camera"], name: "Camera and Microphone", icon: "camera", persist: true }
+            return {
+                keys: ["microphone", "camera"],
+                name: "Camera and Microphone",
+                icon: "camera",
+                persist: true
+            };
         case WebEngineView.DesktopVideoCapture:
         case WebEngineView.DesktopAudioVideoCapture:
-            return { keys: [], name: "Screen Sharing", icon: "monitor", persist: false }   
+            return {
+                keys: [],
+                name: "Screen Sharing",
+                icon: "monitor",
+                persist: false
+            };
         case WebEngineView.Geolocation:
-            return { keys: ["location"], name: "Location", icon: "map-pin", persist: true }
+            return {
+                keys: ["location"],
+                name: "Location",
+                icon: "map-pin",
+                persist: true
+            };
         case WebEngineView.Notifications:
-            return { keys: ["notifications"], name: "Notifications", icon: "bell", persist: true }
+            return {
+                keys: ["notifications"],
+                name: "Notifications",
+                icon: "bell",
+                persist: true
+            };
         }
-        return null
+        return null;
     }
 
     property var sessionDecisions: ({})
 
     function storedDecision(origin, keys) {
         if (origin === "" || keys.length === 0)
-            return ""
-        var allGranted = true
+            return "";
+        var allGranted = true;
         for (var i = 0; i < keys.length; ++i) {
-            var s = isPrivate ? (sessionDecisions[origin + "|" + keys[i]] || "")
-                              : SitePermissionManager.permissionState(origin, keys[i])
+            var s = isPrivate ? (sessionDecisions[origin + "|" + keys[i]] || "") : SitePermissionManager.permissionState(origin, keys[i]);
             if (s === "denied")
-                return "denied"
+                return "denied";
             if (s !== "granted")
-                allGranted = false
+                allGranted = false;
         }
-        return allGranted ? "granted" : ""
+        return allGranted ? "granted" : "";
     }
 
     function rememberDecision(origin, keys, granted) {
-        var s = granted ? "granted" : "denied"
+        var s = granted ? "granted" : "denied";
         for (var i = 0; i < keys.length; ++i) {
             if (isPrivate)
-                sessionDecisions[origin + "|" + keys[i]] = s
+                sessionDecisions[origin + "|" + keys[i]] = s;
             else
-                SitePermissionManager.setPermission(origin, keys[i], s)
+                SitePermissionManager.setPermission(origin, keys[i], s);
         }
     }
 
     function localPathFromUrl(u) {
-        var s = u.toString()
-        s = s.replace(/^file:\/\/\/([A-Za-z]:)/, "$1")   
-        s = s.replace(/^file:\/\//, "")                 
-        return decodeURIComponent(s)
+        var s = u.toString();
+        s = s.replace(/^file:\/\/\/([A-Za-z]:)/, "$1");
+        s = s.replace(/^file:\/\//, "");
+        return decodeURIComponent(s);
     }
 
     function printCurrentPage() {
-        var v = webContainer.currentActiveView
+        var v = webContainer.currentActiveView;
         if (!v || !v.visible)
-            return
-
-        var name = (v.title || "page").replace(/[\\\/:*?"<>|]+/g, "_").trim()
+            return;
+        var name = (v.title || "page").replace(/[\\\/:*?"<>|]+/g, "_").trim();
         if (name === "")
-            name = "page"
+            name = "page";
 
-        printDialog.printView = v
+        printDialog.printView = v;
 
-        printDialog.currentFile = StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-                                  + "/" + name + ".pdf"
-        printDialog.open()
+        printDialog.currentFile = StandardPaths.writableLocation(StandardPaths.DocumentsLocation) + "/" + name + ".pdf";
+        printDialog.open();
     }
 
     function savePageCurrent() {
-        var v = webContainer.currentActiveView
+        var v = webContainer.currentActiveView;
         if (!v || !v.visible)
-            return
-
-        var name = (v.title || "page").replace(/[\\\/:*?"<>|]+/g, "_").trim()
+            return;
+        var name = (v.title || "page").replace(/[\\\/:*?"<>|]+/g, "_").trim();
         if (name === "")
-            name = "page"
+            name = "page";
 
-        saveDialog.saveView = v
-        saveDialog.currentFile = StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-                                 + "/" + name + ".html"
-        saveDialog.open()
+        saveDialog.saveView = v;
+        saveDialog.currentFile = StandardPaths.writableLocation(StandardPaths.DocumentsLocation) + "/" + name + ".html";
+        saveDialog.open();
     }
 
     readonly property var translateLanguages: [
-        { name: "English", code: "en" },
-        { name: "Spanish", code: "es" },
-        { name: "French", code: "fr" },
-        { name: "German", code: "de" },
-        { name: "Italian", code: "it" },
-        { name: "Portuguese", code: "pt" },
-        { name: "Russian", code: "ru" },
-        { name: "Arabic", code: "ar" },
-        { name: "Chinese (Simplified)", code: "zh-CN" },
-        { name: "Japanese", code: "ja" },
-        { name: "Korean", code: "ko" },
-        { name: "Hindi", code: "hi" },
-        { name: "Turkish", code: "tr" }
+        {
+            name: "English",
+            code: "en"
+        },
+        {
+            name: "Spanish",
+            code: "es"
+        },
+        {
+            name: "French",
+            code: "fr"
+        },
+        {
+            name: "German",
+            code: "de"
+        },
+        {
+            name: "Italian",
+            code: "it"
+        },
+        {
+            name: "Portuguese",
+            code: "pt"
+        },
+        {
+            name: "Russian",
+            code: "ru"
+        },
+        {
+            name: "Arabic",
+            code: "ar"
+        },
+        {
+            name: "Chinese (Simplified)",
+            code: "zh-CN"
+        },
+        {
+            name: "Japanese",
+            code: "ja"
+        },
+        {
+            name: "Korean",
+            code: "ko"
+        },
+        {
+            name: "Hindi",
+            code: "hi"
+        },
+        {
+            name: "Turkish",
+            code: "tr"
+        }
     ]
 
     function translateUrl(urlStr, lang) {
-        var m = urlStr.match(/^https?:\/\/([^\/?#:]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/)
+        var m = urlStr.match(/^https?:\/\/([^\/?#:]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
         if (!m) {
-            return "https://translate.google.com/translate?sl=auto&tl=" + lang
-                   + "&u=" + encodeURIComponent(urlStr)
+            return "https://translate.google.com/translate?sl=auto&tl=" + lang + "&u=" + encodeURIComponent(urlStr);
         }
-        var host = m[1].replace(/-/g, "--").replace(/\./g, "-")
-        var path = m[2] || "/"
-        var query = m[3] ? m[3] + "&" : "?"
-        return "https://" + host + ".translate.goog" + path + query
-               + "_x_tr_sl=auto&_x_tr_tl=" + lang + "&_x_tr_hl=" + lang
-               + "&_x_tr_pto=wapp" + (m[4] || "")
+        var host = m[1].replace(/-/g, "--").replace(/\./g, "-");
+        var path = m[2] || "/";
+        var query = m[3] ? m[3] + "&" : "?";
+        return "https://" + host + ".translate.goog" + path + query + "_x_tr_sl=auto&_x_tr_tl=" + lang + "&_x_tr_hl=" + lang + "&_x_tr_pto=wapp" + (m[4] || "");
     }
 
-    
     function originalUrl(urlStr) {
-        var m = urlStr.match(/^https?:\/\/([^\/?#]+)\.translate\.goog(\/[^?#]*)?(\?[^#]*)?(#.*)?$/)
+        var m = urlStr.match(/^https?:\/\/([^\/?#]+)\.translate\.goog(\/[^?#]*)?(\?[^#]*)?(#.*)?$/);
         if (!m)
-            return urlStr
-        var host = m[1].replace(/--/g, "\u0000").replace(/-/g, ".").replace(/\u0000/g, "-")
+            return urlStr;
+        var host = m[1].replace(/--/g, "\u0000").replace(/-/g, ".").replace(/\u0000/g, "-");
         var params = m[3] ? m[3].slice(1).split("&").filter(function (p) {
-            return p !== "" && p.indexOf("_x_tr_") !== 0
-        }) : []
-        return "https://" + host + (m[2] || "/")
-               + (params.length ? "?" + params.join("&") : "") + (m[4] || "")
+            return p !== "" && p.indexOf("_x_tr_") !== 0;
+        }) : [];
+        return "https://" + host + (m[2] || "/") + (params.length ? "?" + params.join("&") : "") + (m[4] || "");
     }
 
     function openTranslate() {
-        var v = webContainer.currentActiveView
+        var v = webContainer.currentActiveView;
         if (!v || !v.visible)
-            return
-        var u = v.url.toString()
+            return;
+        var u = v.url.toString();
         if (!/^https?:/.test(u))
-            return
-
-        var sys = Qt.locale().name.split("_")[0]
-        var idx = 0
+            return;
+        var sys = Qt.locale().name.split("_")[0];
+        var idx = 0;
         for (var i = 0; i < translateLanguages.length; ++i) {
             if (translateLanguages[i].code.split("-")[0] === sys) {
-                idx = i
-                break
+                idx = i;
+                break;
             }
         }
-        translateSelect.currentIndex = idx
-        translatePopup.targetView = v
-        translatePopup.targetUrl = originalUrl(u)
-        translatePopup.open()
+        translateSelect.currentIndex = idx;
+        translatePopup.targetView = v;
+        translatePopup.targetUrl = originalUrl(u);
+        translatePopup.open();
     }
-
 
     Behavior on color {
         enabled: Theme.transitionMs > 0
@@ -311,13 +367,15 @@ ApplicationWindow {
     }
 
     function openHistoryTab() {
-        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-        if (model) model.addTab("ciel://history")
+        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+        if (model)
+            model.addTab("ciel://history");
     }
 
     function openBookmarksTab() {
-        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-        if (model) model.addTab("ciel://bookmarks")
+        var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+        if (model)
+            model.addTab("ciel://bookmarks");
     }
 
     TabBar {
@@ -335,14 +393,16 @@ ApplicationWindow {
         isPrivate: window.isPrivate
         onHistoryRequested: openHistoryTab()
         onProfilesRequested: {
-            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-            if (model) model.addTab("ciel://profiles")
+            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+            if (model)
+                model.addTab("ciel://profiles");
         }
         onNewTabRequested: window.openLocation("new")
         onBookmarksRequested: openBookmarksTab()
         onPasswordsRequested: {
-            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-            if (model) model.addTab("ciel://passwords")
+            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+            if (model)
+                model.addTab("ciel://passwords");
         }
         onRestoreTabRequested: window.restoreClosedTab()
         onPrintRequested: window.printCurrentPage()
@@ -351,14 +411,18 @@ ApplicationWindow {
         onFindInPageRequested: window.openFind()
         onSettingsRequested: window.openSettings()
         onNewWindowRequested: window.windowManager.openWindow({})
-        onNewPrivateWindowRequested: window.windowManager.openWindow({ privateMode: true })
+        onNewPrivateWindowRequested: window.windowManager.openWindow({
+            privateMode: true
+        })
         onExtensionsRequested: {
-            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-            if (model) model.addTab("ciel://extensions")
+            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+            if (model)
+                model.addTab("ciel://extensions");
         }
         onSitePermissionsRequested: {
-            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
-            if (model) model.addTab("ciel://permissions")
+            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
+            if (model)
+                model.addTab("ciel://permissions");
         }
     }
 
@@ -393,8 +457,8 @@ ApplicationWindow {
         }
 
         function getWorkspaceViews(idx) {
-            var item = workspaceRepeater.itemAt(idx)
-            return item ? item.viewRepeater : null
+            var item = workspaceRepeater.itemAt(idx);
+            return item ? item.viewRepeater : null;
         }
 
         property var currentActiveView: null
@@ -405,11 +469,21 @@ ApplicationWindow {
 
         Behavior on animatedBackProgress {
             enabled: !navFilter.active
-            CielSpring { damping: 0.32; spring: 5.2; mass: 1.0; epsilon: 0.001 }
+            CielSpring {
+                damping: 0.32
+                spring: 5.2
+                mass: 1.0
+                epsilon: 0.001
+            }
         }
         Behavior on animatedForwardProgress {
             enabled: !navFilter.active
-            CielSpring { damping: 0.32; spring: 5.2; mass: 1.0; epsilon: 0.001 }
+            CielSpring {
+                damping: 0.32
+                spring: 5.2
+                mass: 1.0
+                epsilon: 0.001
+            }
         }
 
         SwipeGestureFilter {
@@ -420,11 +494,11 @@ ApplicationWindow {
             threshold: 90.0
             onBackTriggered: {
                 if (webContainer.currentActiveView && webContainer.currentActiveView.canGoBack)
-                    webContainer.currentActiveView.goBack()
+                    webContainer.currentActiveView.goBack();
             }
             onForwardTriggered: {
                 if (webContainer.currentActiveView && webContainer.currentActiveView.canGoForward)
-                    webContainer.currentActiveView.goForward()
+                    webContainer.currentActiveView.goForward();
             }
         }
 
@@ -443,7 +517,9 @@ ApplicationWindow {
                 z: (workspaceModel.currentIndex === wsIndex) ? 10 : 1
 
                 transform: [
-                    Translate { x: Math.round(workspaceContainer.diff * workspaceContainer.width) },
+                    Translate {
+                        x: Math.round(workspaceContainer.diff * workspaceContainer.width)
+                    },
                     Scale {
                         origin.x: workspaceContainer.width / 2
                         origin.y: workspaceContainer.height / 2
@@ -464,52 +540,37 @@ ApplicationWindow {
                         id: pageContainer
                         anchors.fill: parent
 
-                        readonly property bool isCurrentPage:
-                            (workspaceModel.currentIndex === wsIndex)
-                            && (workspaceContainer.wsTabModel
-                                && workspaceContainer.wsTabModel.currentIndex === index)
+                        readonly property bool isCurrentPage: (workspaceModel.currentIndex === wsIndex) && (workspaceContainer.wsTabModel && workspaceContainer.wsTabModel.currentIndex === index)
 
                         visible: isCurrentPage
 
                         property alias engine: webEngineLoader.item
 
-                        readonly property string urlStr:
-                            model.url ? model.url.toString() : ""
+                        readonly property string urlStr: model.url ? model.url.toString() : ""
 
-                        readonly property bool isBlank:
-                            urlStr === "about:blank" || urlStr === ""
+                        readonly property bool isBlank: urlStr === "about:blank" || urlStr === ""
 
-                        readonly property bool isHistory:
-                            urlStr === "ciel://history" ||
-                            urlStr === "about:history"
-                        readonly property bool isPasswordsPage:
-                            urlStr === "ciel://passwords"
+                        readonly property bool isHistory: urlStr === "ciel://history" || urlStr === "about:history"
+                        readonly property bool isPasswordsPage: urlStr === "ciel://passwords"
 
-                        readonly property bool isProfilePage:
-                            urlStr === "ciel://profiles"
-                        readonly property bool isBookmarksPage:
-                            urlStr === "ciel://bookmarks"
-                        readonly property bool isSettingsPage:
-                            urlStr === "ciel://settings"
-                        readonly property bool isExtensionsPage:
-                            urlStr === "ciel://extensions"
-                        readonly property bool isPermissionsPage:
-                            urlStr === "ciel://permissions"
+                        readonly property bool isProfilePage: urlStr === "ciel://profiles"
+                        readonly property bool isBookmarksPage: urlStr === "ciel://bookmarks"
+                        readonly property bool isSettingsPage: urlStr === "ciel://settings"
+                        readonly property bool isExtensionsPage: urlStr === "ciel://extensions"
+                        readonly property bool isPermissionsPage: urlStr === "ciel://permissions"
 
-                        readonly property bool isInternalPage:
-                            isHistory || isProfilePage || isBookmarksPage ||
-                            isPasswordsPage || isExtensionsPage || isPermissionsPage
+                        readonly property bool isInternalPage: isHistory || isProfilePage || isBookmarksPage || isPasswordsPage || isExtensionsPage || isPermissionsPage
 
                         onUrlStrChanged: {
                             if (isSettingsPage && workspaceContainer.wsTabModel)
-                                workspaceContainer.wsTabModel.updateTitle(index, "Settings")
+                                workspaceContainer.wsTabModel.updateTitle(index, "Settings");
                         }
                         onIsCurrentPageChanged: {
                             if (isCurrentPage) {
                                 if (webEngineLoader.item) {
-                                    webContainer.currentActiveView = webEngineLoader.item
+                                    webContainer.currentActiveView = webEngineLoader.item;
                                 } else if (!webEngineLoader.active) {
-                                    webEngineLoader.active = true
+                                    webEngineLoader.active = true;
                                 }
                             }
                         }
@@ -521,10 +582,9 @@ ApplicationWindow {
 
                             function onAfterRendering() {
                                 if (pageContainer.engineStarted)
-                                    return
-
-                                pageContainer.engineStarted = true
-                                webEngineLoader.active = true
+                                    return;
+                                pageContainer.engineStarted = true;
+                                webEngineLoader.active = true;
                             }
                         }
 
@@ -538,14 +598,13 @@ ApplicationWindow {
 
                             onLoaded: {
                                 if (!item)
-                                    return
-
+                                    return;
                                 if (!pageContainer.isInternalPage) {
-                                    item.url = pageContainer.urlStr
+                                    item.url = pageContainer.urlStr;
                                 }
 
                                 if (pageContainer.isCurrentPage) {
-                                    webContainer.currentActiveView = item
+                                    webContainer.currentActiveView = item;
                                 }
                             }
                         }
@@ -560,8 +619,8 @@ ApplicationWindow {
 
                                 backgroundColor: Theme.background
 
-				layer.enabled: true
-			        layer.live: true 
+                                layer.enabled: true
+                                layer.live: true
 
                                 visible: !pageContainer.isBlank && !pageContainer.isInternalPage
 
@@ -575,73 +634,64 @@ ApplicationWindow {
                                 settings.pdfViewerEnabled: browserSettings.pdfViewerEnabled
                                 settings.scrollAnimatorEnabled: browserSettings.smoothScrolling
 
-
                                 Component.onCompleted: zoomFactor = browserSettings.zoomFactor
                                 Connections {
                                     target: browserSettings
                                     function onZoomFactorChanged() {
-                                        engineView.zoomFactor = browserSettings.zoomFactor
+                                        engineView.zoomFactor = browserSettings.zoomFactor;
                                     }
                                 }
 
                                 onFeaturePermissionRequested: (securityOrigin, feature) => {
-                                    var info = window.permissionInfo(feature)
+                                    var info = window.permissionInfo(feature);
                                     if (!info) {
-                                        engineView.grantFeaturePermission(securityOrigin, feature, false)
-                                        return
+                                        engineView.grantFeaturePermission(securityOrigin, feature, false);
+                                        return;
                                     }
 
-                                    var origin = SitePermissionManager.originOf(securityOrigin)
-                                    var saved = info.persist ? window.storedDecision(origin, info.keys) : ""
+                                    var origin = SitePermissionManager.originOf(securityOrigin);
+                                    var saved = info.persist ? window.storedDecision(origin, info.keys) : "";
                                     if (saved !== "") {
-                                        engineView.grantFeaturePermission(securityOrigin, feature, saved === "granted")
-                                        return
+                                        engineView.grantFeaturePermission(securityOrigin, feature, saved === "granted");
+                                        return;
                                     }
 
-                                    permissionDropdown.show(engineView, securityOrigin, feature,
-                                                            info.name, info.icon, origin, info.keys, info.persist)
+                                    permissionDropdown.show(engineView, securityOrigin, feature, info.name, info.icon, origin, info.keys, info.persist);
                                 }
 
-    onTooltipRequested: (request) => {
-        request.accepted = true; 
+                                onTooltipRequested: request => {
+                                    request.accepted = true;
 
-        if (request.text === "" || request.type === TooltipRequest.Hide) {
-            customToolTip.close();
-        } else {
-            customToolTip.text = request.text;
+                                    if (request.text === "" || request.type === TooltipRequest.Hide) {
+                                        customToolTip.close();
+                                    } else {
+                                        customToolTip.text = request.text;
 
-            
-            var mappedPos = engineView.mapToItem(customToolTip.parent, request.x, request.y);
-            customToolTip.openAt(mappedPos.x, mappedPos.y);
-        }
-    }
+                                        var mappedPos = engineView.mapToItem(customToolTip.parent, request.x, request.y);
+                                        customToolTip.openAt(mappedPos.x, mappedPos.y);
+                                    }
+                                }
 
-    
-    CielToolTip {
-        id: customToolTip
-    }
+                                CielToolTip {
+                                    id: customToolTip
+                                }
 
-
-                                onContextMenuRequested: (request) => {
-                                    request.accepted = true; 
+                                onContextMenuRequested: request => {
+                                    request.accepted = true;
 
                                     webContextMenu.contextRequest = request;
 
-                                    
                                     const rawX = request.position ? request.position.x : (request.x !== undefined ? request.x : 0);
                                     const rawY = request.position ? request.position.y : (request.y !== undefined ? request.y : 0);
 
-                                    
-                                    
-                                    
                                     const targetParent = webContextMenu.parent || window.contentItem;
                                     const mappedPos = engineView.mapToItem(targetParent, rawX, rawY);
 
                                     webContextMenu.popup(rawX, rawY, this);
                                 }
 
-                                onJavaScriptDialogRequested: (request) => {
-                                    request.accepted = true; 
+                                onJavaScriptDialogRequested: request => {
+                                    request.accepted = true;
 
                                     jsDialogPopup.dialogRequest = request;
                                     jsDialogPopup.dialogMessage = request.message;
@@ -651,71 +701,50 @@ ApplicationWindow {
                                     jsDialogPopup.open();
                                 }
 
-                                onNewWindowRequested: (request) => {
-                                    var d = request.destination
-                                    if (d === WebEngineNewWindowRequest.InNewTab ||
-                                        d === WebEngineNewWindowRequest.InNewBackgroundTab) {
-
+                                onNewWindowRequested: request => {
+                                    var d = request.destination;
+                                    if (d === WebEngineNewWindowRequest.InNewTab || d === WebEngineNewWindowRequest.InNewBackgroundTab) {
                                         if (workspaceContainer.wsTabModel) {
-                                            workspaceContainer.wsTabModel.addTab(
-                                                request.requestedUrl
-                                            )
-                                            request.accepted = true
+                                            workspaceContainer.wsTabModel.addTab(request.requestedUrl);
+                                            request.accepted = true;
                                         }
                                     } else if (d === WebEngineNewWindowRequest.InNewWindow) {
                                         window.windowManager.openWindow({
                                             url: request.requestedUrl,
                                             privateMode: window.isPrivate
-                                        })
-                                        request.accepted = true
+                                        });
+                                        request.accepted = true;
                                     } else {
-                                        var spawnedWindow =
-                                            browserWindowComponent.createObject(window)
+                                        var spawnedWindow = browserWindowComponent.createObject(window);
 
                                         if (spawnedWindow) {
-                                            spawnedWindow.view.acceptAsNewWindow(request)
+                                            spawnedWindow.view.acceptAsNewWindow(request);
                                         }
                                     }
                                 }
 
                                 onTitleChanged: {
                                     if (workspaceContainer.wsTabModel && !pageContainer.isInternalPage) {
-                                        workspaceContainer.wsTabModel.updateTitle(
-                                            index,
-                                            title
-                                        )
+                                        workspaceContainer.wsTabModel.updateTitle(index, title);
                                     }
                                 }
 
                                 onUrlChanged: {
                                     if (workspaceContainer.wsTabModel) {
-                                        workspaceContainer.wsTabModel.updateUrl(
-                                            index,
-                                            url
-                                        )
+                                        workspaceContainer.wsTabModel.updateUrl(index, url);
                                     }
                                 }
 
                                 onLoadingChanged: loadRequest => {
                                     if (workspaceContainer.wsTabModel) {
-                                        workspaceContainer.wsTabModel.updateLoading(
-                                            index,
-                                            loading
-                                        )
-                                        workspaceContainer.wsTabModel.updateNavigation(
-                                            index,
-                                            canGoBack,
-                                            canGoForward
-                                        )
+                                        workspaceContainer.wsTabModel.updateLoading(index, loading);
+                                        workspaceContainer.wsTabModel.updateNavigation(index, canGoBack, canGoForward);
                                     }
                                 }
 
                                 onLoadProgressChanged: {
                                     if (workspaceContainer.wsTabModel) {
-                                        workspaceContainer.wsTabModel.updateProgress(
-                                            index,
-                                            loadProgress
-                                        )
+                                        workspaceContainer.wsTabModel.updateProgress(index, loadProgress);
                                     }
                                 }
 
@@ -731,7 +760,7 @@ ApplicationWindow {
                                     WebChannel.id: "cielPasswords"
                                     onSaveOffered: (host, username, isUpdate) => {
                                         if (!window.isPrivate)
-                                            passwordBar.show(passwordBridge, host, username, isUpdate)
+                                            passwordBar.show(passwordBridge, host, username, isUpdate);
                                     }
                                 }
                             }
@@ -757,7 +786,7 @@ ApplicationWindow {
 
                             onOpenTabRequested: targetUrl => {
                                 if (workspaceContainer.wsTabModel)
-                                    workspaceContainer.wsTabModel.addTab(targetUrl)
+                                    workspaceContainer.wsTabModel.addTab(targetUrl);
                             }
                         }
 
@@ -767,7 +796,7 @@ ApplicationWindow {
 
                             onOpenTabRequested: targetUrl => {
                                 if (workspaceContainer.wsTabModel)
-                                    workspaceContainer.wsTabModel.addTab(targetUrl)
+                                    workspaceContainer.wsTabModel.addTab(targetUrl);
                             }
                         }
 
@@ -803,7 +832,7 @@ ApplicationWindow {
 
                             property bool isOpen: false
 
-                            property var targetView: null 
+                            property var targetView: null
                             property url currentSecurityOrigin: ""
                             property int currentFeature: -1
                             property string permissionName: ""
@@ -811,7 +840,7 @@ ApplicationWindow {
 
                             property real openProgress: isOpen ? 1.0 : 0.0
                             Behavior on openProgress {
-                                CielSpring { 
+                                CielSpring {
                                     damping: 0.32
                                     spring: 5.2
                                     mass: 1.0
@@ -945,7 +974,12 @@ ApplicationWindow {
 
                             property real openProgress: isOpen ? 1.0 : 0.0
                             Behavior on openProgress {
-                                CielSpring { damping: 0.32; spring: 5.2; mass: 1.0; epsilon: 0.001 }
+                                CielSpring {
+                                    damping: 0.32
+                                    spring: 5.2
+                                    mass: 1.0
+                                    epsilon: 0.001
+                                }
                             }
                             scale: 0.94 + (openProgress * 0.06)
                             opacity: Math.min(1.0, openProgress * 1.8)
@@ -989,9 +1023,7 @@ ApplicationWindow {
                                 }
 
                                 Text {
-                                    text: (passwordBar.isUpdate ? "Update" : "Save") + " password for "
-                                          + (passwordBar.username !== "" ? passwordBar.username : "this account")
-                                          + " on " + passwordBar.host + "?"
+                                    text: (passwordBar.isUpdate ? "Update" : "Save") + " password for " + (passwordBar.username !== "" ? passwordBar.username : "this account") + " on " + passwordBar.host + "?"
                                     font.pixelSize: 15
                                     font.weight: Font.Medium
                                     color: Theme.textPrimary
@@ -1023,19 +1055,31 @@ ApplicationWindow {
         Item {
             id: backIndicator
             anchors.verticalCenter: parent.verticalCenter
-            width: 44; height: 44; z: 99
+            width: 44
+            height: 44
+            z: 99
             readonly property real prog: webContainer.animatedBackProgress
             readonly property bool triggered: prog >= 1.0
             property real currentRadius: triggered ? 22 : 12
             Behavior on currentRadius {
-                CielSpring { damping: 0.28; spring: 5.4; mass: 0.9; epsilon: 0.001 }
+                CielSpring {
+                    damping: 0.28
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
+                }
             }
             visible: prog > 0.001
             opacity: Math.min(1.0, prog * 3.5)
             scale: triggered ? 1.06 : (0.84 + (0.16 * Math.min(1.0, prog)))
             x: -width + (prog * (width + 24))
             Behavior on scale {
-                CielSpring { damping: 0.28; spring: 5.4; mass: 0.9; epsilon: 0.001 }
+                CielSpring {
+                    damping: 0.28
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
+                }
             }
             CielSquircle {
                 id: backCardBg
@@ -1045,7 +1089,11 @@ ApplicationWindow {
                 borderWidth: backIndicator.triggered ? 0 : 1
                 borderColor: Theme.border
                 visible: false
-                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
             }
             MultiEffect {
                 anchors.fill: backCardBg
@@ -1061,26 +1109,42 @@ ApplicationWindow {
                 icon: "arrow-left"
                 size: Theme.MEDIUM
                 color: backIndicator.triggered ? "#FFFFFF" : Theme.textPrimary
-                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
             }
         }
 
         Item {
             id: forwardIndicator
             anchors.verticalCenter: parent.verticalCenter
-            width: 44; height: 44; z: 99
+            width: 44
+            height: 44
+            z: 99
             readonly property real prog: webContainer.animatedForwardProgress
             readonly property bool triggered: prog >= 1.0
             property real currentRadius: triggered ? 22 : 12
             Behavior on currentRadius {
-                CielSpring { damping: 0.28; spring: 5.4; mass: 0.9; epsilon: 0.001 }
+                CielSpring {
+                    damping: 0.28
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
+                }
             }
             visible: prog > 0.001
             opacity: Math.min(1.0, prog * 3.5)
             scale: triggered ? 1.06 : (0.84 + (0.16 * Math.min(1.0, prog)))
             x: parent.width - (prog * (width + 24))
             Behavior on scale {
-                CielSpring { damping: 0.28; spring: 5.4; mass: 0.9; epsilon: 0.001 }
+                CielSpring {
+                    damping: 0.28
+                    spring: 5.4
+                    mass: 0.9
+                    epsilon: 0.001
+                }
             }
             CielSquircle {
                 id: forwardCardBg
@@ -1090,7 +1154,11 @@ ApplicationWindow {
                 borderWidth: forwardIndicator.triggered ? 0 : 1
                 borderColor: Theme.border
                 visible: false
-                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
             }
             MultiEffect {
                 anchors.fill: forwardCardBg
@@ -1106,7 +1174,11 @@ ApplicationWindow {
                 icon: "arrow-right"
                 size: Theme.MEDIUM
                 color: forwardIndicator.triggered ? "#FFFFFF" : Theme.textPrimary
-                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 120
+                    }
+                }
             }
         }
     }
@@ -1130,54 +1202,59 @@ ApplicationWindow {
 
         property real openProgress: isOpen ? 1.0 : 0.0
         Behavior on openProgress {
-            CielSpring { damping: 0.32; spring: 5.2; mass: 1.0; epsilon: 0.001 }
+            CielSpring {
+                damping: 0.32
+                spring: 5.2
+                mass: 1.0
+                epsilon: 0.001
+            }
         }
         opacity: Math.min(1.0, openProgress * 1.8)
         scale: 0.94 + (openProgress * 0.06)
 
         function open(v) {
             if (view && view !== v)
-                view.findText("")
-            view = v
-            isOpen = true
+                view.findText("");
+            view = v;
+            isOpen = true;
             Qt.callLater(function () {
-                findInput.inputField.forceActiveFocus()
-                findInput.inputField.selectAll()
-            })
+                findInput.inputField.forceActiveFocus();
+                findInput.inputField.selectAll();
+            });
             if (findInput.text !== "")
-                run(false)
+                run(false);
         }
 
         function close() {
             if (view)
-                view.findText("")
-            isOpen = false
-            view = null
-            matches = 0
-            active = 0
-            searched = false
+                view.findText("");
+            isOpen = false;
+            view = null;
+            matches = 0;
+            active = 0;
+            searched = false;
         }
 
         function run(backward) {
             if (!view)
-                return
+                return;
             if (findInput.text === "") {
-                view.findText("")
-                matches = 0
-                active = 0
-                searched = false
-                return
+                view.findText("");
+                matches = 0;
+                active = 0;
+                searched = false;
+                return;
             }
-            view.findText(findInput.text, backward ? WebEngineView.FindBackward : 0)
+            view.findText(findInput.text, backward ? WebEngineView.FindBackward : 0);
         }
 
         Connections {
             target: findBar.view
             ignoreUnknownSignals: true
             function onFindTextFinished(result) {
-                findBar.matches = result.numberOfMatches
-                findBar.active = result.activeMatchOrdinal ?? 0
-                findBar.searched = true
+                findBar.matches = result.numberOfMatches;
+                findBar.active = result.activeMatchOrdinal ?? 0;
+                findBar.searched = true;
             }
         }
 
@@ -1206,9 +1283,7 @@ ApplicationWindow {
             }
 
             Text {
-                text: (findBar.searched && findInput.text !== "")
-                      ? (findBar.matches > 0 ? findBar.active + "/" + findBar.matches : "No results")
-                      : ""
+                text: (findBar.searched && findInput.text !== "") ? (findBar.matches > 0 ? findBar.active + "/" + findBar.matches : "No results") : ""
                 font.pixelSize: 12
                 color: Theme.textSecondary
                 Layout.alignment: Qt.AlignVCenter
@@ -1268,89 +1343,89 @@ ApplicationWindow {
         }
 
         function open(v) {
-            var u = (v && v.url) ? v.url.toString() : ""
+            var u = (v && v.url) ? v.url.toString() : "";
             if (u === "about:blank")
-                u = ""
-            originUrl = u
-            suppressQuery = true
-            locationSuggestions.selectedIndex = -1
+                u = "";
+            originUrl = u;
+            suppressQuery = true;
+            locationSuggestions.selectedIndex = -1;
             if (locationSuggestions.query !== "")
-                locationSuggestions.query = ""
+                locationSuggestions.query = "";
             else
-                locationSuggestions.reload()
-            isOpen = true
+                locationSuggestions.reload();
+            isOpen = true;
             Qt.callLater(function () {
-                locationInput.text = u
+                locationInput.text = u;
                 Qt.callLater(function () {
                     if (locationInput.inputField) {
-                        locationInput.inputField.forceActiveFocus()
-                        locationInput.inputField.selectAll()
+                        locationInput.inputField.forceActiveFocus();
+                        locationInput.inputField.selectAll();
                     }
-                    suppressQuery = false
-                })
-            })
+                    suppressQuery = false;
+                });
+            });
         }
 
         function dismiss() {
-            isOpen = false
+            isOpen = false;
         }
 
         function close() {
             if (!isOpen)
-                return
+                return;
             newTab = false;
             dismiss();
-            var v = webContainer.currentActiveView
+            var v = webContainer.currentActiveView;
             if (v)
-                v.forceActiveFocus()
+                v.forceActiveFocus();
         }
 
         function syncQuery() {
             if (suppressQuery || !isOpen)
-                return
-            var field = locationInput.inputField
-            var t = locationInput.text
-            var untouched = t === originUrl && field && t !== "" && field.selectedText === t
-            locationSuggestions.selectedIndex = -1
-            var next = untouched ? "" : t.trim()
+                return;
+            var field = locationInput.inputField;
+            var t = locationInput.text;
+            var untouched = t === originUrl && field && t !== "" && field.selectedText === t;
+            locationSuggestions.selectedIndex = -1;
+            var next = untouched ? "" : t.trim();
             if (locationSuggestions.query !== next)
-                locationSuggestions.query = next
+                locationSuggestions.query = next;
         }
 
         function commit(query) {
             if (newTab) {
                 openNewTab(query);
             } else {
-                var v = webContainer.currentActiveView
+                var v = webContainer.currentActiveView;
                 if (!v || !browserConfig)
-                    return
-                var q = (query !== undefined && query !== null) ? ("" + query) : locationInput.text
-                q = q.trim()
+                    return;
+                var q = (query !== undefined && query !== null) ? ("" + query) : locationInput.text;
+                q = q.trim();
                 if (q === "")
-                    return
-                v.url = browserConfig.resolveQueryOrUrl(q)
+                    return;
+                v.url = browserConfig.resolveQueryOrUrl(q);
             }
-            close()
+            close();
         }
 
         function goTo(url) {
             if (newTab) {
                 openNewTab(url);
             } else {
-                var v = webContainer.currentActiveView
+                var v = webContainer.currentActiveView;
                 if (!v || !url)
-                    return
-                v.url = url
+                    return;
+                v.url = url;
             }
-            close()
+            close();
         }
 
         function acceptInput(query) {
             if (locationSuggestions.selectedIndex >= 0) {
-                locationSuggestions.activateCurrent()
+                locationSuggestions.activateCurrent();
             } else {
-                var q = (query !== undefined && query !== null) ? ("" + query) : locationInput.text
-                commit(urlGhost.completed(q))
+                var q = (query !== undefined && query !== null) ? ("" + query) : locationInput.text;
+                commit(urlGhost.completed(q));
             }
         }
 
@@ -1372,9 +1447,9 @@ ApplicationWindow {
             height: locationCol.implicitHeight + 20
             x: webContainer.x + Math.round((webContainer.width - width) / 2)
             y: {
-                var proposed = webContainer.y + Math.round(webContainer.height * 0.28)
-                var limit = webContainer.y + webContainer.height - height - 12
-                return Math.max(webContainer.y + 12, Math.min(proposed, limit))
+                var proposed = webContainer.y + Math.round(webContainer.height * 0.28);
+                var limit = webContainer.y + webContainer.height - height - 12;
+                return Math.max(webContainer.y + 12, Math.min(proposed, limit));
             }
             scale: 0.94 + (locationPopup.openProgress * 0.06)
             opacity: Math.min(1.0, locationPopup.openProgress * 1.8)
@@ -1427,7 +1502,7 @@ ApplicationWindow {
                         size: Theme.XSMALL
                         onClicked: {
                             if (locationInput.inputField)
-                                locationInput.inputField.forceActiveFocus()
+                                locationInput.inputField.forceActiveFocus();
                         }
                     }
 
@@ -1447,8 +1522,7 @@ ApplicationWindow {
                     Layout.preferredHeight: locationSuggestions.implicitHeight + 8 * reveal
                     clip: true
 
-                    readonly property real reveal:
-                        Math.max(0, Math.min(1, locationSuggestions.implicitHeight / 40))
+                    readonly property real reveal: Math.max(0, Math.min(1, locationSuggestions.implicitHeight / 40))
 
                     Rectangle {
                         anchors.left: parent.left
@@ -1483,9 +1557,9 @@ ApplicationWindow {
         target: webContainer
         function onCurrentActiveViewChanged() {
             if (findBar.isOpen)
-                findBar.close()
+                findBar.close();
             if (locationPopup.isOpen)
-                locationPopup.dismiss()
+                locationPopup.dismiss();
         }
     }
 
@@ -1502,8 +1576,8 @@ ApplicationWindow {
         sequence: "Escape"
         context: Qt.ApplicationShortcut
         onActivated: {
-          locationPopup.close();
-          findBar.close();
+            locationPopup.close();
+            findBar.close();
         }
     }
     Shortcut {
@@ -1533,7 +1607,7 @@ ApplicationWindow {
             height: 768
             visible: true
 
-            onClosing: newWindow.destroy() 
+            onClosing: newWindow.destroy()
 
             property alias view: newEngineView
 
@@ -1546,7 +1620,6 @@ ApplicationWindow {
         }
     }
 
-
     CielContextMenu {
         id: webContextMenu
 
@@ -1554,24 +1627,39 @@ ApplicationWindow {
 
         CielMenuItem {
             text: "Back"
-                    icon: "arrow-left"
+            icon: "arrow-left"
             visible: webContainer.currentActiveView ? webContainer.currentActiveView.canGoBack : false
-            onTriggered: { if (webContainer.currentActiveView) { webContainer.currentActiveView.goBack(); } webContextMenu.close(); }
+            onTriggered: {
+                if (webContainer.currentActiveView) {
+                    webContainer.currentActiveView.goBack();
+                }
+                webContextMenu.close();
+            }
         }
         CielMenuItem {
             text: "Forward"
-                    icon: "arrow-right"
+            icon: "arrow-right"
             visible: webContainer.currentActiveView ? webContainer.currentActiveView.canGoForward : false
-            onTriggered: { if (webContainer.currentActiveView) { webContainer.currentActiveView.goForward(); } webContextMenu.close(); }
+            onTriggered: {
+                if (webContainer.currentActiveView) {
+                    webContainer.currentActiveView.goForward();
+                }
+                webContextMenu.close();
+            }
         }
         CielMenuItem {
             text: "Reload"
             icon: "arrow-clockwise"
-            onTriggered: { if (webContainer.currentActiveView) { webContainer.currentActiveView.reload(); } webContextMenu.close(); }
+            onTriggered: {
+                if (webContainer.currentActiveView) {
+                    webContainer.currentActiveView.reload();
+                }
+                webContextMenu.close();
+            }
         }
 
-        CielMenuSeparator { 
-          visible: (webContextMenu.contextRequest?.selectedText !== "") 
+        CielMenuSeparator {
+            visible: (webContextMenu.contextRequest?.selectedText !== "")
         }
 
         CielMenuItem {
@@ -1579,20 +1667,18 @@ ApplicationWindow {
                 const txt = webContextMenu.contextRequest?.selectedText || "";
                 return "Search " + browserSettings.engineLabel() + " for \"" + txt.substring(0, 8) + (txt.length > 8 ? "..." : "") + "\"";
             }
-                            icon: "magnifying-glass"
+            icon: "magnifying-glass"
             visible: webContextMenu.contextRequest?.selectedText !== ""
             onTriggered: {
                 if (workspaceContainer.wsTabModel && webContextMenu.contextRequest?.selectedText) {
-                    workspaceContainer.wsTabModel.addTab(
-                        browserSettings.searchUrl(webContextMenu.contextRequest.selectedText)
-                    );
+                    workspaceContainer.wsTabModel.addTab(browserSettings.searchUrl(webContextMenu.contextRequest.selectedText));
                 }
                 webContextMenu.close();
             }
         }
 
-        CielMenuSeparator { 
-            visible: (webContextMenu.contextRequest?.linkUrl !== "") || (webContextMenu.contextRequest?.selectedText !== "") 
+        CielMenuSeparator {
+            visible: (webContextMenu.contextRequest?.linkUrl !== "") || (webContextMenu.contextRequest?.selectedText !== "")
         }
 
         CielMenuItem {
@@ -1618,7 +1704,9 @@ ApplicationWindow {
             }
         }
 
-        CielMenuSeparator { visible: webContextMenu.contextRequest?.mediaType === 2 } 
+        CielMenuSeparator {
+            visible: webContextMenu.contextRequest?.mediaType === 2
+        }
 
         CielMenuItem {
             text: "Copy image"
@@ -1697,7 +1785,7 @@ ApplicationWindow {
         property var dialogRequest: null
         property string dialogMessage: ""
         property string dialogTitle: "Message"
-        property int dialogType: 0 
+        property int dialogType: 0
         property string dialogDefaultText: ""
 
         property bool _requestResolved: false
@@ -1715,7 +1803,7 @@ ApplicationWindow {
             id: dialogColumn
             anchors.fill: parent
             anchors.margins: 20
-            spacing: 12 
+            spacing: 12
 
             Text {
                 text: jsDialogPopup.dialogTitle
@@ -1730,7 +1818,7 @@ ApplicationWindow {
                 color: Theme.textPrimary
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
-                Layout.maximumHeight: 200 
+                Layout.maximumHeight: 200
             }
 
             CielSearch {
@@ -1746,7 +1834,7 @@ ApplicationWindow {
 
                 onVisibleChanged: {
                     if (visible) {
-                        Qt.callLater(function() {
+                        Qt.callLater(function () {
                             if (promptInput.inputField) {
                                 promptInput.inputField.forceActiveFocus();
                                 promptInput.inputField.selectAll();
@@ -1755,7 +1843,7 @@ ApplicationWindow {
                     }
                 }
 
-                Keys.onPressed: (event) => {
+                Keys.onPressed: event => {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         event.accepted = true;
                         okButton.onClicked();
@@ -1818,9 +1906,9 @@ ApplicationWindow {
 
         onAccepted: {
             if (printView) {
-                printView.printToPdf(window.localPathFromUrl(selectedFile))
+                printView.printToPdf(window.localPathFromUrl(selectedFile));
             }
-            printView = null
+            printView = null;
         }
         onRejected: printView = null
     }
@@ -1830,46 +1918,37 @@ ApplicationWindow {
         ignoreUnknownSignals: true
         function onPdfPrintingFinished(filePath, success) {
             if (!success)
-                console.warn("[print] failed to write PDF:", filePath)
+                console.warn("[print] failed to write PDF:", filePath);
         }
     }
 
-        FileDialog {
+    FileDialog {
         id: saveDialog
         title: "Save page as"
         fileMode: FileDialog.SaveFile
-        nameFilters: [
-            "Web page, complete (*.html)",
-            "Web page, HTML only (*.html)",
-            "Web page, single file (*.mhtml)"
-        ]
+        nameFilters: ["Web page, complete (*.html)", "Web page, HTML only (*.html)", "Web page, single file (*.mhtml)"]
 
         property var saveView: null
 
         onAccepted: {
             if (!saveView)
-                return
+                return;
+            var formats = [WebEngineDownloadRequest.CompleteHtmlSaveFormat, WebEngineDownloadRequest.SingleHtmlSaveFormat, WebEngineDownloadRequest.MimeHtmlSaveFormat];
+            var idx = selectedNameFilter.index;
+            var path = window.localPathFromUrl(selectedFile);
 
-            var formats = [
-                WebEngineDownloadRequest.CompleteHtmlSaveFormat,
-                WebEngineDownloadRequest.SingleHtmlSaveFormat,
-                WebEngineDownloadRequest.MimeHtmlSaveFormat
-            ]
-            var idx = selectedNameFilter.index
-            var path = window.localPathFromUrl(selectedFile)
-
-            var wantExt = idx === 2 ? ".mhtml" : ".html"
+            var wantExt = idx === 2 ? ".mhtml" : ".html";
             if (!/\.(html?|mhtml)$/i.test(path))
-                path += wantExt
+                path += wantExt;
 
-            var slash = path.lastIndexOf("/")
+            var slash = path.lastIndexOf("/");
             windowManager.pendingSave = {
                 dir: path.substring(0, slash),
                 name: path.substring(slash + 1),
                 format: formats[idx]
-            }
-            saveView.triggerWebAction(WebEngineView.SavePage)
-            saveView = null
+            };
+            saveView.triggerWebAction(WebEngineView.SavePage);
+            saveView = null;
         }
         onRejected: saveView = null
     }
@@ -1914,18 +1993,24 @@ ApplicationWindow {
                 CielSelect {
                     id: translateSelect
                     Layout.fillWidth: true
-                    model: window.translateLanguages.map(function (l) { return l.name })
+                    model: window.translateLanguages.map(function (l) {
+                        return l.name;
+                    })
                     currentIndex: 0
                 }
             }
 
-            Item { Layout.fillHeight: true }
+            Item {
+                Layout.fillHeight: true
+            }
 
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
 
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
 
                 CielButton {
                     text: "Cancel"
@@ -1936,11 +2021,11 @@ ApplicationWindow {
                     text: "Translate"
                     primary: true
                     onClicked: {
-                        var lang = window.translateLanguages[translateSelect.currentIndex].code
+                        var lang = window.translateLanguages[translateSelect.currentIndex].code;
                         if (translatePopup.targetView)
-                            translatePopup.targetView.url = window.translateUrl(translatePopup.targetUrl, lang)
-                        translatePopup.targetView = null
-                        translatePopup.close()
+                            translatePopup.targetView.url = window.translateUrl(translatePopup.targetUrl, lang);
+                        translatePopup.targetView = null;
+                        translatePopup.close();
                     }
                 }
             }
@@ -1952,19 +2037,20 @@ ApplicationWindow {
         onActivated: window.printCurrentPage()
     }
 
-    onClosing: function(close) {
+    onClosing: function (close) {
         if (!allowClose && browserSettings.confirmClose) {
-            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
+            var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId);
             if (model && model.count > 1) {
-                close.accepted = false
-                closeConfirmPopup.open()
-                return
+                close.accepted = false;
+                closeConfirmPopup.open();
+                return;
             }
         }
         if (windowManager)
-            windowManager.windowClosed(window)
+            windowManager.windowClosed(window);
     }
-    onActiveChanged: if (active && windowManager) windowManager.currentWindow = window
+    onActiveChanged: if (active && windowManager)
+        windowManager.currentWindow = window
 
     CielPopup {
         id: closeConfirmPopup
@@ -1991,7 +2077,9 @@ ApplicationWindow {
                 wrapMode: Text.WordWrap
             }
 
-            Item { Layout.fillHeight: true }
+            Item {
+                Layout.fillHeight: true
+            }
 
             RowLayout {
                 Layout.alignment: Qt.AlignRight
@@ -2006,9 +2094,9 @@ ApplicationWindow {
                     text: "Close"
                     primary: true
                     onClicked: {
-                        window.allowClose = true
-                        closeConfirmPopup.close()
-                        window.close()
+                        window.allowClose = true;
+                        closeConfirmPopup.close();
+                        window.close();
                     }
                 }
             }
@@ -2019,7 +2107,7 @@ ApplicationWindow {
         target: tabRail
         function onCollapsedChanged() {
             if (browserSettings.sidebarCollapsed !== tabRail.collapsed)
-                browserSettings.sidebarCollapsed = tabRail.collapsed
+                browserSettings.sidebarCollapsed = tabRail.collapsed;
         }
     }
 
@@ -2027,27 +2115,27 @@ ApplicationWindow {
         target: browserSettings
         function onSidebarCollapsedChanged() {
             if (tabRail.collapsed !== browserSettings.sidebarCollapsed)
-                tabRail.collapsed = browserSettings.sidebarCollapsed
+                tabRail.collapsed = browserSettings.sidebarCollapsed;
         }
         function onSpellCheckEnabledChanged() {
-            window.applyProfileSettings()
+            window.applyProfileSettings();
         }
         function onUserAgentPresetChanged() {
-            window.applyProfileSettings()
+            window.applyProfileSettings();
             if (!window.profileReady)
-                return
-            var v = webContainer.currentActiveView
+                return;
+            var v = webContainer.currentActiveView;
             if (v && v.visible && v.reload)
-                v.reload()
+                v.reload();
         }
     }
 
     Component.onCompleted: {
-        tabRail.collapsed = browserSettings.sidebarCollapsed
+        tabRail.collapsed = browserSettings.sidebarCollapsed;
         Qt.callLater(function () {
-            window.applyProfileSettings()
-            window.profileReady = true
-        })
+            window.applyProfileSettings();
+            window.profileReady = true;
+        });
     }
 
     Shortcut {
@@ -2060,11 +2148,15 @@ ApplicationWindow {
     }
     Shortcut {
         sequence: "Ctrl+N"
-        onActivated: window.windowManager.openWindow({ privateMode: window.isPrivate })
+        onActivated: window.windowManager.openWindow({
+            privateMode: window.isPrivate
+        })
     }
     Shortcut {
         sequence: "Ctrl+Shift+N"
-        onActivated: window.windowManager.openWindow({ privateMode: true })
+        onActivated: window.windowManager.openWindow({
+            privateMode: true
+        })
     }
     Shortcut {
         sequence: "Ctrl+Shift+O"
