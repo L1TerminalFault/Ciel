@@ -10,23 +10,26 @@ Item {
 
     property string errorText: ""
 
-    ListModel { id: extModel }
+    ListModel {
+        id: extModel
+    }
 
     function reloadExtensions() {
-        var items = ExtensionManager.list()
-        extModel.clear()
+        var items = ExtensionManager.list();
+        extModel.clear();
         for (var i = 0; i < items.length; ++i)
-            extModel.append(items[i])
+            extModel.append(items[i]);
     }
 
     Component.onCompleted: reloadExtensions()
-    onVisibleChanged: if (visible) reloadExtensions()
+    onVisibleChanged: if (visible)
+        reloadExtensions()
 
     Connections {
         target: ExtensionManager
         function onExtensionsChanged() {
             if (root.visible && !extList.busyClosing)
-                root.reloadExtensions()
+                root.reloadExtensions();
         }
     }
 
@@ -62,22 +65,22 @@ Item {
                         color: Theme.textPrimary
                     }
 
-                    Item { Layout.fillWidth: true }
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     CielButton {
                         text: "Load unpacked…"
                         primary: true
                         onClicked: {
-                            root.errorText = ""
-                            folderDialog.open()
+                            root.errorText = "";
+                            folderDialog.open();
                         }
                     }
                 }
 
                 Text {
-                    text: "Supports content-script extensions (Manifest V2/V3). Background pages, popups and "
-                          + "most chrome.* APIs are not available. Changes apply to pages loaded afterwards. "
-                          + "Extensions don't run in private windows."
+                    text: "Supports content-script extensions (Manifest V2/V3). Background pages, popups and " + "most chrome.* APIs are not available. Changes apply to pages loaded afterwards. " + "Extensions don't run in private windows."
                     font.pixelSize: 12
                     color: Theme.textSecondary
                     wrapMode: Text.Wrap
@@ -148,33 +151,52 @@ Item {
 
                                 function requestClose() {
                                     if (isClosing)
-                                        return
-                                    isClosing = true
-                                    extList.busyClosing = true
-                                    closeAnimation.restart()
+                                        return;
+                                    isClosing = true;
+                                    extList.busyClosing = true;
+                                    closeAnimation.restart();
                                 }
 
                                 ParallelAnimation {
                                     id: closeAnimation
-                                    NumberAnimation { target: extDelegate; property: "closeScale"; to: 0.2; duration: 200; easing.type: Easing.InQuad }
-                                    SequentialAnimation {
-                                        PauseAnimation { duration: 45 }
-                                        NumberAnimation { target: extDelegate; property: "closeDimension"; to: 0.0; duration: 175; easing.type: Easing.InOutQuad }
+                                    NumberAnimation {
+                                        target: extDelegate
+                                        property: "closeScale"
+                                        to: 0.2
+                                        duration: 200
+                                        easing.type: Easing.InQuad
                                     }
-                                    NumberAnimation { target: extDelegate; property: "closeOpacity"; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
+                                    SequentialAnimation {
+                                        PauseAnimation {
+                                            duration: 45
+                                        }
+                                        NumberAnimation {
+                                            target: extDelegate
+                                            property: "closeDimension"
+                                            to: 0.0
+                                            duration: 175
+                                            easing.type: Easing.InOutQuad
+                                        }
+                                    }
+                                    NumberAnimation {
+                                        target: extDelegate
+                                        property: "closeOpacity"
+                                        to: 0.0
+                                        duration: 180
+                                        easing.type: Easing.OutQuad
+                                    }
                                     onFinished: {
-                                        var id = model.id
-                                        extModel.remove(index)
-                                        ExtensionManager.remove(id)
-                                        extList.busyClosing = false
+                                        var id = model.id;
+                                        extModel.remove(index);
+                                        ExtensionManager.remove(id);
+                                        extList.busyClosing = false;
                                     }
                                 }
 
                                 Item {
                                     id: content
                                     anchors.fill: parent
-                                    opacity: extDelegate.isClosing ? extDelegate.closeOpacity
-                                                                   : (model.enabled ? 1.0 : 0.6)
+                                    opacity: extDelegate.isClosing ? extDelegate.closeOpacity : (model.enabled ? 1.0 : 0.6)
                                     transform: Scale {
                                         origin.x: content.width / 2
                                         origin.y: content.height / 2
