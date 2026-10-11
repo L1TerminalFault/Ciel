@@ -25,7 +25,8 @@ class TabModel : public QAbstractListModel {
   Q_PROPERTY(int count READ count NOTIFY countChanged)
   Q_PROPERTY(QString workspaceId READ workspaceId WRITE setWorkspaceId NOTIFY
                  workspaceIdChanged)
-  Q_PROPERTY(bool canRestoreClosedTab READ canRestoreClosedTab NOTIFY closedTabsChanged)
+  Q_PROPERTY(bool canRestoreClosedTab READ canRestoreClosedTab NOTIFY
+                 closedTabsChanged)
 
 public:
   enum Roles {
