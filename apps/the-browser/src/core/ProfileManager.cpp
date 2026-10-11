@@ -314,11 +314,6 @@ void ProfileManager::recordVisit(const QString &url, const QString &title,
   if (isInternalUrl(url)) {
     return;
   }
-  // if (url.isEmpty() || url == QStringLiteral("about:blank") ||
-  //     url == QStringLiteral("ciel://history") ||
-  //     url == QStringLiteral("about:history")) {
-  //   return;
-  // }
 
   qint64 now = QDateTime::currentSecsSinceEpoch();
   m_database.execute(
@@ -394,10 +389,6 @@ bool ProfileManager::isBookmarked(const QString &url) {
   if (isInternalUrl(url)) {
     return false;
   }
-  // if (url.isEmpty() || url == QStringLiteral("about:blank") ||
-  //     url == QStringLiteral("ciel://history")) {
-  //   return false;
-  // }
 
   QVariantList rows = m_database.query(
       QStringLiteral("SELECT id FROM bookmarks WHERE url = :url LIMIT 1;"),
@@ -410,10 +401,6 @@ bool ProfileManager::toggleBookmark(const QString &url, const QString &title) {
   if (isInternalUrl(url)) {
     return false;
   }
-  // if (url.isEmpty() || url == QStringLiteral("about:blank") ||
-  //     url == QStringLiteral("ciel://history")) {
-  //   return false;
-  // }
 
   if (isBookmarked(url)) {
     m_database.execute(
