@@ -171,7 +171,8 @@ QString PasswordManager::injectedScript() {
 
 /* ---- keyring helpers (all async) ---- */
 
-void PasswordManager::readSecret(const QString &id, QObject *ctx, SecretDone done) {
+void PasswordManager::readSecret(const QString &id, QObject *ctx,
+                                 SecretDone done) {
   auto *job = new QKeychain::ReadPasswordJob(service(), this);
   job->setAutoDelete(true);
   job->setKey(keyFor(id));
@@ -217,13 +218,14 @@ void PasswordManager::deleteSecret(const QString &id) {
 /* ---- public API ---- */
 
 QVariantList PasswordManager::list(const QString &search) {
-  QString sql = QStringLiteral(
-      "SELECT id, origin, username, updated_at FROM passwords ");
+  QString sql =
+      QStringLiteral("SELECT id, origin, username, updated_at FROM passwords ");
   QVariantMap bindings;
   if (!search.trimmed().isEmpty()) {
     sql += QStringLiteral("WHERE origin LIKE :s OR username LIKE :s ");
-    bindings.insert(QStringLiteral(":s"),
-                    QStringLiteral("%") + search.trimmed() + QStringLiteral("%"));
+    bindings.insert(QStringLiteral(":s"), QStringLiteral("%") +
+                                              search.trimmed() +
+                                              QStringLiteral("%"));
   }
   sql += QStringLiteral(
       "ORDER BY origin COLLATE NOCASE ASC, username COLLATE NOCASE ASC;");
@@ -237,8 +239,8 @@ void PasswordManager::save(const QString &rawOrigin, const QString &username,
     return;
 
   const QVariantList rows = ProfileManager::instance()->database()->query(
-      QStringLiteral(
-          "SELECT id FROM passwords WHERE origin = :o AND username = :u LIMIT 1;"),
+      QStringLiteral("SELECT id FROM passwords WHERE origin = :o AND username "
+                     "= :u LIMIT 1;"),
       {{QStringLiteral(":o"), origin}, {QStringLiteral(":u"), username}});
 
   const bool exists = !rows.isEmpty();
@@ -246,32 +248,32 @@ void PasswordManager::save(const QString &rawOrigin, const QString &username,
       exists ? rows.first().toMap().value(QStringLiteral("id")).toString()
              : QUuid::createUuid().toString(QUuid::WithoutBraces);
 
-  writeSecret(id, password, this,
-              [this, exists, id, origin, username](bool ok, const QString &err) {
-                if (!ok) {
-                  emit keychainError(err);
-                  return;
-                }
-                Database *d = ProfileManager::instance()->database();
-                const qint64 now = QDateTime::currentSecsSinceEpoch();
-                if (exists) {
-                  d->execute(QStringLiteral("UPDATE passwords SET updated_at = :t "
-                                            "WHERE id = :id;"),
-                             {{QStringLiteral(":t"), now},
-                              {QStringLiteral(":id"), id}});
-                } else {
-                  d->execute(
-                      QStringLiteral(
-                          "INSERT INTO passwords (id, origin, username, "
-                          "created_at, updated_at) "
-                          "VALUES (:id, :o, :u, :t, :t);"),
-                      {{QStringLiteral(":id"), id},
-                       {QStringLiteral(":o"), origin},
-                       {QStringLiteral(":u"), username},
-                       {QStringLiteral(":t"), now}});
-                }
-                emit passwordsChanged();
-              });
+  writeSecret(
+      id, password, this,
+      [this, exists, id, origin, username](bool ok, const QString &err) {
+        if (!ok) {
+          emit keychainError(err);
+          return;
+        }
+        Database *d = ProfileManager::instance()->database();
+        const qint64 now = QDateTime::currentSecsSinceEpoch();
+        if (exists) {
+          d->execute(
+              QStringLiteral("UPDATE passwords SET updated_at = :t "
+                             "WHERE id = :id;"),
+              {{QStringLiteral(":t"), now}, {QStringLiteral(":id"), id}});
+        } else {
+          d->execute(
+              QStringLiteral("INSERT INTO passwords (id, origin, username, "
+                             "created_at, updated_at) "
+                             "VALUES (:id, :o, :u, :t, :t);"),
+              {{QStringLiteral(":id"), id},
+               {QStringLiteral(":o"), origin},
+               {QStringLiteral(":u"), username},
+               {QStringLiteral(":t"), now}});
+        }
+        emit passwordsChanged();
+      });
 }
 
 void PasswordManager::remove(const QString &id) {
@@ -311,8 +313,8 @@ void PasswordManager::classifyCapture(const QString &origin,
                                       const QString &password, QObject *ctx,
                                       std::function<void(CaptureKind)> done) {
   const QVariantList rows = ProfileManager::instance()->database()->query(
-      QStringLiteral(
-          "SELECT id FROM passwords WHERE origin = :o AND username = :u LIMIT 1;"),
+      QStringLiteral("SELECT id FROM passwords WHERE origin = :o AND username "
+                     "= :u LIMIT 1;"),
       {{QStringLiteral(":o"), origin}, {QStringLiteral(":u"), username}});
 
   if (rows.isEmpty()) {
@@ -320,7 +322,8 @@ void PasswordManager::classifyCapture(const QString &origin,
     return;
   }
 
-  const QString id = rows.first().toMap().value(QStringLiteral("id")).toString();
+  const QString id =
+      rows.first().toMap().value(QStringLiteral("id")).toString();
   readSecret(id, ctx, [done, password](bool ok, const QString &stored) {
     done(ok && stored == password ? CaptureKind::Ignore : CaptureKind::Update);
   });
@@ -330,8 +333,9 @@ void PasswordManager::credentialsFor(
     const QString &origin, QObject *ctx,
     std::function<void(const QString &, const QString &)> done) {
   const QVariantList rows = ProfileManager::instance()->database()->query(
-      QStringLiteral("SELECT id, username FROM passwords WHERE origin = :o "
-                     "ORDER BY COALESCE(last_used_at, updated_at) DESC LIMIT 1;"),
+      QStringLiteral(
+          "SELECT id, username FROM passwords WHERE origin = :o "
+          "ORDER BY COALESCE(last_used_at, updated_at) DESC LIMIT 1;"),
       {{QStringLiteral(":o"), origin}});
   if (rows.isEmpty())
     return;
@@ -344,18 +348,18 @@ void PasswordManager::credentialsFor(
     if (!ok)
       return;
     ProfileManager::instance()->database()->execute(
-        QStringLiteral("UPDATE passwords SET last_used_at = :t WHERE id = :id;"),
+        QStringLiteral(
+            "UPDATE passwords SET last_used_at = :t WHERE id = :id;"),
         {{QStringLiteral(":t"), qint64(QDateTime::currentSecsSinceEpoch())},
          {QStringLiteral(":id"), id}});
     done(user, pw);
   });
 }
 
-/* ======================= PasswordBridge ======================= */
-
 PasswordBridge::PasswordBridge(QObject *parent) : QObject(parent) {}
 
-void PasswordBridge::submitted(const QString &rawOrigin, const QString &username,
+void PasswordBridge::submitted(const QString &rawOrigin,
+                               const QString &username,
                                const QString &password) {
   const QString origin = PasswordManager::normalizeOrigin(rawOrigin);
   if (origin.isEmpty() || password.isEmpty() || password.size() > 4096 ||
