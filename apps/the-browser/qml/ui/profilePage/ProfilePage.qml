@@ -31,7 +31,7 @@ Item {
     Item {
         id: centerCard
         anchors.centerIn: parent
-        width: parent.width - 48 // Math.min(580, parent.width - 48)
+        width: parent.width - 48
         height: profileRow.contentHeight + 32
         scale: 0.94 + (root.entranceProgress * 0.06)
         opacity: Math.min(1.0, root.entranceProgress * 1.5)
@@ -55,7 +55,6 @@ Item {
             for (var i = 0; i < fresh.length; ++i)
                 incoming[fresh[i].id] = fresh[i]
 
-            // --- deleted ---
             for (var i = profileModel.count - 1; i >= 0; --i) {
                 var pid = profileModel.get(i).profileId
                 if (!incoming[pid]) {
@@ -66,7 +65,6 @@ Item {
                 }
             }
 
-            // --- added / updated ---
             for (var i = 0; i < fresh.length; ++i) {
                 var p = fresh[i]
                 var img = p.profileImage || ""
@@ -100,7 +98,6 @@ Item {
                 if (row.isActive !== active)
                     profileModel.setProperty(idx, "isActive", active)
 
-                // no entry animation — just a pulse + ripple on the changed cell
                 if (visualChanged || becameActive) {
                     var item = profileRepeater.itemAt(idx)
                     if (item && item.playPulse)
@@ -128,7 +125,6 @@ Item {
             readonly property real itemWidth: 100
             readonly property real itemHeight: 95
             readonly property real itemSpacing: 24
-            // readonly property int totalCount: profileModel.count + 1
             readonly property int totalCount: profileModel.count + (centerCard.editMode ? 1 : 0)
             readonly property int maxColumns: Math.max(1, Math.floor((width + itemSpacing) / (itemWidth + itemSpacing)))
             readonly property int totalRows: Math.ceil(totalCount / maxColumns)
@@ -343,71 +339,11 @@ Item {
                                   }
                                 } else {
                                   if (model.displayName !== "Default") {
-                                    // editProfileDialog.openForProfile(model.profileId);
                                     profileDialog.openForProfile(model.profileId)
                                   }
                                 }
                             }
                         }
-
-// Item {
-//     id: profileEditButton
-//     width: 28
-//     height: 28
-//     visible: model.displayName !== "Default"
-//     anchors.left: parent.left
-//     anchors.bottom: parent.bottom
-//     anchors.leftMargin: -4
-//     anchors.bottomMargin: -5
-//     z: 10
-//
-//     Rectangle {
-//         anchors.fill: parent
-//         radius: width / 2
-//         color: Theme.surface
-//         border.width: 1
-//         border.color: Theme.border
-//
-//         Item {
-//             anchors.fill: parent
-//             anchors.margins: 6
-//         CielIcon {
-//             anchors.centerIn: parent
-//             icon: "edit"
-//             size: Theme.SMALL
-//             color: Theme.textPrimary
-//         }
-//         }
-//
-//         MouseArea {
-//             anchors.fill: parent
-//             enabled: centerCard.editMode
-//             onClicked: editProfileDialog.openForProfile(model.profileId)
-//         }
-//     }
-//
-//     opacity: centerCard.editMode ? 1 : 0
-//     scale: centerCard.editMode ? 1 : 0
-//     transformOrigin: Item.Center
-//
-//     Behavior on opacity {
-//         CielSpring {
-//             damping: 0.85
-//             spring: 12.0
-//             mass: 2.2
-//             epsilon: 0.002
-//         }
-//     }
-//
-//     Behavior on scale {
-//         CielSpring {
-//             damping: 0.65
-//             spring: 14.0
-//             mass: 2.2
-//             epsilon: 0.002
-//         }
-//     }
-// }
 
 Item {
     id: profileDeleteButton
@@ -434,7 +370,7 @@ Item {
             anchors.centerIn: parent
             icon: "trash"
             size: Theme.SMALL
-            color: "#ff2589" // Theme.textPrimary
+            color: "#ff2589"
         }
       }
 
@@ -475,7 +411,7 @@ Item {
                         horizontalAlignment: Text.AlignHCenter
                         elide: Text.ElideRight
                         
-                        color: Theme.textPrimary // Keeps your original theme color mapping intact
+                        color: Theme.textPrimary
                         font.pixelSize: 13 
                     }
                 }
@@ -518,20 +454,9 @@ Item {
 
                 x: targetX
                 y: entryTriggered ? baseTargetY : (baseTargetY + profileRow.entrySlide)
-                // opacity: entryTriggered ? 1 : 0
 
 opacity: (entryTriggered && centerCard.editMode) ? 1 : 0
-// scale: (entryTriggered && centerCard.editMode) ? 1 : 0
 transformOrigin: Item.Center
-
-// Behavior on scale {
-//     CielSpring {
-//         damping: 0.85
-//         spring: 10.0
-//         mass: 2.2
-//         epsilon: 0.002
-//     }
-// }
 
                 transform: Translate {
                     x: addProfileDelegate.localBounceOffsetX
@@ -581,7 +506,7 @@ transformOrigin: Item.Center
                     MouseArea {
                         anchors.fill: parent
                         enabled: centerCard.editMode
-                        onClicked: profileDialog.openForCreate() // addProfileDialog.open()
+                        onClicked: profileDialog.openForCreate()
                     }
                 }
                 Text {
@@ -597,7 +522,6 @@ transformOrigin: Item.Center
 
 Item {
     id: editModeButton
-    // 1. Let the container height stay 46, but dynamically calculate width based on the text container
     width: 46 + editTextContainer.width
     height: 46
     anchors.right: parent.right
@@ -606,7 +530,6 @@ Item {
     anchors.bottomMargin: 24
     z: 20
 
-    // Smoothly spring animate the parent width change
     Behavior on width {
         CielSpring {
             damping: 0.62
@@ -618,7 +541,6 @@ Item {
 
     Rectangle {
         anchors.fill: parent
-        // 2. Fix the radius to half of the height (23) so the capsule ends remain perfectly circular
         radius: 23 
         color: Theme.surface
         border.width: 1
@@ -660,13 +582,11 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 12
                 anchors.verticalCenter: parent.verticalCenter
-                // FIXED: Removed absolute height: parent.height here to let RowLayout manage its items cleanly
                 spacing: 6
 
                 Item {
-                    // Tightened: Shrunk from 40 to 24 to wrap tightly around the icon, closing the center gap
                     Layout.preferredWidth: 24
-                    Layout.preferredHeight: 24 // FIXED: Force explicit height matching the icon bounds
+                    Layout.preferredHeight: 24
                     Layout.alignment: Qt.AlignVCenter
 
                     CielIcon {
@@ -702,7 +622,7 @@ Item {
                     id: editTextContainer
                     Layout.alignment: Qt.AlignVCenter
                     Layout.preferredWidth: centerCard.editMode ? (editText.implicitWidth + 12) : 0 
-                    Layout.preferredHeight: editText.implicitHeight // FIXED: Size directly matches text block height
+                    Layout.preferredHeight: editText.implicitHeight 
                     clip: true
 
                     Text {
@@ -710,7 +630,6 @@ Item {
                         text: "Exit"
                         color: Theme.textPrimary
                         font.pixelSize: 14
-                        // FIXED: Anchored clean inside its tight container bounding box
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter 
                     }
@@ -728,11 +647,4 @@ Item {
 ProfileMutateDialog {
     id: profileDialog
 }
-    // AddProfileDialog {
-    //     id: addProfileDialog
-    // }
-
-    // EditProfileDialog {
-    //     id: editProfileDialog
-    // }
 }
