@@ -941,9 +941,6 @@ onFinished: {
 
 CielContextMenu {
     id: tabContextMenu
-    // trigger: visualContentV
-    // useAbsoluteCoordinates: true
-
 
     CielMenuItem {
         text: "New tab to the bottom"
