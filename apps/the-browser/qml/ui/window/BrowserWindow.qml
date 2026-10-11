@@ -111,56 +111,6 @@ ApplicationWindow {
         return list
     }
 
-    // property var profileCache: ({})
-
-    // function getOrCreateProfile(profileId) {
-    //     if (profileCache[profileId])
-    //         return profileCache[profileId]
-
-    //     var storage = ProfileManager.webEngineStoragePathFor(profileId)
-    //     var cache   = storage + "/cache"
-
-    //     var qml = `
-    //         import QtWebEngine
-    //         WebEngineProfile {
-    //             storageName: "ciel-${profileId}"
-    //             offTheRecord: false
-    //             persistentCookiesPolicy: WebEngineProfile.ForcePersistentCookies
-    //             persistentStoragePath: "${storage}"
-    //             cachePath: "${cache}"
-    //             httpCacheType: WebEngineProfile.DiskHttpCache
-
-    //             onDownloadRequested: function(download) {
-    //                 if (download.isSavePageDownload) {
-    //                     var ps = window.pendingSave
-    //                     window.pendingSave = null
-    //                     if (ps) {
-    //                         download.downloadDirectory = ps.dir
-    //                         download.downloadFileName = ps.name
-    //                         download.savePageFormat = ps.format
-    //                         download.accept()
-    //                     } else {
-    //                         download.cancel()
-    //                     }
-    //                     return
-    //                 }
-
-    //                 var urlStr = download.url ? download.url.toString() : ""
-    //                 if (urlStr.startsWith("blob:") || urlStr.startsWith("data:")) {
-    //                     download.accept()
-    //                 } else {
-    //                     download.cancel()
-    //                     browserConfig.startDownload(download.url, download.downloadFileName, download.mimeType)
-    //                     tabRail.downloadsPopup.open()
-    //                 }
-    //             }
-    //         }`
-
-    //     var p = Qt.createQmlObject(qml, window, "profile-" + profileId)
-    //     profileCache[profileId] = p
-    //     return p
-    // }
-
     function openFind() {
         var v = webContainer.currentActiveView
         if (!v || !v.visible)
@@ -169,7 +119,6 @@ ApplicationWindow {
         findBar.open(v)
     }
 
-    // Floating location bar. Replaces the current page URL.
     function openLocation(mode) {
         if (!mode) {
             var v = webContainer.currentActiveView
@@ -188,7 +137,6 @@ ApplicationWindow {
         var model = workspaceModel.tabModel(workspaceModel.currentWorkspaceId)
         if (model) model.restoreClosedTab()
     }
-    // Maps a WebEngineView feature to persisted keys and prompt text.
     function permissionInfo(feature) {
         switch (feature) {
         case WebEngineView.MediaAudioCapture:
@@ -199,7 +147,7 @@ ApplicationWindow {
             return { keys: ["microphone", "camera"], name: "Camera and Microphone", icon: "camera", persist: true }
         case WebEngineView.DesktopVideoCapture:
         case WebEngineView.DesktopAudioVideoCapture:
-            return { keys: [], name: "Screen Sharing", icon: "monitor", persist: false }   // always asks
+            return { keys: [], name: "Screen Sharing", icon: "monitor", persist: false }   
         case WebEngineView.Geolocation:
             return { keys: ["location"], name: "Location", icon: "map-pin", persist: true }
         case WebEngineView.Notifications:
@@ -208,7 +156,6 @@ ApplicationWindow {
         return null
     }
 
-    // Private windows never read or write the saved table; they remember per window only.
     property var sessionDecisions: ({})
 
     function storedDecision(origin, keys) {
@@ -238,15 +185,13 @@ ApplicationWindow {
 
     function localPathFromUrl(u) {
         var s = u.toString()
-        s = s.replace(/^file:\/\/\/([A-Za-z]:)/, "$1")   // Windows: file:///C:/x
-        s = s.replace(/^file:\/\//, "")                  // Linux/macOS: file:///home/x
+        s = s.replace(/^file:\/\/\/([A-Za-z]:)/, "$1")   
+        s = s.replace(/^file:\/\//, "")                 
         return decodeURIComponent(s)
     }
 
     function printCurrentPage() {
         var v = webContainer.currentActiveView
-        // Skip blank tabs and internal pages (history, bookmarks, profiles).
-        // Their engine is hidden, so printing it would produce an empty PDF.
         if (!v || !v.visible)
             return
 
@@ -256,13 +201,10 @@ ApplicationWindow {
 
         printDialog.printView = v
 
-        // FIX: Change 'QStandardPaths' to 'StandardPaths'
         printDialog.currentFile = StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
                                   + "/" + name + ".pdf"
         printDialog.open()
     }
-
-    // property var pendingSave: null
 
     function savePageCurrent() {
         var v = webContainer.currentActiveView
@@ -298,7 +240,6 @@ ApplicationWindow {
     function translateUrl(urlStr, lang) {
         var m = urlStr.match(/^https?:\/\/([^\/?#:]+)(\/[^?#]*)?(\?[^#]*)?(#.*)?$/)
         if (!m) {
-            // Explicit port or unusual URL: fall back to the classic endpoint.
             return "https://translate.google.com/translate?sl=auto&tl=" + lang
                    + "&u=" + encodeURIComponent(urlStr)
         }
@@ -310,7 +251,7 @@ ApplicationWindow {
                + "&_x_tr_pto=wapp" + (m[4] || "")
     }
 
-    // Reverses translateUrl(): https://en-wikipedia-org.translate.goog/x?_x_tr_sl=... -> https://en.wikipedia.org/x
+    
     function originalUrl(urlStr) {
         var m = urlStr.match(/^https?:\/\/([^\/?#]+)\.translate\.goog(\/[^?#]*)?(\?[^#]*)?(#.*)?$/)
         if (!m)
@@ -345,7 +286,6 @@ ApplicationWindow {
         translatePopup.open()
     }
 
-    // readonly property var currentWebProfile: getOrCreateProfile(ProfileManager.activeProfileId)
 
     Behavior on color {
         enabled: Theme.transitionMs > 0
@@ -609,31 +549,6 @@ ApplicationWindow {
                                 }
                             }
                         }
-                        // Item {
-                        //     anchors.centerIn: parent
-                        //     width: 100
-                        //     height: 100
-                        //
-                        //     CielLoadingSpinner {
-                        //         anchors.centerIn: parent
-                        //         implicitWidth: 16
-                        //         implicitHeight: 16
-                        //         orbitRadius: 4.5
-                        //         minDotSize: 1.2
-                        //         maxDotSize: 3.2
-                        //         finalSize: 2.8
-                        //         finished: false // pageContainer.engineStarted
-                        //         color: Theme.accent
-                        //         opacity: 1 // !finished
-                        //         visible: opacity > 0.0
-                        //
-                        //         Behavior on opacity {
-                        //           NumberAnimation {
-                        //             duration: 1000
-                        //           }
-                        //         }
-                        //     }
-                        //   }
 
                         Component {
                             id: webEngineComponent
@@ -646,7 +561,7 @@ ApplicationWindow {
                                 backgroundColor: Theme.background
 
 				layer.enabled: true
-			        layer.live: true // window.active && pageContainer.isCurrentPage
+			        layer.live: true 
 
                                 visible: !pageContainer.isBlank && !pageContainer.isInternalPage
 
@@ -686,60 +601,39 @@ ApplicationWindow {
                                     permissionDropdown.show(engineView, securityOrigin, feature,
                                                             info.name, info.icon, origin, info.keys, info.persist)
                                 }
-                                // onFeaturePermissionRequested: (securityOrigin, feature) => {
-                                //     let name = "Unknown Feature";
-                                //     let icon = "info";
-
-                                //     switch(feature) {
-                                //         case WebEngineView.MediaAudioCapture: name = "Microphone"; icon = "microphone"; break;
-                                //         case WebEngineView.MediaVideoCapture: name = "Camera"; icon = "camera"; break;
-                                //         case WebEngineView.MediaAudioVideoCapture: name = "Camera and Microphone"; icon = "camera"; break;
-                                //         case WebEngineView.DesktopVideoCapture:
-                                //         case WebEngineView.DesktopAudioVideoCapture: name = "Screen Sharing"; icon = "monitor"; break;
-                                //         case WebEngineView.Geolocation: name = "Location"; icon = "map-pin"; break;
-                                //         case WebEngineView.Notifications: name = "Notifications"; icon = "bell"; break;
-                                //         default:
-                                //             engineView.grantFeaturePermission(securityOrigin, feature, false);
-                                //             return; 
-                                //     }
-
-                                //     // PASS engineView directly!
-                                //     permissionDropdown.show(engineView, securityOrigin, feature, name, icon);
-                                // }
-
 
     onTooltipRequested: (request) => {
-        request.accepted = true; // Prevent native tooltip
+        request.accepted = true; 
 
         if (request.text === "" || request.type === TooltipRequest.Hide) {
             customToolTip.close();
         } else {
             customToolTip.text = request.text;
 
-            // Map engine's local coordinates to the tooltip's parent (Window.contentItem)
+            
             var mappedPos = engineView.mapToItem(customToolTip.parent, request.x, request.y);
             customToolTip.openAt(mappedPos.x, mappedPos.y);
         }
     }
 
-    // Instantiate the tooltip (it will auto-attach to the window overlay)
+    
     CielToolTip {
         id: customToolTip
     }
 
 
                                 onContextMenuRequested: (request) => {
-                                    request.accepted = true; // Prevent the default engine context menu
+                                    request.accepted = true; 
 
                                     webContextMenu.contextRequest = request;
 
-                                    // 1. Safely extract coordinates (Qt 6 uses request.position, Qt 5 used request.x/y)
+                                    
                                     const rawX = request.position ? request.position.x : (request.x !== undefined ? request.x : 0);
                                     const rawY = request.position ? request.position.y : (request.y !== undefined ? request.y : 0);
 
-                                    // 2. Map the coordinates from the WebEngineView's local space 
-                                    // to the CielDropDown's parent coordinate space.
-                                    // This automatically adds the tab bar offset, no matter where CielDropDown is placed!
+                                    
+                                    
+                                    
                                     const targetParent = webContextMenu.parent || window.contentItem;
                                     const mappedPos = engineView.mapToItem(targetParent, rawX, rawY);
 
@@ -747,7 +641,7 @@ ApplicationWindow {
                                 }
 
                                 onJavaScriptDialogRequested: (request) => {
-                                    request.accepted = true; // Prevent the default JS dialog
+                                    request.accepted = true; 
 
                                     jsDialogPopup.dialogRequest = request;
                                     jsDialogPopup.dialogMessage = request.message;
@@ -775,7 +669,6 @@ ApplicationWindow {
                                         })
                                         request.accepted = true
                                     } else {
-                                        // window.open() popups (OAuth etc.) stay lightweight
                                         var spawnedWindow =
                                             browserWindowComponent.createObject(window)
 
@@ -784,27 +677,6 @@ ApplicationWindow {
                                         }
                                     }
                                 }
-                                // onNewWindowRequested: (request) => {
-                                //     if (request.destination ===
-                                //             WebEngineNewWindowRequest.InNewTab ||
-                                //         request.destination ===
-                                //             WebEngineNewWindowRequest.InNewBackgroundTab) {
-
-                                //         if (workspaceContainer.wsTabModel) {
-                                //             workspaceContainer.wsTabModel.addTab(
-                                //                 request.requestedUrl
-                                //             )
-                                //             request.accepted = true
-                                //         }
-                                //     } else {
-                                //         var spawnedWindow =
-                                //             browserWindowComponent.createObject(window)
-
-                                //         if (spawnedWindow) {
-                                //             spawnedWindow.view.acceptAsNewWindow(request)
-                                //         }
-                                //     }
-                                // }
 
                                 onTitleChanged: {
                                     if (workspaceContainer.wsTabModel && !pageContainer.isInternalPage) {
@@ -984,8 +856,6 @@ ApplicationWindow {
                             Item {
                                 id: menuCard
                                 anchors.top: parent.top
-                                // anchors.left: parent.left
-                                // anchors.right: parent.right
                                 anchors.topMargin: 16
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 width: Math.min(parent.width - 32, 800)
@@ -1298,7 +1168,6 @@ ApplicationWindow {
                 searched = false
                 return
             }
-            // Repeating the same string moves to the next/previous match.
             view.findText(findInput.text, backward ? WebEngineView.FindBackward : 0)
         }
 
@@ -1363,7 +1232,6 @@ ApplicationWindow {
         }
     }
 
-    // Password-prompt chrome, sitting a little above center. History completion hangs under the field.
     Item {
         id: locationPopup
         anchors.fill: parent
@@ -1387,18 +1255,14 @@ ApplicationWindow {
 
         MouseArea {
             anchors.fill: parent
-            // 1. Move it to the very top layer so it sits above sibling/child components
             z: -2
 
-            // 2. Intercept both simple clicks and immediate press states
             onPressed: mouse => mouse.accepted = true
             onClicked: mouse => mouse.accepted = true
             onDoubleClicked: mouse => mouse.accepted = true
 
-            // 3. Optional: Prevent scroll wheel events from passing through
             onWheel: wheel => wheel.accepted = true
 
-            // 4. Optional: Prevent hover/move signals from reaching items underneath
             hoverEnabled: true
             onPositionChanged: mouse => mouse.accepted = true
         }
@@ -1583,7 +1447,6 @@ ApplicationWindow {
                     Layout.preferredHeight: locationSuggestions.implicitHeight + 8 * reveal
                     clip: true
 
-                    // 0 -> 1 as the list opens; fades the divider and gap in with it.
                     readonly property real reveal:
                         Math.max(0, Math.min(1, locationSuggestions.implicitHeight / 40))
 
@@ -1637,7 +1500,6 @@ ApplicationWindow {
     }
     Shortcut {
         sequence: "Escape"
-        // enabled: locationPopup.isOpen
         context: Qt.ApplicationShortcut
         onActivated: {
           locationPopup.close();
@@ -1656,18 +1518,12 @@ ApplicationWindow {
         context: Qt.ApplicationShortcut
         onActivated: locationSuggestions.move(-1)
     }
-    // Shortcut {
-    //     sequence: "Escape"
-    //     enabled: findBar.isOpen
-    //     onActivated: findBar.close()
-    // }
     Shortcut {
         sequence: "Shift+Return"
         enabled: findBar.isOpen
         onActivated: findBar.run(true)
     }
 
-    // TODO: Impl real new window
     Component {
         id: browserWindowComponent
 
@@ -1693,37 +1549,9 @@ ApplicationWindow {
 
     CielContextMenu {
         id: webContextMenu
-        // useAbsoluteCoordinates: true
 
         property var contextRequest: null
 
-        // --- Custom App-Specific Actions ---
-        // CielMenuItem {
-        //     text: "New tab to the bottom"
-        //     icon: "tab-new"
-        //     onTriggered: {
-        //         if (workspaceContainer.wsTabModel) {
-        //             workspaceContainer.wsTabModel.addTab("about:blank");
-        //         }
-        //         webContextMenu.close();
-        //     }
-        // }
-        //
-        // CielMenuItem {
-        //     text: "Move tab to new window"
-        //     icon: "window-new"
-        //     onTriggered: {
-        //         webContextMenu.close();
-        //         // Wire this to your actual window-management logic if implemented
-        //         console.log("Move tab to new window requested for index:", index);
-        //     }
-        // }
-        //
-        // CielMenuSeparator {}
-
-        // --- Dynamic WebEngine Actions ---
-
-        // 1. Navigation Actions
         CielMenuItem {
             text: "Back"
                     icon: "arrow-left"
@@ -1743,10 +1571,9 @@ ApplicationWindow {
         }
 
         CielMenuSeparator { 
-          visible: (webContextMenu.contextRequest?.selectedText !== "") // || (webContextMenu.contextRequest?.editFlags?.canCopy) 
+          visible: (webContextMenu.contextRequest?.selectedText !== "") 
         }
 
-        // 4. Text Selection & Edit Actions
         CielMenuItem {
             text: {
                 const txt = webContextMenu.contextRequest?.selectedText || "";
@@ -1768,7 +1595,6 @@ ApplicationWindow {
             visible: (webContextMenu.contextRequest?.linkUrl !== "") || (webContextMenu.contextRequest?.selectedText !== "") 
         }
 
-        // 2. Link Actions
         CielMenuItem {
             text: "Open link in new tab"
             icon: ""
@@ -1792,9 +1618,8 @@ ApplicationWindow {
             }
         }
 
-        CielMenuSeparator { visible: webContextMenu.contextRequest?.mediaType === 2 } // MediaTypeImage
+        CielMenuSeparator { visible: webContextMenu.contextRequest?.mediaType === 2 } 
 
-        // 3. Image Actions
         CielMenuItem {
             text: "Copy image"
             visible: webContextMenu.contextRequest?.mediaType === 2
@@ -1851,7 +1676,6 @@ ApplicationWindow {
             visible: webContextMenu.contextRequest?.selectedText !== ""
         }
 
-        // 5. Page Actions
         CielMenuItem {
             text: "View page source"
             onTriggered: {
@@ -1861,35 +1685,23 @@ ApplicationWindow {
                 webContextMenu.close();
             }
         }
-        // CielMenuItem {
-        //     text: "Inspect"
-        //     onTriggered: {
-        //         if (webContainer.currentActiveView) {
-        //             webContainer.currentActiveView.triggerWebAction(WebEngineView.InspectElement);
-        //         }
-        //         webContextMenu.close();
-        //     }
-        // }
     }
 
     CielPopup {
         id: jsDialogPopup
 
-        // Dynamic width
         contentWidth: 380
 
-        // Dynamic height: implicit height of the column + top/bottom margins (20 + 20 = 40)
         contentHeight: dialogColumn.implicitHeight + 40
 
         property var dialogRequest: null
         property string dialogMessage: ""
         property string dialogTitle: "Message"
-        property int dialogType: 0 // 0: Alert, 1: Confirm, 2: Prompt, 3: BeforeUnload
+        property int dialogType: 0 
         property string dialogDefaultText: ""
 
         property bool _requestResolved: false
 
-        // Prevent website hangs on outside click / Esc
         onClosed: {
             if (dialogRequest && !_requestResolved) {
                 dialogRequest.dialogReject();
@@ -1903,7 +1715,7 @@ ApplicationWindow {
             id: dialogColumn
             anchors.fill: parent
             anchors.margins: 20
-            spacing: 12 // Adjust to 2 here if you want extremely tight spacing
+            spacing: 12 
 
             Text {
                 text: jsDialogPopup.dialogTitle
@@ -1918,8 +1730,6 @@ ApplicationWindow {
                 color: Theme.textPrimary
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
-                // Cap the maximum height so extremely long messages don't break the screen, 
-                // but otherwise it grows dynamically to fit the text.
                 Layout.maximumHeight: 200 
             }
 
@@ -1953,8 +1763,6 @@ ApplicationWindow {
                 }
             }
 
-            // This item contributes 0 to implicitHeight, but pushes buttons to the bottom 
-            // IF the popup is ever forced to be taller than its content.
             Item {
                 Layout.fillHeight: true
             }
@@ -2000,21 +1808,16 @@ ApplicationWindow {
         }
     }
 
-    // Note: Ensure you keep 'import QtQuick.Dialogs' at the top of your file
     FileDialog {
         id: printDialog
         title: "Save page as PDF"
         fileMode: FileDialog.SaveFile
-        // In QtQuick.Dialogs, nameFilters is an array of strings
         nameFilters: ["PDF documents (*.pdf)"]
-        // Note: 'defaultSuffix' is a Qt.labs property; QtQuick.Dialogs handles suffixes 
-        // automatically when the file name is captured or via the nameFilters map.
 
         property var printView: null
 
         onAccepted: {
             if (printView) {
-                // QtQuick.Dialogs uses 'selectedFile' (or 'fileUrl' in older Qt 5)
                 printView.printToPdf(window.localPathFromUrl(selectedFile))
             }
             printView = null
@@ -2291,15 +2094,4 @@ ApplicationWindow {
         sequence: "Ctrl+B"
         onActivated: tabRail.collapsed = !tabRail.collapsed
     }
-
-
-    // Rectangle {   // thin purple strip marks private windows
-    //     visible: window.isPrivate
-    //     anchors.top: parent.top
-    //     anchors.left: parent.left
-    //     anchors.right: parent.right
-    //     height: 2
-    //     color: "#8B5CF6"
-    //     z: 1000
-    // }
 }
