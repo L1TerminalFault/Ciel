@@ -6,16 +6,13 @@ QtObject {
     id: manager
 
     property var windows: []
-    property var currentWindow: null      // last focused window
-    property var pendingSave: null        // set by a window's "Save page" dialog
+    property var currentWindow: null      
+    property var pendingSave: null        
     property var profileCache: ({})
     property var privateProfileObj: null
 
     property Component windowComponent: Component { BrowserWindow {} }
 
-    /* ------------------------- windows ------------------------- */
-
-    // opts: { privateMode: bool, url: string|url, primary: bool }
     function openWindow(opts) {
         opts = opts || {}
         var props = {
@@ -50,7 +47,6 @@ QtObject {
             privateCleanup.restart()
     }
 
-    // Normal extra windows are bound to the active profile, so they close when it changes.
     property Connections profileWatch: Connections {
         target: ProfileManager
         function onActiveProfileAboutToChange() {
@@ -63,8 +59,6 @@ QtObject {
     }
 
     Component.onCompleted: openWindow({ primary: true })
-
-    /* ------------------------- profiles ------------------------- */
 
     function profileSource(props) {
         return `
@@ -94,7 +88,6 @@ QtObject {
         return p
     }
 
-    // One in-memory profile shared by all private windows.
     function privateProfile() {
         if (!privateProfileObj) {
             privateProfileObj = Qt.createQmlObject(
@@ -103,7 +96,6 @@ QtObject {
         return privateProfileObj
     }
 
-    // Discard the private session shortly after the last private window is gone.
     property Timer privateCleanup: Timer {
         interval: 1500
         onTriggered: {
