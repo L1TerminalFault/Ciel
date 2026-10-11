@@ -43,6 +43,7 @@ public:
   Q_INVOKABLE void navigate(int targetRow, int modifiers = 0);
   Q_INVOKABLE int findNextByPrefix(const QString &prefix);
   Q_INVOKABLE void refresh();
+  Q_INVOKABLE void setSelection(const QVector<int> &rows);
 
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   QVariant data(const QModelIndex &index, int role) const override;

@@ -437,14 +437,14 @@ Item {
                 CielSeparator {
                     id: separator
                     vertical: true
-                    color: (hoverHandler.hovered || dragHandler.active) ? Theme.accent : Theme.border
+                    color: (hoverHandlerSep.hovered || dragHandler.active) ? "#212121" : Theme.border
                     Behavior on color {
                         ColorAnimation {
                             duration: 150
                         }
                     }
                     HoverHandler {
-                        id: hoverHandler
+                        id: hoverHandlerSep
                         margin: 5
                         cursorShape: Qt.SplitHCursor
                     }
@@ -746,6 +746,14 @@ Item {
                                 }
                             }
 
+                            CielSquircle {
+                                id: visualSelectionRect
+                                color: "#b4e2fa"
+                                borderWidth: 2
+                                borderColor: "#64c5fa"
+                                opacity: 0.5
+                                visible: false
+                            }
                             Component {
                                 id: gridViewComponent
 
@@ -762,6 +770,97 @@ Item {
                                                 FileListModel.clearSelection();
                                                 root.forceActiveFocus();
                                             }
+                                        }
+                                    }
+
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        acceptedButtons: Qt.LeftButton
+                                        property real startX: 0
+                                        property real startY: 0
+                                        property bool isDragging: false
+                                        readonly property real dragThreshold: 4
+
+                                        preventStealing: isDragging
+
+                                        function updateSelection() {
+                                            var selL = visualSelectionRect.x;
+                                            var selT = visualSelectionRect.y;
+                                            var selR = visualSelectionRect.x + visualSelectionRect.width;
+                                            var selB = visualSelectionRect.y + visualSelectionRect.height;
+
+                                            let selectedIndices = [];
+
+                                            for (var i = 0; i < fileGrid.count; ++i) {
+                                                var item = fileGrid.itemAtIndex(i);
+
+                                                if (!item || !item.visible)
+                                                    continue;
+
+                                                var pos = item.mapToItem(fileGrid, 0, 0);
+                                                var itemL = pos.x;
+                                                var itemT = pos.y;
+                                                var itemR = pos.x + item.width;
+                                                var itemB = pos.y + item.height;
+
+                                                // 3. Exact collision test
+                                                var intersects = (selL < itemR && selR > itemL && selT < itemB && selB > itemT);
+
+                                                if (intersects) {
+                                                    selectedIndices.push(i);
+                                                }
+                                            }
+
+                                            var lastIndex = selectedIndices.length > 0 ? selectedIndices[selectedIndices.length - 1] : -1;
+                                            FileListModel.setSelection(selectedIndices);
+                                        }
+
+                                        onPressed: mouse => {
+                                            var contentPoint = fileGrid.mapToItem(fileGrid.contentItem, mouse.x, mouse.y);
+                                            var hitIndex = fileGrid.indexAt(contentPoint.x, contentPoint.y);
+                                            if (hitIndex !== -1) {
+                                                mouse.accepted = false;
+                                                return;
+                                            }
+                                            startX = mouse.x;
+                                            startY = mouse.y;
+                                            isDragging = false;
+                                            viewArea.forceActiveFocus();
+                                        }
+
+                                        onPositionChanged: mouse => {
+                                            if (!pressed)
+                                                return;
+                                            var dx = mouse.x - startX;
+                                            var dy = mouse.y - startY;
+
+                                            if (!isDragging && (Math.abs(dx) > dragThreshold || Math.abs(dy) > dragThreshold)) {
+                                                isDragging = true;
+                                                visualSelectionRect.visible = true;
+                                            }
+
+                                            if (isDragging) {
+                                                visualSelectionRect.x = Math.min(mouse.x, startX);
+                                                visualSelectionRect.y = Math.min(mouse.y, startY);
+                                                visualSelectionRect.width = Math.abs(mouse.x - startX);
+                                                visualSelectionRect.height = Math.abs(mouse.y - startY);
+
+                                                updateSelection();
+                                            }
+                                        }
+
+                                        onReleased: {
+                                            if (isDragging) {
+                                                visualSelectionRect.visible = false;
+                                                isDragging = false;
+                                            } else {
+                                                FileListModel.clearSelection();
+                                            }
+                                        }
+
+                                        onCanceled: {
+                                            visualSelectionRect.visible = false;
+                                            isDragging = false;
                                         }
                                     }
                                     delegate: Item {

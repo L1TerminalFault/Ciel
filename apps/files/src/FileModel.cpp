@@ -106,6 +106,35 @@ void FileListModel::ensureTabManagerConnected() {
     m_tabManagerConnected = true;
   }
 }
+void FileListModel::setSelection(const QVector<int> &rows) {
+  if (rows.isEmpty()) {
+    return;
+  }
+  auto *tm = TabManager::instance();
+  if (!tm || m_visibleIndices.isEmpty())
+    return;
+
+  const auto prevSelection = tm->currentTabSelection();
+
+  int anchor = rows.isEmpty() ? -1 : rows.last();
+  tm->setSelection(rows, anchor);
+
+  int minRow = m_visibleIndices.size();
+  int maxRow = -1;
+
+  for (int r : prevSelection) {
+    minRow = std::min(minRow, r);
+    maxRow = std::max(maxRow, r);
+  }
+  for (int r : rows) {
+    minRow = std::min(minRow, r);
+    maxRow = std::max(maxRow, r);
+  }
+
+  if (minRow <= maxRow && minRow >= 0 && maxRow < m_visibleIndices.size()) {
+    emit dataChanged(index(minRow), index(maxRow), {SelectedRole});
+  }
+}
 
 void FileListModel::syncWithTab() {
   ensureTabManagerConnected();
