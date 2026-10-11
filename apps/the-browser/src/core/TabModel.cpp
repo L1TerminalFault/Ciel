@@ -132,8 +132,18 @@ void TabModel::addTab(const QUrl &url) {
   if (url.toString() == QStringLiteral("ciel://history") ||
       url.toString() == QStringLiteral("about:history")) {
     tab.title = QStringLiteral("History");
+  } else if (url.toString() == QStringLiteral("ciel://extensions")) {
+    tab.title = QStringLiteral("Extensions");
+  } else if (url.toString() == QStringLiteral("ciel://permissions")) {
+    tab.title = QStringLiteral("Site Permissions");
+  } else if (url.toString() == QStringLiteral("ciel://passwords")) {
+    tab.title = QStringLiteral("Passwords");
+  } else if (url.toString() == QStringLiteral("ciel://bookmarks")) {
+    tab.title = QStringLiteral("Bookmarks");
   } else if (url.toString() == QStringLiteral("ciel://profiles")) {
     tab.title = QStringLiteral("Profiles");
+  } else if (url.toString() == QStringLiteral("ciel://settings")) {
+    tab.title = QStringLiteral("Settings");
   } else if (url.isEmpty() || url == QUrl(QStringLiteral("about:blank"))) {
     tab.title = QStringLiteral("New Tab");
   } else {
@@ -168,6 +178,7 @@ void TabModel::closeTab(int index) {
     return;
   }
 
+  rememberClosedTab(index);
   QString id = m_tabs.at(index).id;
   if (!m_workspaceId.isEmpty()) {
     Database *db = ProfileManager::instance()->database();
@@ -226,7 +237,9 @@ void TabModel::updateUrl(int index, const QUrl &url) {
       db->execute(QStringLiteral("UPDATE tabs SET url = :url WHERE id = :id;"),
                   {{QStringLiteral(":url"), url.toString()},
                    {QStringLiteral(":id"), m_tabs[index].id}});
+    }
 
+    if (!m_private && (m_ephemeral || !m_workspaceId.isEmpty())) {
       ProfileManager::instance()->recordVisit(
           url.toString(), m_tabs[index].title, m_workspaceId);
     }
@@ -235,6 +248,27 @@ void TabModel::updateUrl(int index, const QUrl &url) {
                      QList<int>{UrlRole});
   }
 }
+// void TabModel::updateUrl(int index, const QUrl &url) {
+//   if (index < 0 || index >= m_tabs.size()) {
+//     return;
+//   }
+//   if (m_tabs[index].url != url) {
+//     m_tabs[index].url = url;
+//
+//     if (!m_workspaceId.isEmpty()) {
+//       Database *db = ProfileManager::instance()->database();
+//       db->execute(QStringLiteral("UPDATE tabs SET url = :url WHERE id = :id;"),
+//                   {{QStringLiteral(":url"), url.toString()},
+//                    {QStringLiteral(":id"), m_tabs[index].id}});
+//
+//       ProfileManager::instance()->recordVisit(
+//           url.toString(), m_tabs[index].title, m_workspaceId);
+//     }
+//
+//     emit dataChanged(this->index(index), this->index(index),
+//                      QList<int>{UrlRole});
+//   }
+// }
 
 void TabModel::updateLoading(int index, bool loading) {
   if (index < 0 || index >= m_tabs.size()) {
@@ -398,6 +432,11 @@ void TabModel::closeOtherTabs(int keepIndex) {
   }
 
   const QString keepId = m_tabs.at(keepIndex).id;
+  // Highest index first, so restoring pops the lowest index first
+  // and each tab lands back at its exact original position.
+  for (int i = originalCount - 1; i >= 0; --i)
+    if (i != keepIndex)
+      rememberClosedTab(i);
 
   // Delete the database records in one statement.
   if (!m_workspaceId.isEmpty()) {
@@ -482,6 +521,9 @@ void TabModel::closeTabsToBottom(int index) {
       params.insert(placeholder, idsToDelete.at(i));
     }
 
+    for (int i = originalCount - 1; i > index; --i)
+      rememberClosedTab(i);
+
     const QString sql =
         QStringLiteral(
             "DELETE FROM tabs "
@@ -515,4 +557,78 @@ void TabModel::closeTabsToBottom(int index) {
 
   persistOrder();
   persistCurrentTab();
+}
+
+void TabModel::rememberClosedTab(int index) {
+  if (index < 0 || index >= m_tabs.size())
+    return;
+
+  const auto &tab = m_tabs.at(index);
+  const QString u = tab.url.toString();
+  if (u.isEmpty() || u == QStringLiteral("about:blank"))
+    return; // don't remember empty new tabs
+
+  m_closedTabs.append({tab.url, tab.title, tab.isPinned, index});
+  while (m_closedTabs.size() > kMaxClosedTabs)
+    m_closedTabs.removeFirst();
+
+  emit closedTabsChanged();
+}
+
+void TabModel::restoreClosedTab() {
+  if (m_closedTabs.isEmpty())
+    return;
+
+  const ClosedTab closed = m_closedTabs.takeLast();
+
+  int pinnedCount = 0;
+  for (const auto &t : std::as_const(m_tabs))
+    if (t.isPinned)
+      ++pinnedCount;
+
+  // Pinned tabs live at the front, unpinned after them.
+  const int pos = closed.isPinned
+                      ? qBound(0, closed.index, pinnedCount)
+                      : qBound(pinnedCount, closed.index, int(m_tabs.size()));
+
+  TabItem tab;
+  tab.id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+  tab.url = closed.url;
+  tab.title = closed.title;
+  tab.isPinned = closed.isPinned;
+
+  if (!m_workspaceId.isEmpty()) {
+    Database *db = ProfileManager::instance()->database();
+    db->execute(
+        QStringLiteral(
+            "INSERT INTO tabs (id, workspace_id, url, title, is_pinned, "
+            "sort_order) "
+            "VALUES (:id, :workspace_id, :url, :title, :pinned, :sort_order);"),
+        {{QStringLiteral(":id"), tab.id},
+         {QStringLiteral(":workspace_id"), m_workspaceId},
+         {QStringLiteral(":url"), tab.url.toString()},
+         {QStringLiteral(":title"), tab.title},
+         {QStringLiteral(":pinned"), tab.isPinned ? 1 : 0},
+         {QStringLiteral(":sort_order"), pos}});
+  }
+
+  beginInsertRows(QModelIndex(), pos, pos);
+  m_tabs.insert(pos, tab);
+  endInsertRows();
+
+  emit countChanged();
+  emit closedTabsChanged();
+
+  persistOrder(); // fixes sort_order for everything after pos
+
+  m_currentIndex = pos;
+  persistCurrentTab();
+  emit currentIndexChanged();
+}
+
+void TabModel::startEphemeral(bool isPrivate, const QUrl &firstUrl) {
+  m_ephemeral = true;
+  m_private = isPrivate;
+  if (m_tabs.isEmpty())
+    addTab(firstUrl.isEmpty() ? QUrl(QStringLiteral("about:blank")) : firstUrl);
 }
