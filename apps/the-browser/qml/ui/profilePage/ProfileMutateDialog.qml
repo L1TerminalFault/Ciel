@@ -98,14 +98,13 @@ CielPopup {
                     visible: editProfileDialog.chosenImage !== ""
                 }
 
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: nameField.text.charAt(0).toUpperCase()
-                            visible: editProfileDialog.chosenImage === "" && editProfileDialog.editMode
-                            font.bold: true
-                            font.pixelSize: 18
-                        }
+                Text {
+                    anchors.centerIn: parent
+                    text: nameField.text.charAt(0).toUpperCase()
+                    visible: editProfileDialog.chosenImage === "" && editProfileDialog.editMode
+                    font.bold: true
+                    font.pixelSize: 18
+                }
 
                 CielIcon {
                     anchors.centerIn: parent
