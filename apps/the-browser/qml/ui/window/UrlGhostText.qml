@@ -2,16 +2,15 @@ import QtQuick
 import Ciel.Ui
 import Ciel.Browser 1.0
 
-// Inline URL completion for a CielSearch. Tab / Right (at end) accepts it.
 Item {
     id: root
 
-    property var target: null        // the CielSearch
-    property bool active: false      // only complete while the bar is in use
-    property bool blocked: false     // e.g. a list row is selected
+    property var target: null        
+    property bool active: false      
+    property bool blocked: false     
 
     property string completion: ""
-    property string lastShown: ""    // keeps the text alive while fading out
+    property string lastShown: ""    
 
     readonly property var field: target ? target.inputField : null
     readonly property bool showing: active && !blocked && completion !== ""
@@ -49,7 +48,6 @@ Item {
         return true
     }
 
-    // What Enter should navigate to.
     function completed(text) {
         return showing ? text + completion : text
     }
@@ -65,7 +63,6 @@ Item {
             return
         edited = false
         var f = field
-        // A shorter text means the user deleted: stay quiet until they type again.
         if (!active || !f || curLen < oldLen || f.text === "") {
             completion = ""
             return
@@ -76,11 +73,11 @@ Item {
     Connections {
         target: root.field
         ignoreUnknownSignals: true
-        function onTextChanged() {          // any change, including programmatic
+        function onTextChanged() {          
             root.oldLen = root.curLen
             root.curLen = root.field.length
         }
-        function onTextEdited() {           // user edits only
+        function onTextEdited() {           
             root.edited = true
             Qt.callLater(root.evaluate)
         }
