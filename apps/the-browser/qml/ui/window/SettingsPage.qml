@@ -13,8 +13,7 @@ Item {
         if (!searchQuery)
             return true;
         var q = searchQuery.toLowerCase();
-        return title.toLowerCase().indexOf(q) !== -1
-            || detail.toLowerCase().indexOf(q) !== -1;
+        return title.toLowerCase().indexOf(q) !== -1 || detail.toLowerCase().indexOf(q) !== -1;
     }
 
     component ToggleRow: Item {
@@ -34,7 +33,6 @@ Item {
             color: rowMouse.containsMouse ? Qt.alpha(Theme.textPrimary, 0.04) : "transparent"
         }
 
-        
         MouseArea {
             id: rowMouse
             anchors.fill: parent
@@ -77,10 +75,11 @@ Item {
                 checked: row.on
                 Layout.alignment: Qt.AlignVCenter
                 onToggled: {
-                    row.toggled()
-                   
-                  
-                    sw.checked = Qt.binding(function () { return row.on })
+                    row.toggled();
+
+                    sw.checked = Qt.binding(function () {
+                        return row.on;
+                    });
                 }
             }
         }
@@ -98,7 +97,7 @@ Item {
         id: row
         property string title: ""
         property string detail: ""
-        property var model: []        
+        property var model: []
         property var value
         property bool numeric: false
         signal picked(var value)
@@ -155,16 +154,20 @@ Item {
                 id: select
                 Layout.preferredWidth: 200
                 Layout.alignment: Qt.AlignVCenter
-                model: row.model.map(function (c) { return c.label })
+                model: row.model.map(function (c) {
+                    return c.label;
+                })
                 currentIndex: row.indexOfValue()
 
                 onCurrentIndexChanged: {
                     if (currentIndex < 0 || currentIndex === row.indexOfValue())
-                        return;               
+                        return;
                     row.picked(row.model[currentIndex].value);
-                    
+
                     Qt.callLater(function () {
-                        select.currentIndex = Qt.binding(function () { return row.indexOfValue() })
+                        select.currentIndex = Qt.binding(function () {
+                            return row.indexOfValue();
+                        });
                     });
                 }
             }
@@ -215,7 +218,9 @@ Item {
                         }
                     }
 
-                    Item { Layout.fillWidth: true }
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     CielSearch {
                         id: searchBar
@@ -272,13 +277,12 @@ Item {
                                     id: generalBlock
                                     Layout.fillWidth: true
                                     spacing: 8
-                                    visible: engineRow.shown || homeRow.shown || zoomRow.shown
-                                             || confirmRow.shown || suggestRow.shown || sidebarRow.shown
+                                    visible: engineRow.shown || homeRow.shown || zoomRow.shown || confirmRow.shown || suggestRow.shown || sidebarRow.shown
 
                                     Text {
                                         text: "General"
                                         font.pixelSize: 13
-                                        
+
                                         color: Theme.textSecondary
                                         visible: generalBlock.visible
                                     }
@@ -300,7 +304,10 @@ Item {
                                                 detail: "Used for address-bar text that is not a URL."
                                                 model: settings ? settings.engineChoices() : []
                                                 value: settings ? settings.searchEngine : ""
-                                                onPicked: value => { if (settings) settings.searchEngine = value }
+                                                onPicked: value => {
+                                                    if (settings)
+                                                        settings.searchEngine = value;
+                                                }
                                             }
 
                                             ChoiceRow {
@@ -310,7 +317,10 @@ Item {
                                                 numeric: true
                                                 model: settings ? settings.zoomChoices() : []
                                                 value: settings ? settings.zoomFactor : 1
-                                                onPicked: value => { if (settings) settings.zoomFactor = value }
+                                                onPicked: value => {
+                                                    if (settings)
+                                                        settings.zoomFactor = value;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -318,7 +328,10 @@ Item {
                                                 title: "Confirm before closing"
                                                 detail: "Ask when this window still has more than one tab."
                                                 on: settings ? settings.confirmClose : false
-                                                onToggled: { if (settings) settings.confirmClose = !settings.confirmClose }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.confirmClose = !settings.confirmClose;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -326,7 +339,10 @@ Item {
                                                 title: "Collapsed sidebar"
                                                 detail: "Keep the tab sidebar collapsed. Applies immediately."
                                                 on: settings ? settings.sidebarCollapsed : false
-                                                onToggled: { if (settings) settings.sidebarCollapsed = !settings.sidebarCollapsed }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.sidebarCollapsed = !settings.sidebarCollapsed;
+                                                }
                                             }
                                         }
                                     }
@@ -336,8 +352,7 @@ Item {
                                     id: contentBlock
                                     Layout.fillWidth: true
                                     spacing: 8
-                                    visible: jsRow.shown || imagesRow.shown || storageRow.shown
-                                             || popupsRow.shown || pdfRow.shown || scrollRow.shown
+                                    visible: jsRow.shown || imagesRow.shown || storageRow.shown || popupsRow.shown || pdfRow.shown || scrollRow.shown
 
                                     Text {
                                         text: "Content"
@@ -362,7 +377,10 @@ Item {
                                                 title: "JavaScript"
                                                 detail: "Allow pages to run scripts."
                                                 on: settings ? settings.javascriptEnabled : true
-                                                onToggled: { if (settings) settings.javascriptEnabled = !settings.javascriptEnabled }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.javascriptEnabled = !settings.javascriptEnabled;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -370,7 +388,10 @@ Item {
                                                 title: "Load images"
                                                 detail: "Download images on web pages."
                                                 on: settings ? settings.autoLoadImages : true
-                                                onToggled: { if (settings) settings.autoLoadImages = !settings.autoLoadImages }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.autoLoadImages = !settings.autoLoadImages;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -378,7 +399,10 @@ Item {
                                                 title: "Local storage"
                                                 detail: "Let sites store data in local storage."
                                                 on: settings ? settings.localStorageEnabled : true
-                                                onToggled: { if (settings) settings.localStorageEnabled = !settings.localStorageEnabled }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.localStorageEnabled = !settings.localStorageEnabled;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -386,7 +410,10 @@ Item {
                                                 title: "Scripts may open windows"
                                                 detail: "Allow JavaScript to open tabs and windows."
                                                 on: settings ? settings.javascriptCanOpenWindows : true
-                                                onToggled: { if (settings) settings.javascriptCanOpenWindows = !settings.javascriptCanOpenWindows }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.javascriptCanOpenWindows = !settings.javascriptCanOpenWindows;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -394,7 +421,10 @@ Item {
                                                 title: "PDF viewer"
                                                 detail: "Open PDF files in the browser."
                                                 on: settings ? settings.pdfViewerEnabled : true
-                                                onToggled: { if (settings) settings.pdfViewerEnabled = !settings.pdfViewerEnabled }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.pdfViewerEnabled = !settings.pdfViewerEnabled;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -402,7 +432,10 @@ Item {
                                                 title: "Smooth scrolling"
                                                 detail: "Animate scrolling inside web pages."
                                                 on: settings ? settings.smoothScrolling : true
-                                                onToggled: { if (settings) settings.smoothScrolling = !settings.smoothScrolling }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.smoothScrolling = !settings.smoothScrolling;
+                                                }
                                             }
                                         }
                                     }
@@ -437,7 +470,10 @@ Item {
                                                 title: "Hyperlink auditing"
                                                 detail: "Let sites know which links you follow."
                                                 on: settings ? settings.hyperlinkAuditingEnabled : false
-                                                onToggled: { if (settings) settings.hyperlinkAuditingEnabled = !settings.hyperlinkAuditingEnabled }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.hyperlinkAuditingEnabled = !settings.hyperlinkAuditingEnabled;
+                                                }
                                             }
 
                                             ToggleRow {
@@ -445,7 +481,10 @@ Item {
                                                 title: "Spell checking"
                                                 detail: "Underline misspellings in text fields."
                                                 on: settings ? settings.spellCheckEnabled : true
-                                                onToggled: { if (settings) settings.spellCheckEnabled = !settings.spellCheckEnabled }
+                                                onToggled: {
+                                                    if (settings)
+                                                        settings.spellCheckEnabled = !settings.spellCheckEnabled;
+                                                }
                                             }
 
                                             ChoiceRow {
@@ -454,7 +493,10 @@ Item {
                                                 detail: "Sent with requests. The open page reloads when this changes."
                                                 model: settings ? settings.userAgentChoices() : []
                                                 value: settings ? settings.userAgentPreset : "default"
-                                                onPicked: value => { if (settings) settings.userAgentPreset = value }
+                                                onPicked: value => {
+                                                    if (settings)
+                                                        settings.userAgentPreset = value;
+                                                }
                                             }
                                         }
                                     }
@@ -468,7 +510,8 @@ Item {
                                     CielButton {
                                         anchors.left: parent.left
                                         text: "Restore defaults"
-                                        onClicked: if (settings) settings.resetDefaults()
+                                        onClicked: if (settings)
+                                            settings.resetDefaults()
                                     }
                                 }
                             }
