@@ -131,12 +131,6 @@ TabModel *WorkspaceModel::tabModel(const QString &workspaceId) {
     m_tabModels.insert(workspaceId, model);
   }
   return m_tabModels.value(workspaceId);
-  // if (!m_tabModels.contains(workspaceId)) {
-  //   auto *model = new TabModel(this);
-  //   model->setWorkspaceId(workspaceId);
-  //   m_tabModels.insert(workspaceId, model);
-  // }
-  // return m_tabModels.value(workspaceId);
 }
 
 void WorkspaceModel::releaseTabModels() {
