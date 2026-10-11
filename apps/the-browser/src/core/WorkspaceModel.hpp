@@ -25,9 +25,12 @@ class WorkspaceModel : public QAbstractListModel {
   Q_PROPERTY(int count READ count NOTIFY countChanged)
   Q_PROPERTY(QString currentWorkspaceId READ currentWorkspaceId NOTIFY
                  currentIndexChanged)
-  Q_PROPERTY(bool ephemeral READ ephemeral WRITE setEphemeral NOTIFY ephemeralChanged)
-  Q_PROPERTY(bool incognito READ incognito WRITE setIncognito NOTIFY incognitoChanged)
-  Q_PROPERTY(QUrl startUrl READ startUrl WRITE setStartUrl NOTIFY startUrlChanged)
+  Q_PROPERTY(
+      bool ephemeral READ ephemeral WRITE setEphemeral NOTIFY ephemeralChanged)
+  Q_PROPERTY(
+      bool incognito READ incognito WRITE setIncognito NOTIFY incognitoChanged)
+  Q_PROPERTY(
+      QUrl startUrl READ startUrl WRITE setStartUrl NOTIFY startUrlChanged)
 
 public:
   enum Roles {
@@ -64,11 +67,17 @@ public:
   void setEphemeral(bool on);
   bool incognito() const { return m_incognito; }
   void setIncognito(bool on) {
-    if (m_incognito != on) { m_incognito = on; emit incognitoChanged(); }
+    if (m_incognito != on) {
+      m_incognito = on;
+      emit incognitoChanged();
+    }
   }
   QUrl startUrl() const { return m_startUrl; }
   void setStartUrl(const QUrl &u) {
-    if (m_startUrl != u) { m_startUrl = u; emit startUrlChanged(); }
+    if (m_startUrl != u) {
+      m_startUrl = u;
+      emit startUrlChanged();
+    }
   }
 
 signals:
