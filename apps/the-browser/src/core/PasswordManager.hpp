@@ -34,8 +34,9 @@ public:
   void classifyCapture(const QString &origin, const QString &username,
                        const QString &password, QObject *ctx,
                        std::function<void(CaptureKind)> done);
-  void credentialsFor(const QString &origin, QObject *ctx,
-                      std::function<void(const QString &, const QString &)> done);
+  void
+  credentialsFor(const QString &origin, QObject *ctx,
+                 std::function<void(const QString &, const QString &)> done);
 
 signals:
   void passwordsChanged();
@@ -63,7 +64,7 @@ public:
   Q_INVOKABLE void acceptPending();
   Q_INVOKABLE void discardPending();
 
-public slots: 
+public slots:
   void submitted(const QString &origin, const QString &username,
                  const QString &password);
   void requestFill(const QString &origin);
