@@ -22,8 +22,8 @@ Item {
     signal sitePermissionsRequested
 
     readonly property string siteOrigin: {
-        var u = (root.activeView && root.activeView.url) ? root.activeView.url.toString() : ""
-        return /^https?:\/\//.test(u) ? SitePermissionManager.originOf(root.activeView.url) : ""
+        var u = (root.activeView && root.activeView.url) ? root.activeView.url.toString() : "";
+        return /^https?:\/\//.test(u) ? SitePermissionManager.originOf(root.activeView.url) : "";
     }
     readonly property bool permissionsAvailable: siteOrigin !== "" && !isPrivate
 
@@ -32,53 +32,71 @@ Item {
     property var shownKeys: []
 
     readonly property var permFeatures: [
-        { key: "microphone",    name: "Microphone",    icon: "microphone" },
-        { key: "camera",        name: "Camera",        icon: "camera" },
-        { key: "location",      name: "Location",      icon: "map-pin" },
-        { key: "notifications", name: "Notifications", icon: "bell" }
+        {
+            key: "microphone",
+            name: "Microphone",
+            icon: "microphone"
+        },
+        {
+            key: "camera",
+            name: "Camera",
+            icon: "camera"
+        },
+        {
+            key: "location",
+            name: "Location",
+            icon: "map-pin"
+        },
+        {
+            key: "notifications",
+            name: "Notifications",
+            icon: "bell"
+        }
     ]
 
     function permState(key) {
-        root.permRevision
-        return root.siteOrigin !== "" ? SitePermissionManager.permissionState(root.siteOrigin, key) : ""
+        root.permRevision;
+        return root.siteOrigin !== "" ? SitePermissionManager.permissionState(root.siteOrigin, key) : "";
     }
 
-    function setPerm(key, state) {      
+    function setPerm(key, state) {
         if (root.siteOrigin === "")
-            return
-        SitePermissionManager.setPermission(root.siteOrigin, key, state)
-        root.permChanged = true
+            return;
+        SitePermissionManager.setPermission(root.siteOrigin, key, state);
+        root.permChanged = true;
     }
 
-function openSiteControls(btn) {
-    var wasOpen = permissionsMenu.isOpen
+    function openSiteControls(btn) {
+        var wasOpen = permissionsMenu.isOpen;
 
-    root.permChanged = false
+        root.permChanged = false;
 
-    var keys = []
-    for (var i = 0; i < root.permFeatures.length; ++i) {
-        var k = root.permFeatures[i].key
-        if (SitePermissionManager.permissionState(root.siteOrigin, k) !== "")
-            keys.push(k)
+        var keys = [];
+        for (var i = 0; i < root.permFeatures.length; ++i) {
+            var k = root.permFeatures[i].key;
+            if (SitePermissionManager.permissionState(root.siteOrigin, k) !== "")
+                keys.push(k);
+        }
+
+        root.shownKeys = keys;
+
+        permissionsMenu.trigger = null;
+
+        Qt.callLater(function () {
+            permissionsMenu.trigger = btn;
+
+            if (wasOpen)
+                permissionsMenu.close();
+            else
+                permissionsMenu.open();
+        });
     }
-
-    root.shownKeys = keys
-
-    permissionsMenu.trigger = null
-
-    Qt.callLater(function() {
-        permissionsMenu.trigger = btn
-
-        if (wasOpen)
-            permissionsMenu.close()
-        else
-            permissionsMenu.open()
-    })
-}
 
     Connections {
         target: SitePermissionManager
-        function onPermissionsChanged() { root.permRevision++ }
+        function onPermissionsChanged() {
+            root.permRevision++;
+        }
     }
 
     function cleanDisplayUrl(raw) {
@@ -233,37 +251,35 @@ function openSiteControls(btn) {
                 postContent: RowLayout {
                     spacing: 2
 
-CielIconButton {
-    id: starBtn
+                    CielIconButton {
+                        id: starBtn
 
-    property int revision: 0
+                        property int revision: 0
 
-    readonly property bool bookmarked: {
-        starBtn.revision;   
-        return (root.activeView && root.activeView.url)
-               ? ProfileManager.isBookmarked(root.activeView.url.toString())
-               : false;
-    }
+                        readonly property bool bookmarked: {
+                            starBtn.revision;
+                            return (root.activeView && root.activeView.url) ? ProfileManager.isBookmarked(root.activeView.url.toString()) : false;
+                        }
 
-    icon: bookmarked ? "star-fill" : "star"
-    size: Theme.XSMALL
-    iconColor: bookmarked ? Theme.accent : Theme.textSecondary
+                        icon: bookmarked ? "star-fill" : "star"
+                        size: Theme.XSMALL
+                        iconColor: bookmarked ? Theme.accent : Theme.textSecondary
 
-    Connections {
-        target: ProfileManager
-        function onBookmarksChanged() {
-            starBtn.revision++;
-        }
-    }
+                        Connections {
+                            target: ProfileManager
+                            function onBookmarksChanged() {
+                                starBtn.revision++;
+                            }
+                        }
 
-    onClicked: {
-        if (root.activeView && root.activeView.url) {
-            var u = root.activeView.url.toString();
-            var t = root.activeView.title ? root.activeView.title : u;
-            ProfileManager.toggleBookmark(u, t);   
-        }
-    }
-}
+                        onClicked: {
+                            if (root.activeView && root.activeView.url) {
+                                var u = root.activeView.url.toString();
+                                var t = root.activeView.title ? root.activeView.title : u;
+                                ProfileManager.toggleBookmark(u, t);
+                            }
+                        }
+                    }
 
                     CielIconButton {
                         id: siteControlsBtn
@@ -363,7 +379,7 @@ CielIconButton {
 
                 Repeater {
                     model: root.permFeatures.filter(function (f) {
-                        return root.shownKeys.indexOf(f.key) >= 0
+                        return root.shownKeys.indexOf(f.key) >= 0;
                     })
 
                     delegate: RowLayout {
@@ -376,8 +392,7 @@ CielIconButton {
                         CielIcon {
                             icon: modelData.icon
                             size: Theme.XSMALL
-                            color: permRow.st === "granted" ? Theme.accent
-                                 : (permRow.st === "denied" ? "#EF4444" : Theme.textSecondary)
+                            color: permRow.st === "granted" ? Theme.accent : (permRow.st === "denied" ? "#EF4444" : Theme.textSecondary)
                             Layout.alignment: Qt.AlignVCenter
                         }
 
@@ -390,7 +405,7 @@ CielIconButton {
                         }
 
                         Item {
-                          width: 30
+                            width: 30
                         }
 
                         CielButton {
@@ -419,7 +434,6 @@ CielIconButton {
                     wrapMode: Text.Wrap
                     Layout.fillWidth: true
                 }
-
             }
         }
     }
