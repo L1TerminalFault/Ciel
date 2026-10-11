@@ -993,6 +993,7 @@ CielContextMenu {
     CielMenuItem {
         text: "Close"
         icon: "x"
+        enabled: tabModel.count > 1
 
         onTriggered: {
             tabContextMenu.close();
