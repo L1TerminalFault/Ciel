@@ -23,13 +23,15 @@ SitePermissionManager *SitePermissionManager::instance() {
   return s;
 }
 
-SitePermissionManager *SitePermissionManager::create(QQmlEngine *, QJSEngine *) {
+SitePermissionManager *SitePermissionManager::create(QQmlEngine *,
+                                                     QJSEngine *) {
   SitePermissionManager *m = instance();
   QJSEngine::setObjectOwnership(m, QJSEngine::CppOwnership);
   return m;
 }
 
-SitePermissionManager::SitePermissionManager(QObject *parent) : QObject(parent) {
+SitePermissionManager::SitePermissionManager(QObject *parent)
+    : QObject(parent) {
   connect(ProfileManager::instance(), &ProfileManager::activeProfileChanged,
           this, &SitePermissionManager::permissionsChanged);
 }
@@ -82,9 +84,10 @@ void SitePermissionManager::setPermission(const QString &origin,
 
 void SitePermissionManager::removePermission(const QString &origin,
                                              const QString &feature) {
-  db()->execute(QStringLiteral("DELETE FROM site_permissions "
-                               "WHERE origin = :o AND feature = :f;"),
-                {{QStringLiteral(":o"), origin}, {QStringLiteral(":f"), feature}});
+  db()->execute(
+      QStringLiteral("DELETE FROM site_permissions "
+                     "WHERE origin = :o AND feature = :f;"),
+      {{QStringLiteral(":o"), origin}, {QStringLiteral(":f"), feature}});
   emit permissionsChanged();
 }
 
@@ -95,9 +98,9 @@ void SitePermissionManager::clearAll() {
 
 QVariantList SitePermissionManager::list(const QString &search,
                                          const QString &stateFilter) {
-  QString sql = QStringLiteral(
-      "SELECT origin, feature, state AS decision, updated_at "
-      "FROM site_permissions WHERE 1 = 1 ");
+  QString sql =
+      QStringLiteral("SELECT origin, feature, state AS decision, updated_at "
+                     "FROM site_permissions WHERE 1 = 1 ");
   QVariantMap b;
   if (!search.trimmed().isEmpty()) {
     sql += QStringLiteral("AND origin LIKE :s ");
@@ -108,7 +111,6 @@ QVariantList SitePermissionManager::list(const QString &search,
     sql += QStringLiteral("AND state = :st ");
     b.insert(QStringLiteral(":st"), stateFilter);
   }
-  sql += QStringLiteral(
-      "ORDER BY origin COLLATE NOCASE ASC, feature ASC;");
+  sql += QStringLiteral("ORDER BY origin COLLATE NOCASE ASC, feature ASC;");
   return db()->query(sql, b);
 }
