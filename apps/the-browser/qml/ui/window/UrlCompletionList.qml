@@ -3,15 +3,14 @@ import QtQuick.Layouts
 import Ciel.Ui
 import Ciel.Browser 1.0
 
-// History completion list. Drop under a CielSearch; do not fold this into CielSearch.
 Item {
     id: root
 
     property string query: ""
-    property int maxItems: 40            // total rows kept; the list scrolls
+    property int maxItems: 40            
     property int maxBookmarksWhenEmpty: 5
     property int rowHeight: 44
-    property int maxVisibleHeight: 280   // list never grows past this
+    property int maxVisibleHeight: 280   
     property int selectedIndex: -1
 
     readonly property int count: suggestionModel.count
@@ -25,12 +24,8 @@ Item {
         CielSpring { damping: 0.5; spring: 5.0; mass: 1.0; epsilon: 0.01 }
     }
 
-    // Clamped so the spring can never overshoot the cap.
     implicitHeight: Math.max(0, Math.min(shownHeight, headerHeight + maxVisibleHeight))
     clip: true
-    // implicitHeight: count > 0 ? (headerLabel.implicitHeight + 2 + list.height) : 0
-    //
-    // // implicitHeight: listCol.implicitHeight
 
     function reload() {
         suggestionModel.clear()
@@ -41,7 +36,6 @@ Item {
             if (u === "" || seen[u] || suggestionModel.count >= maxItems)
                 return false
             seen[u] = true
-            // Only uniform fields: ListModel rejects a role whose type differs between rows.
             suggestionModel.append({
                 title: entry.title ? ("" + entry.title) : "",
                 url: u,
@@ -50,7 +44,6 @@ Item {
             return true
         }
 
-        // Bookmarks first.
         var marks = ProfileManager.fetchBookmarks(query) || []
         var bookmarkCap = query === "" ? maxBookmarksWhenEmpty : maxItems
         var added = 0
@@ -59,7 +52,6 @@ Item {
                 added++
         }
 
-        // Then history.
         var items = ProfileManager.fetchHistory(query) || []
         for (var j = 0; j < items.length && suggestionModel.count < maxItems; ++j)
             add(items[j], "history")
@@ -190,8 +182,6 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                // Real pointer movement only. With containsMouseChanged, wheel-scrolling
-                // would move rows under a still cursor and steal the selection.
                 onPositionChanged: root.selectedIndex = index
                 onClicked: root.activated("" + model.url)
             }
