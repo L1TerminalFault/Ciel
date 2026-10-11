@@ -12,7 +12,6 @@ class ExtensionManager : public QObject {
   QML_ELEMENT
   QML_SINGLETON
 
-  // Ready-to-inject scripts of every enabled extension (see BrowserWindow.pageScripts).
   Q_PROPERTY(QVariantList scripts READ scripts NOTIFY scriptsChanged)
 
 public:
@@ -22,7 +21,6 @@ public:
   QVariantList scripts() const { return m_scripts; }
 
   Q_INVOKABLE QVariantList list();
-  // Returns an error message, or an empty string on success.
   Q_INVOKABLE QString installFromFolder(const QString &folder);
   Q_INVOKABLE void setEnabled(const QString &id, bool enabled);
   Q_INVOKABLE void remove(const QString &id);
