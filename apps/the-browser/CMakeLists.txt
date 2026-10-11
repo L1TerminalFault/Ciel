@@ -6,7 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Quick Qml WebEngineQuick WebEngineCore DBus Sql)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Quick Qml WebEngineQuick WebEngineCore WebChannel DBus Sql)
+find_package(Qt6Keychain REQUIRED)
+
 
 qt_policy(SET QTP0001 NEW)
 qt_policy(SET QTP0004 NEW)
@@ -39,6 +41,8 @@ target_link_libraries(ciel-browser PRIVATE
     Qt6::Qml
     Qt6::WebEngineQuick
     Qt6::WebEngineCore
+    Qt6::WebChannel
+    Qt6Keychain::Qt6Keychain
     Qt6::DBus
     Qt6::Sql
 )
@@ -70,6 +74,12 @@ qt_add_qml_module(ciel-browser
         src/core/TabModel.cpp
         src/core/SwipeGestureFilter.hpp
         src/core/SwipeGestureFilter.cpp
+        src/core/PasswordManager.hpp
+        src/core/PasswordManager.cpp
+        src/core/ExtensionManager.cpp
+        src/core/ExtensionManager.cpp
+        src/core/SitePermissionManager.cpp
+        src/core/SitePermissionManager.cpp
 
     QML_FILES
         qml/Main.qml
@@ -86,4 +96,13 @@ qt_add_qml_module(ciel-browser
         qml/ui/history/HistoryPage.qml
         qml/ui/profilePage/ProfilePage.qml
         qml/ui/profilePage/ProfileMutateDialog.qml
+        qml/ui/bookmark/BookmarkPage.qml
+        qml/ui/password/PasswordPage.qml
+        qml/ui/window/BrowserWindow.qml
+        qml/ui/window/UrlCompletionList.qml
+        qml/ui/window/UrlGhostText.qml
+        qml/ui/window/SettingsPage.qml
+        qml/ui/window/BrowserSettings.qml
+        qml/ui/window/SitePermissionsPage.qml
+        qml/ui/window/ExtensionsPage.qml
 )
