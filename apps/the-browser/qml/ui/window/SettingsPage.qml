@@ -17,32 +17,6 @@ Item {
             || detail.toLowerCase().indexOf(q) !== -1;
     }
 
-    // component SettingSwitch: Item {
-    //     id: sw
-    //     property bool on: false
-    //     implicitWidth: 44
-    //     implicitHeight: 26
-    //
-    //     Rectangle {
-    //         anchors.fill: parent
-    //         radius: 13
-    //         color: sw.on ? Theme.accent : Qt.alpha(Theme.textSecondary, 0.35)
-    //         Behavior on color { ColorAnimation { duration: 140 } }
-    //     }
-    //
-    //     Rectangle {
-    //         width: 20
-    //         height: 20
-    //         radius: 10
-    //         y: 3
-    //         x: sw.on ? 21 : 3
-    //         color: "#FFFFFF"
-    //         Behavior on x {
-    //             CielSpring { damping: 0.45; spring: 6.0; mass: 0.7; epsilon: 0.001 }
-    //         }
-    //     }
-    // }
-
     component ToggleRow: Item {
         id: row
         property string title: ""
@@ -60,7 +34,7 @@ Item {
             color: rowMouse.containsMouse ? Qt.alpha(Theme.textPrimary, 0.04) : "transparent"
         }
 
-        // Under the content, so clicks on the switch reach the switch itself.
+        
         MouseArea {
             id: rowMouse
             anchors.fill: parent
@@ -104,8 +78,8 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
                 onToggled: {
                     row.toggled()
-                    // The switch flips itself on click, which breaks the binding.
-                    // Restore it so the settings value stays the source of truth.
+                   
+                  
                     sw.checked = Qt.binding(function () { return row.on })
                 }
             }
@@ -124,7 +98,7 @@ Item {
         id: row
         property string title: ""
         property string detail: ""
-        property var model: []        // [{ label, value }]
+        property var model: []        
         property var value
         property bool numeric: false
         signal picked(var value)
@@ -186,9 +160,9 @@ Item {
 
                 onCurrentIndexChanged: {
                     if (currentIndex < 0 || currentIndex === row.indexOfValue())
-                        return;               // programmatic sync, not a user pick
+                        return;               
                     row.picked(row.model[currentIndex].value);
-                    // Re-bind so the select follows the settings value again.
+                    
                     Qt.callLater(function () {
                         select.currentIndex = Qt.binding(function () { return row.indexOfValue() })
                     });
@@ -304,7 +278,7 @@ Item {
                                     Text {
                                         text: "General"
                                         font.pixelSize: 13
-                                        // font.weight: Font.DemiBold
+                                        
                                         color: Theme.textSecondary
                                         visible: generalBlock.visible
                                     }
@@ -329,60 +303,6 @@ Item {
                                                 onPicked: value => { if (settings) settings.searchEngine = value }
                                             }
 
-                                            // Item {
-                                            //     id: homeRow
-                                            //     readonly property string title: "Homepage"
-                                            //     readonly property string detail: "Opened by a new tab. Leave empty for a blank page."
-                                            //     readonly property bool shown: root.matches(title, detail)
-                                            //     width: parent.width
-                                            //     height: shown ? 74 : 0
-                                            //     visible: shown
-                                            //
-                                            //     RowLayout {
-                                            //         anchors.fill: parent
-                                            //         anchors.leftMargin: 16
-                                            //         anchors.rightMargin: 16
-                                            //         spacing: 12
-                                            //
-                                            //         ColumnLayout {
-                                            //             Layout.fillWidth: true
-                                            //             spacing: 2
-                                            //
-                                            //             Text {
-                                            //                 text: homeRow.title
-                                            //                 font.pixelSize: 13
-                                            //                 font.weight: Font.Medium
-                                            //                 color: Theme.textPrimary
-                                            //                 elide: Text.ElideRight
-                                            //                 Layout.fillWidth: true
-                                            //             }
-                                            //
-                                            //             Text {
-                                            //                 text: homeRow.detail
-                                            //                 font.pixelSize: 11
-                                            //                 color: Theme.textSecondary
-                                            //                 wrapMode: Text.WordWrap
-                                            //                 Layout.fillWidth: true
-                                            //             }
-                                            //         }
-                                            //
-                                            //         CielSearch {
-                                            //             id: homeField
-                                            //             Layout.preferredWidth: 220
-                                            //             Layout.preferredHeight: 32
-                                            //             placeholder: "Blank page"
-                                            //             showBorder: true
-                                            //             preContent: Item {}
-                                            //             postContent: Item {}
-                                            //             Component.onCompleted: text = settings ? settings.homepage : ""
-                                            //             onTextChanged: {
-                                            //                 if (settings && settings.homepage !== text)
-                                            //                     settings.homepage = text;
-                                            //             }
-                                            //         }
-                                            //     }
-                                            // }
-
                                             ChoiceRow {
                                                 id: zoomRow
                                                 title: "Default zoom"
@@ -400,14 +320,6 @@ Item {
                                                 on: settings ? settings.confirmClose : false
                                                 onToggled: { if (settings) settings.confirmClose = !settings.confirmClose }
                                             }
-
-                                            // ToggleRow {
-                                            //     id: suggestRow
-                                            //     title: "History suggestions"
-                                            //     detail: "Show recent history under the location bar."
-                                            //     on: settings ? settings.showLocationSuggestions : true
-                                            //     onToggled: { if (settings) settings.showLocationSuggestions = !settings.showLocationSuggestions }
-                                            // }
 
                                             ToggleRow {
                                                 id: sidebarRow
@@ -430,7 +342,6 @@ Item {
                                     Text {
                                         text: "Content"
                                         font.pixelSize: 13
-                                        // font.weight: Font.DemiBold
                                         color: Theme.textSecondary
                                         visible: contentBlock.visible
                                     }
@@ -506,7 +417,6 @@ Item {
                                     Text {
                                         text: "Privacy"
                                         font.pixelSize: 13
-                                        // font.weight: Font.DemiBold
                                         color: Theme.textSecondary
                                         visible: privacyBlock.visible
                                     }
@@ -568,12 +478,4 @@ Item {
             }
         }
     }
-
-    // Connections {
-    //     target: settings
-    //     function onHomepageChanged() {
-    //         if (homeField.text !== settings.homepage)
-    //             homeField.text = settings.homepage;
-    //     }
-    // }
 }
