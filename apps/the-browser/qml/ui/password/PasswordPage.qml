@@ -118,9 +118,7 @@ Item {
                             }
 
                             Text {
-                                text: root.searchQuery.length > 0
-                                      ? "No matching passwords found"
-                                      : "No saved passwords yet. Sign in to a site and choose Save."
+                                text: root.searchQuery.length > 0 ? "No matching passwords found" : "No saved passwords yet. Sign in to a site and choose Save."
                                 font.pixelSize: 13
                                 color: Theme.textSecondary
                                 opacity: 0.8
@@ -208,7 +206,9 @@ Item {
                                         easing.type: Easing.InQuad
                                     }
                                     SequentialAnimation {
-                                        PauseAnimation { duration: 45 }
+                                        PauseAnimation {
+                                            duration: 45
+                                        }
                                         NumberAnimation {
                                             target: pwDelegate
                                             property: "closeDimension"
@@ -266,10 +266,14 @@ Item {
                                             Layout.alignment: Qt.AlignVCenter
 
                                             Behavior on color {
-                                                ColorAnimation { duration: 120 }
+                                                ColorAnimation {
+                                                    duration: 120
+                                                }
                                             }
                                             Behavior on opacity {
-                                                NumberAnimation { duration: 100 }
+                                                NumberAnimation {
+                                                    duration: 100
+                                                }
                                             }
                                         }
 
