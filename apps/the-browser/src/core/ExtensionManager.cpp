@@ -35,7 +35,6 @@ QJsonObject readJsonFile(const QString &path) {
   return pe.error == QJsonParseError::NoError ? doc.object() : QJsonObject();
 }
 
-// Reads a file that must live inside root (blocks "../" tricks).
 bool readInside(const QString &root, const QString &rel, QString *out) {
   const QString clean = QDir::cleanPath(root + QLatin1Char('/') + rel);
   if (!clean.startsWith(root + QLatin1Char('/')))
@@ -50,7 +49,6 @@ bool readInside(const QString &root, const QString &rel, QString *out) {
   return true;
 }
 
-// Resolves "__MSG_key__" using _locales/<default_locale>/messages.json.
 QString localized(const QString &dir, const QJsonObject &manifest, const QString &text) {
   if (!text.startsWith(QLatin1String("__MSG_")) || !text.endsWith(QLatin1String("__")))
     return text;
@@ -157,8 +155,6 @@ bool hasUsableContentScripts(const QJsonObject &m) {
 
 } // namespace
 
-/* ---------------------------------------------------------------- */
-
 ExtensionManager *ExtensionManager::instance() {
   static ExtensionManager *s = new ExtensionManager(QCoreApplication::instance());
   return s;
@@ -223,7 +219,6 @@ void ExtensionManager::rebuild() {
       if (jsParts.isEmpty() && cssParts.isEmpty())
         continue;
 
-      // Built with += on purpose: the extension's code must never go through arg().
       QString src;
       src += QStringLiteral("(function(){\n");
       src += QStringLiteral("var inc=") + jsonArray(inc) + QStringLiteral(",exc=") +
@@ -299,7 +294,6 @@ QVariantList ExtensionManager::list() {
       continue;
     }
 
-    // Where it runs: unique match patterns, first few.
     QStringList hosts;
     QSet<QString> seen;
     for (const QJsonValue &v : m.value(QStringLiteral("content_scripts")).toArray())
@@ -312,7 +306,6 @@ QVariantList ExtensionManager::list() {
     if (hosts.size() > 4)
       runsOn += QStringLiteral(" +%1 more").arg(hosts.size() - 4);
 
-    // Largest declared icon that actually exists inside the extension.
     QString iconUrl;
     int best = -1;
     const QJsonObject icons = m.value(QStringLiteral("icons")).toObject();
