@@ -8,7 +8,7 @@ Item {
     id: root
 
     property string searchQuery: ""
-    property string stateFilter: ""      // "", "granted", "denied"
+    property string stateFilter: ""      
 
     function featureName(k) {
         return ({ microphone: "Microphone", camera: "Camera",
@@ -247,24 +247,6 @@ Item {
                                                 Layout.fillWidth: true
                                             }
                                         }
-
-                                        // Rectangle {
-                                        //     radius: height / 2
-                                        //     implicitWidth: pillText.implicitWidth + 20
-                                        //     implicitHeight: 22
-                                        //     color: Qt.alpha(permDelegate.tone, 0.16)
-                                        //     Layout.alignment: Qt.AlignVCenter
-                                        //
-                                        //     Text {
-                                        //         id: pillText
-                                        //         anchors.centerIn: parent
-                                        //         text: permDelegate.decision === "granted" ? "Granted"
-                                        //             : (permDelegate.decision === "denied" ? "Denied" : "Ask")
-                                        //         font.pixelSize: 11
-                                        //         font.weight: Font.Medium
-                                        //         color: permDelegate.tone
-                                        //     }
-                                        // }
 
                                         CielButton {
                                             text: "Ask"
