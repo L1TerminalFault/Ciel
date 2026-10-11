@@ -8,35 +8,46 @@ Item {
     id: root
 
     property string searchQuery: ""
-    property string stateFilter: ""      
+    property string stateFilter: ""
 
     function featureName(k) {
-        return ({ microphone: "Microphone", camera: "Camera",
-                  location: "Location", notifications: "Notifications" })[k] || k
+        return ({
+                microphone: "Microphone",
+                camera: "Camera",
+                location: "Location",
+                notifications: "Notifications"
+            })[k] || k;
     }
     function featureIcon(k) {
-        return ({ microphone: "microphone", camera: "camera",
-                  location: "map-pin", notifications: "bell" })[k] || "shield-check"
+        return ({
+                microphone: "microphone",
+                camera: "camera",
+                location: "map-pin",
+                notifications: "bell"
+            })[k] || "shield-check";
     }
 
-    ListModel { id: permModel }
+    ListModel {
+        id: permModel
+    }
 
     function reloadPermissions() {
-        var items = SitePermissionManager.list(searchQuery, stateFilter)
-        permModel.clear()
+        var items = SitePermissionManager.list(searchQuery, stateFilter);
+        permModel.clear();
         for (var i = 0; i < items.length; ++i)
-            permModel.append(items[i])
+            permModel.append(items[i]);
     }
 
     Component.onCompleted: reloadPermissions()
-    onVisibleChanged: if (visible) reloadPermissions()
+    onVisibleChanged: if (visible)
+        reloadPermissions()
     onStateFilterChanged: reloadPermissions()
 
     Connections {
         target: SitePermissionManager
         function onPermissionsChanged() {
             if (root.visible && !permList.busyClosing)
-                root.reloadPermissions()
+                root.reloadPermissions();
         }
     }
 
@@ -66,7 +77,9 @@ Item {
                         color: Theme.textPrimary
                     }
 
-                    Item { Layout.fillWidth: true }
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
                     CielButton {
                         text: "Reset all"
@@ -78,8 +91,8 @@ Item {
                         Layout.preferredWidth: 220
                         placeholder: "Search sites…"
                         onTextChanged: {
-                            root.searchQuery = text
-                            root.reloadPermissions()
+                            root.searchQuery = text;
+                            root.reloadPermissions();
                         }
                     }
                 }
@@ -130,9 +143,7 @@ Item {
                             }
 
                             Text {
-                                text: (root.searchQuery !== "" || root.stateFilter !== "")
-                                      ? "No matching permissions"
-                                      : "No saved permissions yet. Sites you allow or block will appear here."
+                                text: (root.searchQuery !== "" || root.stateFilter !== "") ? "No matching permissions" : "No saved permissions yet. Sites you allow or block will appear here."
                                 font.pixelSize: 13
                                 color: Theme.textSecondary
                                 opacity: 0.8
@@ -161,8 +172,7 @@ Item {
 
                                 readonly property string decision: model.decision
                                 readonly property bool granted: decision === "granted"
-                                readonly property color tone: decision === "granted" ? Theme.accent
-                                                            : (decision === "denied" ? "#EF4444" : Theme.textSecondary)
+                                readonly property color tone: decision === "granted" ? Theme.accent : (decision === "denied" ? "#EF4444" : Theme.textSecondary)
 
                                 property real closeScale: 1.0
                                 property real closeOpacity: 1.0
@@ -171,25 +181,45 @@ Item {
 
                                 function requestClose() {
                                     if (isClosing)
-                                        return
-                                    isClosing = true
-                                    permList.busyClosing = true
-                                    closeAnimation.restart()
+                                        return;
+                                    isClosing = true;
+                                    permList.busyClosing = true;
+                                    closeAnimation.restart();
                                 }
 
                                 ParallelAnimation {
                                     id: closeAnimation
-                                    NumberAnimation { target: permDelegate; property: "closeScale"; to: 0.2; duration: 200; easing.type: Easing.InQuad }
-                                    SequentialAnimation {
-                                        PauseAnimation { duration: 45 }
-                                        NumberAnimation { target: permDelegate; property: "closeDimension"; to: 0.0; duration: 175; easing.type: Easing.InOutQuad }
+                                    NumberAnimation {
+                                        target: permDelegate
+                                        property: "closeScale"
+                                        to: 0.2
+                                        duration: 200
+                                        easing.type: Easing.InQuad
                                     }
-                                    NumberAnimation { target: permDelegate; property: "closeOpacity"; to: 0.0; duration: 180; easing.type: Easing.OutQuad }
+                                    SequentialAnimation {
+                                        PauseAnimation {
+                                            duration: 45
+                                        }
+                                        NumberAnimation {
+                                            target: permDelegate
+                                            property: "closeDimension"
+                                            to: 0.0
+                                            duration: 175
+                                            easing.type: Easing.InOutQuad
+                                        }
+                                    }
+                                    NumberAnimation {
+                                        target: permDelegate
+                                        property: "closeOpacity"
+                                        to: 0.0
+                                        duration: 180
+                                        easing.type: Easing.OutQuad
+                                    }
                                     onFinished: {
-                                        var o = model.origin, f = model.feature
-                                        permModel.remove(index)
-                                        SitePermissionManager.removePermission(o, f)
-                                        permList.busyClosing = false
+                                        var o = model.origin, f = model.feature;
+                                        permModel.remove(index);
+                                        SitePermissionManager.removePermission(o, f);
+                                        permList.busyClosing = false;
                                     }
                                 }
 
@@ -239,8 +269,7 @@ Item {
                                             }
 
                                             Text {
-                                                text: root.featureName(model.feature) + " · "
-                                                      + new Date(model.updated_at * 1000).toLocaleDateString(Qt.locale(), Locale.ShortFormat)
+                                                text: root.featureName(model.feature) + " · " + new Date(model.updated_at * 1000).toLocaleDateString(Qt.locale(), Locale.ShortFormat)
                                                 font.pixelSize: 11
                                                 color: Theme.textSecondary
                                                 elide: Text.ElideRight
@@ -307,20 +336,27 @@ Item {
                 Layout.fillWidth: true
             }
 
-            Item { Layout.fillHeight: true }
+            Item {
+                Layout.fillHeight: true
+            }
 
             RowLayout {
                 Layout.fillWidth: true
                 spacing: 10
-                Item { Layout.fillWidth: true }
+                Item {
+                    Layout.fillWidth: true
+                }
 
-                CielButton { text: "Cancel"; onClicked: resetPopup.close() }
+                CielButton {
+                    text: "Cancel"
+                    onClicked: resetPopup.close()
+                }
                 CielButton {
                     text: "Reset"
                     destructive: true
                     onClicked: {
-                        SitePermissionManager.clearAll()
-                        resetPopup.close()
+                        SitePermissionManager.clearAll();
+                        resetPopup.close();
                     }
                 }
             }
