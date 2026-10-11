@@ -103,9 +103,7 @@ Item {
                             }
 
                             Text {
-                                text: root.searchQuery.length > 0
-                                      ? "No matching bookmarks found"
-                                      : "No bookmarks yet. Press Ctrl+D on any page."
+                                text: root.searchQuery.length > 0 ? "No matching bookmarks found" : "No bookmarks yet. Press Ctrl+D on any page."
                                 font.pixelSize: 13
                                 color: Theme.textSecondary
                                 opacity: 0.8
@@ -166,7 +164,9 @@ Item {
                                         easing.type: Easing.InQuad
                                     }
                                     SequentialAnimation {
-                                        PauseAnimation { duration: 45 }
+                                        PauseAnimation {
+                                            duration: 45
+                                        }
                                         NumberAnimation {
                                             target: bmDelegate
                                             property: "closeDimension"
@@ -224,10 +224,14 @@ Item {
                                             Layout.alignment: Qt.AlignVCenter
 
                                             Behavior on color {
-                                                ColorAnimation { duration: 120 }
+                                                ColorAnimation {
+                                                    duration: 120
+                                                }
                                             }
                                             Behavior on opacity {
-                                                NumberAnimation { duration: 100 }
+                                                NumberAnimation {
+                                                    duration: 100
+                                                }
                                             }
                                         }
 
