@@ -18,7 +18,6 @@ namespace {
 
 QString service() { return QStringLiteral("ciel-browser"); }
 
-// Runs inside every page, in an isolated world. qwebchannel.js is prepended.
 const char *kPageScript = R"JS(
 (function () {
   'use strict';
@@ -40,7 +39,6 @@ const char *kPageScript = R"JS(
     function passwordFields(scope) {
       return Array.prototype.filter.call(scope.querySelectorAll('input[type=password]'), visible);
     }
-    // Last visible text/email/tel input that comes before the password field.
     function usernameFor(pw) {
       var inputs = (pw.form || document).querySelectorAll('input');
       var found = null;
@@ -52,14 +50,12 @@ const char *kPageScript = R"JS(
       }
       return found;
     }
-    // Native setter + events, so React/Vue-style forms notice the change.
     function setValue(el, v) {
       valueSetter.call(el, v);
       el.dispatchEvent(new Event('input', { bubbles: true }));
       el.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    /* ---------- autofill ---------- */
     var requested = false;
     function check() {
       var has = passwordFields(document).length > 0;
@@ -67,7 +63,7 @@ const char *kPageScript = R"JS(
       else if (!has) { requested = false; }
     }
     bridge.fill.connect(function (origin, user, pass) {
-      if (origin !== location.origin) return;          // navigated away meanwhile
+      if (origin !== location.origin) return;          
       var pws = passwordFields(document);
       if (!pws.length) return;
       var pw = pws[0];
@@ -86,12 +82,11 @@ const char *kPageScript = R"JS(
     }).observe(document.documentElement, { childList: true, subtree: true });
     check();
 
-    /* ---------- capture ---------- */
     var lastKey = '', lastAt = 0;
     function capture(scope) {
       var pws = passwordFields(scope).filter(function (e) { return e.value; });
       if (!pws.length) return;
-      var pw = pws[pws.length - 1];     // login: the only one; sign-up/change: the new one
+      var pw = pws[pws.length - 1];     
       var field = usernameFor(pw);
       var user = field ? field.value : '';
       var key = user + '\u0000' + pw.value;
@@ -114,8 +109,6 @@ const char *kPageScript = R"JS(
 )JS";
 
 } // namespace
-
-/* ======================= PasswordManager ======================= */
 
 PasswordManager *PasswordManager::instance() {
   static PasswordManager *s = new PasswordManager(QCoreApplication::instance());
@@ -253,7 +246,6 @@ void PasswordManager::save(const QString &rawOrigin, const QString &username,
       exists ? rows.first().toMap().value(QStringLiteral("id")).toString()
              : QUuid::createUuid().toString(QUuid::WithoutBraces);
 
-  // Keyring first: never leave a DB row that has no secret behind it.
   writeSecret(id, password, this,
               [this, exists, id, origin, username](bool ok, const QString &err) {
                 if (!ok) {
@@ -306,7 +298,6 @@ void PasswordManager::copyPassword(const QString &id) {
       return;
     }
     QGuiApplication::clipboard()->setText(v);
-    // Clear it after 30s, but only if the user hasn't copied something else.
     QTimer::singleShot(30000, this, [v]() {
       QClipboard *c = QGuiApplication::clipboard();
       if (c->text() == v)
