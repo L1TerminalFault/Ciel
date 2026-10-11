@@ -25,6 +25,8 @@ constexpr DefaultWorkspace kDefaultWorkspaces[] = {
     {"Workspace 5", "#EF4444"},
 };
 
+constexpr int kEphemeralWorkspaceCount = 5;
+
 QString activeWorkspaceKey() { return QStringLiteral("active_workspace_id"); }
 QString activeTabKey(const QString &workspaceId) {
   return QStringLiteral("active_tab:") + workspaceId;
@@ -119,10 +121,22 @@ TabModel *WorkspaceModel::tabModel(const QString &workspaceId) {
 
   if (!m_tabModels.contains(workspaceId)) {
     auto *model = new TabModel(this);
-    model->setWorkspaceId(workspaceId);
+    if (m_ephemeral) {
+      const bool first =
+          !m_workspaces.isEmpty() && m_workspaces.first().id == workspaceId;
+      model->startEphemeral(m_incognito, first ? m_startUrl : QUrl());
+    } else {
+      model->setWorkspaceId(workspaceId);
+    }
     m_tabModels.insert(workspaceId, model);
   }
   return m_tabModels.value(workspaceId);
+  // if (!m_tabModels.contains(workspaceId)) {
+  //   auto *model = new TabModel(this);
+  //   model->setWorkspaceId(workspaceId);
+  //   m_tabModels.insert(workspaceId, model);
+  // }
+  // return m_tabModels.value(workspaceId);
 }
 
 void WorkspaceModel::releaseTabModels() {
@@ -134,6 +148,9 @@ void WorkspaceModel::releaseTabModels() {
 }
 
 void WorkspaceModel::unloadWorkspaces() {
+  if (m_ephemeral)
+    return;
+
   releaseTabModels();
 
   beginResetModel();
@@ -146,6 +163,9 @@ void WorkspaceModel::unloadWorkspaces() {
 }
 
 void WorkspaceModel::persistCurrentWorkspace() {
+  if (m_ephemeral)
+    return;
+
   const QString id = currentWorkspaceId();
   if (!id.isEmpty()) {
     ProfileManager::instance()->setStateValue(activeWorkspaceKey(), id);
@@ -266,6 +286,9 @@ void WorkspaceModel::seedDefaultWorkspaces() {
 }
 
 void WorkspaceModel::loadWorkspaces() {
+  if (m_ephemeral)
+    return;
+
   releaseTabModels();
 
   beginResetModel();
@@ -314,6 +337,9 @@ void WorkspaceModel::createWorkspace(const QString &name, const QString &color,
 }
 
 void WorkspaceModel::removeWorkspace(int index) {
+  if (m_ephemeral)
+    return;
+
   if (m_workspaces.size() <= 1 || index < 0 || index >= m_workspaces.size()) {
     return;
   }
@@ -351,6 +377,9 @@ void WorkspaceModel::removeWorkspace(int index) {
 }
 
 void WorkspaceModel::saveAsPreset(int index, const QString &presetName) {
+  if (m_ephemeral)
+    return;
+
   if (index < 0 || index >= m_workspaces.size()) {
     return;
   }
@@ -391,4 +420,36 @@ void WorkspaceModel::saveAsPreset(int index, const QString &presetName) {
        {QStringLiteral(":data_json"),
         QString::fromUtf8(
             QJsonDocument(presetData).toJson(QJsonDocument::Compact))}});
+}
+
+void WorkspaceModel::setEphemeral(bool on) {
+  if (m_ephemeral == on)
+    return;
+  m_ephemeral = on;
+  if (on)
+    loadEphemeralWorkspaces();
+  else
+    loadWorkspaces();
+  emit ephemeralChanged();
+}
+
+void WorkspaceModel::loadEphemeralWorkspaces() {
+  releaseTabModels();
+
+  beginResetModel();
+  m_workspaces.clear();
+  int n = 0;
+  for (const auto &def : kDefaultWorkspaces) {
+    if (n >= kEphemeralWorkspaceCount)
+      break;
+    m_workspaces.append({QStringLiteral("ephemeral-%1").arg(++n),
+                         QString::fromLatin1(def.name),
+                         QString::fromLatin1(def.color),
+                         QStringLiteral("browser"), QString()});
+  }
+  m_currentIndex = 0;
+  endResetModel();
+
+  emit countChanged();
+  emit currentIndexChanged();
 }
