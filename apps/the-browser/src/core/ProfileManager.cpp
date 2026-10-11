@@ -2,17 +2,17 @@
 
 #include <random>
 
-#include <QSettings>
-#include <QCoreApplication>
-#include <QString>
 #include <QColor>
+#include <QCoreApplication>
 #include <QDir>
-#include <QStandardPaths>
-#include <QUuid>
+#include <QFile>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
-#include <QFile>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QString>
+#include <QUuid>
 
 ProfileManager *ProfileManager::s_instance = nullptr;
 
@@ -68,9 +68,8 @@ ProfileManager::ProfileManager(QObject *parent) : QObject(parent) {
           &ProfileManager::shutdown);
 
   QString startId = loadLastProfileId();
-  if (startId.isEmpty() ||
-      (startId != QStringLiteral("default") &&
-       !loadProfilesMeta().contains(startId))) {
+  if (startId.isEmpty() || (startId != QStringLiteral("default") &&
+                            !loadProfilesMeta().contains(startId))) {
     startId = QStringLiteral("default");
   }
   switchProfile(startId);
@@ -85,168 +84,159 @@ QString ProfileManager::profilePath() const { return m_profilePath; }
 Database *ProfileManager::database() { return &m_database; }
 
 QString ProfileManager::profilePathFor(const QString &profileId) const {
-    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-           + QStringLiteral("/ciel/browser/profiles/") + profileId;
+  return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+         QStringLiteral("/ciel/browser/profiles/") + profileId;
 }
 
-QString ProfileManager::webEngineStoragePathFor(const QString &profileId) const {
-    return profilePathFor(profileId) + QStringLiteral("/webengine");
+QString
+ProfileManager::webEngineStoragePathFor(const QString &profileId) const {
+  return profilePathFor(profileId) + QStringLiteral("/webengine");
 }
 
 QString ProfileManager::webEngineStoragePath() const {
-    return webEngineStoragePathFor(m_activeProfileId);
+  return webEngineStoragePathFor(m_activeProfileId);
 }
 
 static QString profilesMetaPath() {
-    return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation)
-           + QStringLiteral("/ciel/browser/profiles.json");
+  return QStandardPaths::writableLocation(QStandardPaths::GenericDataLocation) +
+         QStringLiteral("/ciel/browser/profiles.json");
 }
 
 static QJsonObject loadProfilesMeta() {
-    QFile f(profilesMetaPath());
-    if (!f.open(QIODevice::ReadOnly))
-        return {};
-    return QJsonDocument::fromJson(f.readAll()).object();
+  QFile f(profilesMetaPath());
+  if (!f.open(QIODevice::ReadOnly))
+    return {};
+  return QJsonDocument::fromJson(f.readAll()).object();
 }
 
 static bool saveProfilesMeta(const QJsonObject &root) {
-    QFile f(profilesMetaPath());
-    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
-        return false;
-    f.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
-    return true;
+  QFile f(profilesMetaPath());
+  if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    return false;
+  f.write(QJsonDocument(root).toJson(QJsonDocument::Indented));
+  return true;
 }
 
 QVariantList ProfileManager::listProfiles() const {
-    QVariantList result;
-    QJsonObject root = loadProfilesMeta();
+  QVariantList result;
+  QJsonObject root = loadProfilesMeta();
 
-    if (!root.contains("default")) {
-        root.insert("default", QJsonObject{
-            {"displayName", "Default"},
-            {"color", ""},
-            {"profileImage", ""}
-        });
-        saveProfilesMeta(root);
-    }
+  if (!root.contains("default")) {
+    root.insert("default", QJsonObject{{"displayName", "Default"},
+                                       {"color", ""},
+                                       {"profileImage", ""}});
+    saveProfilesMeta(root);
+  }
 
-    for (auto it = root.begin(); it != root.end(); ++it) {
-        const QString id = it.key();
-        const QJsonObject obj = it.value().toObject();
+  for (auto it = root.begin(); it != root.end(); ++it) {
+    const QString id = it.key();
+    const QJsonObject obj = it.value().toObject();
 
-        result.append(QVariantMap{
-            {"id",           id},
-            {"displayName",  obj.value("displayName").toString(id)},
-            {"color",        obj.value("color").toString()},
-            {"profileImage", obj.value("profileImage").toString()},
-            {"isActive",     m_activeProfileId == id}
-        });
-    }
-    return result;
+    result.append(
+        QVariantMap{{"id", id},
+                    {"displayName", obj.value("displayName").toString(id)},
+                    {"color", obj.value("color").toString()},
+                    {"profileImage", obj.value("profileImage").toString()},
+                    {"isActive", m_activeProfileId == id}});
+  }
+  return result;
 }
 
 static QString generateRandomHexColor() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    
-    std::uniform_int_distribution<int> hueDist(0, 359);
-    
-    std::uniform_int_distribution<int> satDist(165, 215); 
-    
-    std::uniform_int_distribution<int> lightDist(204, 230);
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
 
-    int h = hueDist(gen);
-    int s = satDist(gen);
-    int l = lightDist(gen);
+  std::uniform_int_distribution<int> hueDist(0, 359);
 
-    QColor color = QColor::fromHsl(h, s, l);
-    return color.name(QColor::HexRgb).toUpper(); 
+  std::uniform_int_distribution<int> satDist(165, 215);
+
+  std::uniform_int_distribution<int> lightDist(204, 230);
+
+  int h = hueDist(gen);
+  int s = satDist(gen);
+  int l = lightDist(gen);
+
+  QColor color = QColor::fromHsl(h, s, l);
+  return color.name(QColor::HexRgb).toUpper();
 }
 
 QString ProfileManager::createProfile(const QString &displayName,
                                       const QString &color,
                                       const QString &profileImage) {
-    if (displayName.trimmed().isEmpty())
-        return {};
+  if (displayName.trimmed().isEmpty())
+    return {};
 
-    const QString id = QUuid::createUuid().toString(QUuid::WithoutBraces);
-    const QString _color = color.isEmpty() ? generateRandomHexColor() : color;
+  const QString id = QUuid::createUuid().toString(QUuid::WithoutBraces);
+  const QString _color = color.isEmpty() ? generateRandomHexColor() : color;
 
-    const QString path = profilePathFor(id);
-    if (!QDir().mkpath(path + QStringLiteral("/webengine/cache")))
-        return {};
+  const QString path = profilePathFor(id);
+  if (!QDir().mkpath(path + QStringLiteral("/webengine/cache")))
+    return {};
 
-    QJsonObject root = loadProfilesMeta();
-    root.insert(id, QJsonObject{
-        {"displayName",  displayName.trimmed()},
-        {"color",        _color},
-        {"profileImage", profileImage}
-    });
-    if (!saveProfilesMeta(root))
-        return {};
+  QJsonObject root = loadProfilesMeta();
+  root.insert(id, QJsonObject{{"displayName", displayName.trimmed()},
+                              {"color", _color},
+                              {"profileImage", profileImage}});
+  if (!saveProfilesMeta(root))
+    return {};
 
-    emit profilesChanged();
-    return id;
+  emit profilesChanged();
+  return id;
 }
 
 bool ProfileManager::updateProfile(const QString &id,
                                    const QString &displayName,
                                    const QString &color,
-                                   const QString &profileImage)
-{
-    if (id.isEmpty() || displayName.trimmed().isEmpty())
-        return false;
+                                   const QString &profileImage) {
+  if (id.isEmpty() || displayName.trimmed().isEmpty())
+    return false;
 
-    QJsonObject root = loadProfilesMeta();
-    if (!root.contains(id))
-        return false;
+  QJsonObject root = loadProfilesMeta();
+  if (!root.contains(id))
+    return false;
 
-    root.insert(id, QJsonObject{
-        {"displayName",  displayName.trimmed()},
-        {"color",        color},
-        {"profileImage", profileImage}
-    });
+  root.insert(id, QJsonObject{{"displayName", displayName.trimmed()},
+                              {"color", color},
+                              {"profileImage", profileImage}});
 
-    if (!saveProfilesMeta(root))
-        return false;
+  if (!saveProfilesMeta(root))
+    return false;
 
-    emit profilesChanged();
+  emit profilesChanged();
 
-    return true;
+  return true;
 }
 
 bool ProfileManager::deleteProfile(const QString &id) {
-    if (id == "default" || id == m_activeProfileId)
-        return false;
+  if (id == "default" || id == m_activeProfileId)
+    return false;
 
-    const QString path = profilePathFor(id);
-    if (QDir(path).exists())
-        QDir(path).removeRecursively();
+  const QString path = profilePathFor(id);
+  if (QDir(path).exists())
+    QDir(path).removeRecursively();
 
-    QJsonObject root = loadProfilesMeta();
-    root.remove(id);
+  QJsonObject root = loadProfilesMeta();
+  root.remove(id);
 
-    if (!saveProfilesMeta(root))
-        return false;
+  if (!saveProfilesMeta(root))
+    return false;
 
-    emit profilesChanged();
+  emit profilesChanged();
 
-    return saveProfilesMeta(root);
+  return saveProfilesMeta(root);
 }
 
 QVariantMap ProfileManager::profileInfo(const QString &id) const {
-    QJsonObject root = loadProfilesMeta();
-    if (!root.contains(id))
-        return {};
+  QJsonObject root = loadProfilesMeta();
+  if (!root.contains(id))
+    return {};
 
-    const QJsonObject obj = root.value(id).toObject();
-    return QVariantMap{
-        {"id",           id},
-        {"displayName",  obj.value("displayName").toString(id)},
-        {"color",        obj.value("color").toString()},
-        {"profileImage", obj.value("profileImage").toString()},
-        {"isActive",     m_activeProfileId == id}
-    };
+  const QJsonObject obj = root.value(id).toObject();
+  return QVariantMap{{"id", id},
+                     {"displayName", obj.value("displayName").toString(id)},
+                     {"color", obj.value("color").toString()},
+                     {"profileImage", obj.value("profileImage").toString()},
+                     {"isActive", m_activeProfileId == id}};
 }
 
 void ProfileManager::switchProfile(const QString &profileId) {
@@ -440,13 +430,15 @@ void ProfileManager::ensureStateTable() {
       "created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, "
       "last_used_at INTEGER, UNIQUE(origin, username));"));
   {
-    const QVariantList old = m_database.query(QStringLiteral(
-        "SELECT sql FROM sqlite_master "
-        "WHERE type = 'table' AND name = 'site_permissions';"));
+    const QVariantList old = m_database.query(
+        QStringLiteral("SELECT sql FROM sqlite_master "
+                       "WHERE type = 'table' AND name = 'site_permissions';"));
     const bool needsMigration =
-        !old.isEmpty() &&
-        !old.first().toMap().value(QStringLiteral("sql")).toString()
-             .contains(QStringLiteral("'ask'"));
+        !old.isEmpty() && !old.first()
+                               .toMap()
+                               .value(QStringLiteral("sql"))
+                               .toString()
+                               .contains(QStringLiteral("'ask'"));
 
     if (needsMigration)
       m_database.execute(QStringLiteral(
@@ -468,17 +460,18 @@ void ProfileManager::ensureStateTable() {
     }
   }
 
-  m_database.execute(QStringLiteral(
-      "CREATE TABLE IF NOT EXISTS extensions ("
-      "id TEXT PRIMARY KEY, enabled INTEGER NOT NULL DEFAULT 1, "
-      "installed_at INTEGER NOT NULL);"));
+  m_database.execute(
+      QStringLiteral("CREATE TABLE IF NOT EXISTS extensions ("
+                     "id TEXT PRIMARY KEY, enabled INTEGER NOT NULL DEFAULT 1, "
+                     "installed_at INTEGER NOT NULL);"));
 }
 
-QString ProfileManager::stateValue(const QString &key, const QString &fallback) {
-  QVariantList rows = m_database.query(
-      QStringLiteral("SELECT state_value FROM profile_state "
-                     "WHERE state_key = :k LIMIT 1;"),
-      {{QStringLiteral(":k"), key}});
+QString ProfileManager::stateValue(const QString &key,
+                                   const QString &fallback) {
+  QVariantList rows =
+      m_database.query(QStringLiteral("SELECT state_value FROM profile_state "
+                                      "WHERE state_key = :k LIMIT 1;"),
+                       {{QStringLiteral(":k"), key}});
   if (rows.isEmpty())
     return fallback;
   return rows.first().toMap().value(QStringLiteral("state_value")).toString();
