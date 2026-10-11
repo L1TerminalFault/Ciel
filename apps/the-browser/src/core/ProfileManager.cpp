@@ -24,6 +24,11 @@ static QString appStatePath() {
          QStringLiteral("/ciel/browser/state.ini");
 }
 
+static bool isInternalUrl(const QString &url) {
+  return url.isEmpty() || url.startsWith(QStringLiteral("about:")) ||
+         url.startsWith(QStringLiteral("ciel://"));
+}
+
 static QString loadLastProfileId() {
   QSettings s(appStatePath(), QSettings::IniFormat);
   return s.value(QStringLiteral("lastActiveProfile")).toString();
@@ -306,11 +311,14 @@ void ProfileManager::endSession() {
 
 void ProfileManager::recordVisit(const QString &url, const QString &title,
                                  const QString &workspaceId) {
-  if (url.isEmpty() || url == QStringLiteral("about:blank") ||
-      url == QStringLiteral("ciel://history") ||
-      url == QStringLiteral("about:history")) {
+  if (isInternalUrl(url)) {
     return;
   }
+  // if (url.isEmpty() || url == QStringLiteral("about:blank") ||
+  //     url == QStringLiteral("ciel://history") ||
+  //     url == QStringLiteral("about:history")) {
+  //   return;
+  // }
 
   qint64 now = QDateTime::currentSecsSinceEpoch();
   m_database.execute(
@@ -383,10 +391,13 @@ void ProfileManager::clearHistory(int rangeIndex) {
 }
 
 bool ProfileManager::isBookmarked(const QString &url) {
-  if (url.isEmpty() || url == QStringLiteral("about:blank") ||
-      url == QStringLiteral("ciel://history")) {
+  if (isInternalUrl(url)) {
     return false;
   }
+  // if (url.isEmpty() || url == QStringLiteral("about:blank") ||
+  //     url == QStringLiteral("ciel://history")) {
+  //   return false;
+  // }
 
   QVariantList rows = m_database.query(
       QStringLiteral("SELECT id FROM bookmarks WHERE url = :url LIMIT 1;"),
@@ -396,10 +407,13 @@ bool ProfileManager::isBookmarked(const QString &url) {
 }
 
 bool ProfileManager::toggleBookmark(const QString &url, const QString &title) {
-  if (url.isEmpty() || url == QStringLiteral("about:blank") ||
-      url == QStringLiteral("ciel://history")) {
+  if (isInternalUrl(url)) {
     return false;
   }
+  // if (url.isEmpty() || url == QStringLiteral("about:blank") ||
+  //     url == QStringLiteral("ciel://history")) {
+  //   return false;
+  // }
 
   if (isBookmarked(url)) {
     m_database.execute(
@@ -433,6 +447,44 @@ void ProfileManager::ensureStateTable() {
   m_database.execute(QStringLiteral(
       "CREATE TABLE IF NOT EXISTS profile_state ("
       "state_key TEXT PRIMARY KEY, state_value TEXT NOT NULL);"));
+  m_database.execute(QStringLiteral(
+      "CREATE TABLE IF NOT EXISTS passwords ("
+      "id TEXT PRIMARY KEY, origin TEXT NOT NULL, username TEXT NOT NULL, "
+      "created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, "
+      "last_used_at INTEGER, UNIQUE(origin, username));"));
+  {
+    const QVariantList old = m_database.query(QStringLiteral(
+        "SELECT sql FROM sqlite_master "
+        "WHERE type = 'table' AND name = 'site_permissions';"));
+    const bool needsMigration =
+        !old.isEmpty() &&
+        !old.first().toMap().value(QStringLiteral("sql")).toString()
+             .contains(QStringLiteral("'ask'"));
+
+    if (needsMigration)
+      m_database.execute(QStringLiteral(
+          "ALTER TABLE site_permissions RENAME TO site_permissions_old;"));
+
+    m_database.execute(QStringLiteral(
+        "CREATE TABLE IF NOT EXISTS site_permissions ("
+        "origin TEXT NOT NULL, feature TEXT NOT NULL, "
+        "state TEXT NOT NULL CHECK(state IN ('granted','denied','ask')), "
+        "created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, "
+        "PRIMARY KEY(origin, feature));"));
+
+    if (needsMigration) {
+      m_database.execute(QStringLiteral(
+          "INSERT INTO site_permissions "
+          "SELECT origin, feature, state, created_at, updated_at "
+          "FROM site_permissions_old;"));
+      m_database.execute(QStringLiteral("DROP TABLE site_permissions_old;"));
+    }
+  }
+
+  m_database.execute(QStringLiteral(
+      "CREATE TABLE IF NOT EXISTS extensions ("
+      "id TEXT PRIMARY KEY, enabled INTEGER NOT NULL DEFAULT 1, "
+      "installed_at INTEGER NOT NULL);"));
 }
 
 QString ProfileManager::stateValue(const QString &key, const QString &fallback) {
@@ -462,4 +514,102 @@ void ProfileManager::shutdown() {
   endSession();
   m_currentSessionId.clear();
   m_database.close();
+}
+
+QVariantList ProfileManager::fetchBookmarks(const QString &search) {
+  QString queryStr = QStringLiteral(
+      "SELECT id, collection_id, title, url, timestamp FROM bookmarks ");
+
+  QVariantMap bindings;
+  if (!search.trimmed().isEmpty()) {
+    queryStr += QStringLiteral("WHERE title LIKE :s OR url LIKE :s ");
+    bindings.insert(QStringLiteral(":s"), QStringLiteral("%") +
+                                              search.trimmed() +
+                                              QStringLiteral("%"));
+  }
+
+  queryStr += QStringLiteral("ORDER BY timestamp DESC;");
+  return m_database.query(queryStr, bindings);
+}
+
+void ProfileManager::deleteBookmark(const QString &id) {
+  m_database.execute(QStringLiteral("DELETE FROM bookmarks WHERE id = :id;"),
+                     {{QStringLiteral(":id"), id}});
+  emit bookmarksChanged();
+}
+
+QString ProfileManager::completeUrl(const QString &input) {
+  if (input.isEmpty() || input.size() > 200)
+    return {};
+  for (const QChar c : input)
+    if (c.isSpace())
+      return {};
+
+  const int schemeIdx = input.indexOf(QStringLiteral("://"));
+  const bool hasScheme = schemeIdx >= 0;
+  const QString rest = hasScheme ? input.mid(schemeIdx + 3) : input;
+  const bool hasPath = rest.contains(QLatin1Char('/'));
+
+  QString esc = input;
+  esc.replace(QLatin1Char('\\'), QStringLiteral("\\\\"));
+  esc.replace(QLatin1Char('%'), QStringLiteral("\\%"));
+  esc.replace(QLatin1Char('_'), QStringLiteral("\\_"));
+
+  QStringList patterns;
+  if (hasScheme) {
+    patterns << esc + QLatin1Char('%');
+  } else {
+    for (const QString &scheme :
+         {QStringLiteral("http://"), QStringLiteral("https://")}) {
+      patterns << scheme + esc + QLatin1Char('%');
+      patterns << scheme + QStringLiteral("www.") + esc + QLatin1Char('%');
+    }
+  }
+
+  QVariantMap bindings;
+  QStringList conds;
+  for (int i = 0; i < patterns.size(); ++i) {
+    const QString key = QStringLiteral(":p%1").arg(i);
+    conds << QStringLiteral("url LIKE %1 ESCAPE '\\'").arg(key);
+    bindings.insert(key, patterns.at(i));
+  }
+  const QString cond = conds.join(QStringLiteral(" OR "));
+
+  const QString sql =
+      QStringLiteral("SELECT url, SUM(w) AS score FROM ("
+                     " SELECT url, 1000 AS w FROM bookmarks WHERE %1"
+                     " UNION ALL"
+                     " SELECT url, 1 AS w FROM history WHERE %1"
+                     ") GROUP BY url ORDER BY score DESC LIMIT 50;")
+          .arg(cond);
+
+  const QVariantList rows = m_database.query(sql, bindings);
+
+  for (const QVariant &r : rows) {
+    QString s = r.toMap().value(QStringLiteral("url")).toString();
+
+    if (!hasScheme) {
+      const int i = s.indexOf(QStringLiteral("://"));
+      if (i >= 0)
+        s = s.mid(i + 3);
+      if (!input.startsWith(QStringLiteral("www."), Qt::CaseInsensitive) &&
+          s.startsWith(QStringLiteral("www.")))
+        s = s.mid(4);
+    }
+    if (!s.startsWith(input, Qt::CaseInsensitive))
+      continue;
+
+    QString cand = s;
+    if (!hasPath) {
+      const int from = hasScheme ? schemeIdx + 3 : 0;
+      const int slash = s.indexOf(QLatin1Char('/'), from);
+      if (slash >= 0)
+        cand = s.left(slash);
+    }
+    if (cand.size() <= input.size())
+      continue;
+
+    return cand.mid(input.size());
+  }
+  return {};
 }
