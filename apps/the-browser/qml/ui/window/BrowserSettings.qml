@@ -25,31 +25,81 @@ Settings {
 
     function engineChoices() {
         return [
-            { value: "google", label: "Google", url: "https://www.google.com/search?q=" },
-            { value: "duckduckgo", label: "DuckDuckGo", url: "https://duckduckgo.com/?q=" },
-            { value: "bing", label: "Bing", url: "https://www.bing.com/search?q=" },
-            { value: "brave", label: "Brave", url: "https://search.brave.com/search?q=" },
-            { value: "wikipedia", label: "Wikipedia", url: "https://en.wikipedia.org/w/index.php?search=" }
+            {
+                value: "google",
+                label: "Google",
+                url: "https://www.google.com/search?q="
+            },
+            {
+                value: "duckduckgo",
+                label: "DuckDuckGo",
+                url: "https://duckduckgo.com/?q="
+            },
+            {
+                value: "bing",
+                label: "Bing",
+                url: "https://www.bing.com/search?q="
+            },
+            {
+                value: "brave",
+                label: "Brave",
+                url: "https://search.brave.com/search?q="
+            },
+            {
+                value: "wikipedia",
+                label: "Wikipedia",
+                url: "https://en.wikipedia.org/w/index.php?search="
+            }
         ];
     }
 
     function zoomChoices() {
         return [
-            { value: 0.8, label: "80%" },
-            { value: 0.9, label: "90%" },
-            { value: 1.0, label: "100%" },
-            { value: 1.1, label: "110%" },
-            { value: 1.25, label: "125%" },
-            { value: 1.5, label: "150%" },
-            { value: 2.0, label: "200%" }
+            {
+                value: 0.8,
+                label: "80%"
+            },
+            {
+                value: 0.9,
+                label: "90%"
+            },
+            {
+                value: 1.0,
+                label: "100%"
+            },
+            {
+                value: 1.1,
+                label: "110%"
+            },
+            {
+                value: 1.25,
+                label: "125%"
+            },
+            {
+                value: 1.5,
+                label: "150%"
+            },
+            {
+                value: 2.0,
+                label: "200%"
+            }
         ];
     }
 
     function userAgentChoices() {
         return [
-            { value: "default", label: "Default" },
-            { value: "chrome", label: "Chrome" },
-            { value: "firefox", label: "Firefox" }
+            {
+                value: "default",
+                label: "Default"
+            },
+            {
+                value: "chrome",
+                label: "Chrome"
+            },
+            {
+                value: "firefox",
+                label: "Firefox"
+            }
         ];
     }
 
