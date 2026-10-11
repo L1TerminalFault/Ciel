@@ -29,8 +29,8 @@ CielDropDown {
         icon: "plus"
         shortcut: "Ctrl+T"
         onTriggered: {
-          root.close();
-          root.newTabRequested()
+            root.close();
+            root.newTabRequested();
         }
     }
 
@@ -39,8 +39,8 @@ CielDropDown {
         icon: "browsers"
         shortcut: "Ctrl+N"
         onTriggered: {
-          root.close();
-          root.newWindowRequested()
+            root.close();
+            root.newWindowRequested();
         }
     }
 
@@ -49,8 +49,8 @@ CielDropDown {
         icon: "detective"
         shortcut: "Ctrl+Shift+N"
         onTriggered: {
-          root.close();
-          root.newPrivateWindowRequested()
+            root.close();
+            root.newPrivateWindowRequested();
         }
     }
 
@@ -59,8 +59,8 @@ CielDropDown {
         icon: "arrow-counter-clockwise"
         shortcut: "Ctrl+Shift+T"
         onTriggered: {
-          root.close();
-          root.restoreTabRequested()
+            root.close();
+            root.restoreTabRequested();
         }
     }
 
@@ -71,8 +71,8 @@ CielDropDown {
         icon: "clock-counter-clockwise"
         shortcut: "Ctrl+H"
         onTriggered: {
-          root.close();
-          root.historyRequested()
+            root.close();
+            root.historyRequested();
         }
     }
 
@@ -80,8 +80,8 @@ CielDropDown {
         text: "Passwords"
         icon: "key"
         onTriggered: {
-          root.close();
-          root.passwordsRequested()
+            root.close();
+            root.passwordsRequested();
         }
     }
 
@@ -90,8 +90,8 @@ CielDropDown {
         icon: "bookmark-simple"
         shortcut: "Ctrl+Shift+O"
         onTriggered: {
-          root.close();
-          root.bookmarksRequested()
+            root.close();
+            root.bookmarksRequested();
         }
     }
 
@@ -102,8 +102,8 @@ CielDropDown {
         icon: "printer"
         shortcut: "Ctrl+P"
         onTriggered: {
-          root.close();
-          root.printRequested()
+            root.close();
+            root.printRequested();
         }
     }
 
@@ -112,8 +112,8 @@ CielDropDown {
         icon: "floppy-disk"
         shortcut: "Ctrl+S"
         onTriggered: {
-          root.close();
-          root.savePageRequested()
+            root.close();
+            root.savePageRequested();
         }
     }
 
@@ -121,8 +121,8 @@ CielDropDown {
         text: "Translate Page…"
         icon: "translate"
         onTriggered: {
-          root.close();
-          root.translateRequested()
+            root.close();
+            root.translateRequested();
         }
     }
 
@@ -131,8 +131,8 @@ CielDropDown {
         icon: "magnifying-glass"
         shortcut: "Ctrl+F"
         onTriggered: {
-          root.close();
-          root.findInPageRequested()
+            root.close();
+            root.findInPageRequested();
         }
     }
 
@@ -154,8 +154,8 @@ CielDropDown {
         icon: "gear-six"
         shortcut: "Ctrl+,"
         onTriggered: {
-          root.close();
-          root.settingsRequested()
+            root.close();
+            root.settingsRequested();
         }
     }
 
@@ -165,8 +165,8 @@ CielDropDown {
         shortcut: "Ctrl+Q"
         destructive: true
         onTriggered: {
-          root.close();
-          Qt.quit()
+            root.close();
+            Qt.quit();
         }
     }
 }
