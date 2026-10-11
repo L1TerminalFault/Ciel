@@ -18,10 +18,12 @@ public:
   static SitePermissionManager *instance();
 
   Q_INVOKABLE QString originOf(const QUrl &url) const;
-  Q_INVOKABLE QString permissionState(const QString &origin, const QString &feature);
+  Q_INVOKABLE QString permissionState(const QString &origin,
+                                      const QString &feature);
   Q_INVOKABLE void setPermission(const QString &origin, const QString &feature,
                                  const QString &state);
-  Q_INVOKABLE void removePermission(const QString &origin, const QString &feature);
+  Q_INVOKABLE void removePermission(const QString &origin,
+                                    const QString &feature);
   Q_INVOKABLE void clearAll();
   Q_INVOKABLE QVariantList list(const QString &search = QString(),
                                 const QString &stateFilter = QString());
