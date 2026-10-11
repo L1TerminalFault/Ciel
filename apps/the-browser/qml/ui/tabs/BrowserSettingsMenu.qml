@@ -76,16 +76,6 @@ CielDropDown {
         }
     }
 
-    // CielMenuItem {
-    //     text: "Downloads"
-    //     icon: "download-simple"
-    //     shortcut: "Ctrl+J"
-    //     onTriggered: {
-    //       root.close();
-    //       root.downloadsRequested()
-    //     }
-    // }
-
     CielMenuItem {
         text: "Passwords"
         icon: "key"
