@@ -39,38 +39,40 @@ Item {
 
         property bool editMode: false
 
-        ListModel { id: profileModel }
+        ListModel {
+            id: profileModel
+        }
 
         function indexOfProfile(pid) {
             for (var i = 0; i < profileModel.count; ++i) {
                 if (profileModel.get(i).profileId === pid)
-                    return i
+                    return i;
             }
-            return -1
+            return -1;
         }
 
         function syncProfiles() {
-            var fresh = ProfileManager.listProfiles()
-            var incoming = ({})
+            var fresh = ProfileManager.listProfiles();
+            var incoming = ({});
             for (var i = 0; i < fresh.length; ++i)
-                incoming[fresh[i].id] = fresh[i]
+                incoming[fresh[i].id] = fresh[i];
 
             for (var i = profileModel.count - 1; i >= 0; --i) {
-                var pid = profileModel.get(i).profileId
+                var pid = profileModel.get(i).profileId;
                 if (!incoming[pid]) {
-                    var r = Math.floor(i / profileRow.maxColumns)
-                    var c = i % profileRow.maxColumns
-                    profileModel.remove(i)
-                    profileRow.rippleFrom(r, c)
+                    var r = Math.floor(i / profileRow.maxColumns);
+                    var c = i % profileRow.maxColumns;
+                    profileModel.remove(i);
+                    profileRow.rippleFrom(r, c);
                 }
             }
 
             for (var i = 0; i < fresh.length; ++i) {
-                var p = fresh[i]
-                var img = p.profileImage || ""
-                var col = p.color || ""
-                var active = !!p.isActive
-                var idx = indexOfProfile(p.id)
+                var p = fresh[i];
+                var img = p.profileImage || "";
+                var col = p.color || "";
+                var active = !!p.isActive;
+                var idx = indexOfProfile(p.id);
 
                 if (idx === -1) {
                     profileModel.append({
@@ -79,31 +81,29 @@ Item {
                         profileImage: img,
                         color: col,
                         isActive: active
-                    })
-                    continue
+                    });
+                    continue;
                 }
 
-                var row = profileModel.get(idx)
-                var visualChanged = row.displayName !== p.displayName
-                                || row.profileImage !== img
-                                || row.color !== col
-                var becameActive = !row.isActive && active
+                var row = profileModel.get(idx);
+                var visualChanged = row.displayName !== p.displayName || row.profileImage !== img || row.color !== col;
+                var becameActive = !row.isActive && active;
 
                 if (row.displayName !== p.displayName)
-                    profileModel.setProperty(idx, "displayName", p.displayName)
+                    profileModel.setProperty(idx, "displayName", p.displayName);
                 if (row.profileImage !== img)
-                    profileModel.setProperty(idx, "profileImage", img)
+                    profileModel.setProperty(idx, "profileImage", img);
                 if (row.color !== col)
-                    profileModel.setProperty(idx, "color", col)
+                    profileModel.setProperty(idx, "color", col);
                 if (row.isActive !== active)
-                    profileModel.setProperty(idx, "isActive", active)
+                    profileModel.setProperty(idx, "isActive", active);
 
                 if (visualChanged || becameActive) {
-                    var item = profileRepeater.itemAt(idx)
+                    var item = profileRepeater.itemAt(idx);
                     if (item && item.playPulse)
-                        item.playPulse()
+                        item.playPulse();
                     if (item)
-                        profileRow.rippleFrom(item.rowIndex, item.colIndex)
+                        profileRow.rippleFrom(item.rowIndex, item.colIndex);
                 }
             }
         }
@@ -112,8 +112,12 @@ Item {
 
         Connections {
             target: ProfileManager
-            function onActiveProfileChanged() { centerCard.syncProfiles() }
-            function onProfilesChanged() { centerCard.syncProfiles() }
+            function onActiveProfileChanged() {
+                centerCard.syncProfiles();
+            }
+            function onProfilesChanged() {
+                centerCard.syncProfiles();
+            }
         }
 
         Item {
@@ -142,35 +146,35 @@ Item {
             function setRipple(senderRow, senderCol, on) {
                 function apply(item) {
                     if (!item || !item.entryTriggered)
-                        return
+                        return;
                     if (item.rowIndex === senderRow && item.colIndex === senderCol)
-                        return
-                    var dr = item.rowIndex - senderRow
-                    var dc = item.colIndex - senderCol
-                    var dist = Math.sqrt(dr * dr + dc * dc)
+                        return;
+                    var dr = item.rowIndex - senderRow;
+                    var dc = item.colIndex - senderCol;
+                    var dist = Math.sqrt(dr * dr + dc * dc);
                     if (dist < 0.01)
-                        return
+                        return;
                     if (on) {
-                        var mag = 6.5 / (dist * dist + 0.55)
-                        item.localBounceOffsetX = (dc / dist) * mag
-                        item.localBounceOffsetY = (dr / dist) * mag
+                        var mag = 6.5 / (dist * dist + 0.55);
+                        item.localBounceOffsetX = (dc / dist) * mag;
+                        item.localBounceOffsetY = (dr / dist) * mag;
                     } else {
-                        item.localBounceOffsetX = 0
-                        item.localBounceOffsetY = 0
+                        item.localBounceOffsetX = 0;
+                        item.localBounceOffsetY = 0;
                     }
                 }
                 for (var i = 0; i < profileRepeater.count; ++i)
-                    apply(profileRepeater.itemAt(i))
-                apply(addProfileDelegate)
+                    apply(profileRepeater.itemAt(i));
+                apply(addProfileDelegate);
             }
 
             function rippleFrom(row, col) {
-                rippleGen++
-                setRipple(row, col, true)
-                releaseRow = row
-                releaseCol = col
-                releaseGen = rippleGen
-                rippleRelease.restart()
+                rippleGen++;
+                setRipple(row, col, true);
+                releaseRow = row;
+                releaseCol = col;
+                releaseGen = rippleGen;
+                rippleRelease.restart();
             }
 
             Timer {
@@ -178,7 +182,7 @@ Item {
                 interval: 180
                 onTriggered: {
                     if (profileRow.releaseGen === profileRow.rippleGen)
-                        profileRow.setRipple(profileRow.releaseRow, profileRow.releaseCol, false)
+                        profileRow.setRipple(profileRow.releaseRow, profileRow.releaseCol, false);
                 }
             }
 
@@ -200,11 +204,8 @@ Item {
 
                     readonly property int rowIndex: Math.floor(index / profileRow.maxColumns)
                     readonly property int colIndex: index % profileRow.maxColumns
-                    readonly property int itemsInThisRow: (rowIndex === profileRow.totalRows - 1)
-                        ? (profileRow.totalCount - (rowIndex * profileRow.maxColumns))
-                        : profileRow.maxColumns
-                    readonly property real rowWidth: (itemsInThisRow * profileRow.itemWidth)
-                        + ((itemsInThisRow - 1) * profileRow.itemSpacing)
+                    readonly property int itemsInThisRow: (rowIndex === profileRow.totalRows - 1) ? (profileRow.totalCount - (rowIndex * profileRow.maxColumns)) : profileRow.maxColumns
+                    readonly property real rowWidth: (itemsInThisRow * profileRow.itemWidth) + ((itemsInThisRow - 1) * profileRow.itemSpacing)
                     readonly property real startX: (profileRow.width - rowWidth) / 2
                     readonly property real targetX: startX + (colIndex * (profileRow.itemWidth + profileRow.itemSpacing))
                     readonly property real baseTargetY: rowIndex * (profileRow.itemHeight + profileRow.itemSpacing)
@@ -217,8 +218,8 @@ Item {
                     property real avatarScale: 1
 
                     function playPulse() {
-                        avatarScale = 1.04
-                        pulseReset.restart()
+                        avatarScale = 1.04;
+                        pulseReset.restart();
                     }
 
                     Timer {
@@ -232,12 +233,12 @@ Item {
                         repeat: false
                         interval: profileRow.introPlayed ? 0 : (index * profileRow.entryStaggerMs)
                         onTriggered: {
-                            profileDelegate.entryTriggered = true
-                            profileRow.rippleGen++
-                            profileDelegate.myRippleGen = profileRow.rippleGen
-                            profileRow.setRipple(profileDelegate.rowIndex, profileDelegate.colIndex, true)
+                            profileDelegate.entryTriggered = true;
+                            profileRow.rippleGen++;
+                            profileDelegate.myRippleGen = profileRow.rippleGen;
+                            profileRow.setRipple(profileDelegate.rowIndex, profileDelegate.colIndex, true);
                             if (index === profileModel.count - 1)
-                                introGate.restart()
+                                introGate.restart();
                         }
                     }
 
@@ -253,17 +254,37 @@ Item {
                     }
 
                     Behavior on localBounceOffsetX {
-                        CielSpring { damping: 0.68; spring: 18.0; mass: 2.2; epsilon: 0.002 }
+                        CielSpring {
+                            damping: 0.68
+                            spring: 18.0
+                            mass: 2.2
+                            epsilon: 0.002
+                        }
                     }
                     Behavior on localBounceOffsetY {
-                        CielSpring { damping: 0.68; spring: 18.0; mass: 2.2; epsilon: 0.002 }
+                        CielSpring {
+                            damping: 0.68
+                            spring: 18.0
+                            mass: 2.2
+                            epsilon: 0.002
+                        }
                     }
                     Behavior on avatarScale {
-                        CielSpring { damping: 0.52; spring: 18.0; mass: 2.2; epsilon: 0.002 }
+                        CielSpring {
+                            damping: 0.52
+                            spring: 18.0
+                            mass: 2.2
+                            epsilon: 0.002
+                        }
                     }
                     Behavior on x {
                         enabled: profileDelegate.entryTriggered
-                        CielSpring { damping: 0.85; spring: 16.4; mass: 4.0; epsilon: 0.002 }
+                        CielSpring {
+                            damping: 0.85
+                            spring: 16.4
+                            mass: 4.0
+                            epsilon: 0.002
+                        }
                     }
                     Behavior on y {
                         CielSpring {
@@ -273,19 +294,28 @@ Item {
                             epsilon: 0.002
                             onRunningChanged: {
                                 if (running || !profileDelegate.entryTriggered || profileDelegate.hasSettled)
-                                    return
-                                profileDelegate.hasSettled = true
+                                    return;
+                                profileDelegate.hasSettled = true;
                                 if (profileDelegate.myRippleGen === profileRow.rippleGen)
-                                    profileRow.setRipple(profileDelegate.rowIndex, profileDelegate.colIndex, false)
+                                    profileRow.setRipple(profileDelegate.rowIndex, profileDelegate.colIndex, false);
                             }
                         }
                     }
                     Behavior on opacity {
-                        CielSpring { damping: 0.85; spring: 8.4; mass: 4.0; epsilon: 0.002 }
+                        CielSpring {
+                            damping: 0.85
+                            spring: 8.4
+                            mass: 4.0
+                            epsilon: 0.002
+                        }
                     }
                     Behavior on scale {
-                        CielSpring { damping: 0.85; spring: 14.4; mass: 4.0; epsilon: 0.002 }
-
+                        CielSpring {
+                            damping: 0.85
+                            spring: 14.4
+                            mass: 4.0
+                            epsilon: 0.002
+                        }
                     }
                     Rectangle {
                         id: avatarContainer
@@ -303,16 +333,16 @@ Item {
                             anchors.fill: parent
                             source: model.profileImage
                             fillMode: Image.PreserveAspectCrop
-                            visible: false   
+                            visible: false
                         }
 
                         Rectangle {
                             id: delegateMaskSource
                             anchors.fill: parent
-                            anchors.margins: avatarContainer.border.width 
+                            anchors.margins: avatarContainer.border.width
                             radius: width / 2
                             visible: false
-                            layer.enabled: true   
+                            layer.enabled: true
                         }
 
                         MultiEffect {
@@ -333,76 +363,76 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                              if (!centerCard.editMode) {
-                                  if (!model.isActive) {
-                                    ProfileManager.switchProfile(model.profileId);
-                                  }
+                                if (!centerCard.editMode) {
+                                    if (!model.isActive) {
+                                        ProfileManager.switchProfile(model.profileId);
+                                    }
                                 } else {
-                                  if (model.displayName !== "Default") {
-                                    profileDialog.openForProfile(model.profileId)
-                                  }
+                                    if (model.displayName !== "Default") {
+                                        profileDialog.openForProfile(model.profileId);
+                                    }
                                 }
                             }
                         }
 
-Item {
-    id: profileDeleteButton
-    width: 28
-    height: 28
-    visible: model.displayName !== "Default"
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    anchors.rightMargin: -4
-    anchors.bottomMargin: -5
-    z: 10
+                        Item {
+                            id: profileDeleteButton
+                            width: 28
+                            height: 28
+                            visible: model.displayName !== "Default"
+                            anchors.right: parent.right
+                            anchors.bottom: parent.bottom
+                            anchors.rightMargin: -4
+                            anchors.bottomMargin: -5
+                            z: 10
 
-    Rectangle {
-        anchors.fill: parent
-        radius: width / 2
-        color: Theme.surface
-        border.width: 1
-        border.color: Theme.border
+                            Rectangle {
+                                anchors.fill: parent
+                                radius: width / 2
+                                color: Theme.surface
+                                border.width: 1
+                                border.color: Theme.border
 
-        Item {
-            anchors.fill: parent
-            anchors.margins: 6
-        CielIcon {
-            anchors.centerIn: parent
-            icon: "trash"
-            size: Theme.SMALL
-            color: "#ff2589"
-        }
-      }
+                                Item {
+                                    anchors.fill: parent
+                                    anchors.margins: 6
+                                    CielIcon {
+                                        anchors.centerIn: parent
+                                        icon: "trash"
+                                        size: Theme.SMALL
+                                        color: "#ff2589"
+                                    }
+                                }
 
-        MouseArea {
-            anchors.fill: parent
-            enabled: centerCard.editMode
-            onClicked: ProfileManager.deleteProfile(model.profileId)
-        }
-    }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    enabled: centerCard.editMode
+                                    onClicked: ProfileManager.deleteProfile(model.profileId)
+                                }
+                            }
 
-    opacity: centerCard.editMode ? 1 : 0
-    scale: centerCard.editMode ? 1 : 0
-    transformOrigin: Item.Center
+                            opacity: centerCard.editMode ? 1 : 0
+                            scale: centerCard.editMode ? 1 : 0
+                            transformOrigin: Item.Center
 
-    Behavior on opacity {
-        CielSpring {
-            damping: 0.85
-            spring: 12.0
-            mass: 2.2
-            epsilon: 0.002
-        }
-    }
+                            Behavior on opacity {
+                                CielSpring {
+                                    damping: 0.85
+                                    spring: 12.0
+                                    mass: 2.2
+                                    epsilon: 0.002
+                                }
+                            }
 
-    Behavior on scale {
-        CielSpring {
-            damping: 0.65
-            spring: 14.0
-            mass: 2.2
-            epsilon: 0.002
-        }
-    }
-}
+                            Behavior on scale {
+                                CielSpring {
+                                    damping: 0.65
+                                    spring: 14.0
+                                    mass: 2.2
+                                    epsilon: 0.002
+                                }
+                            }
+                        }
                     }
                     Text {
                         Layout.alignment: Qt.AlignHCenter
@@ -410,9 +440,9 @@ Item {
                         text: model.displayName
                         horizontalAlignment: Text.AlignHCenter
                         elide: Text.ElideRight
-                        
+
                         color: Theme.textPrimary
-                        font.pixelSize: 13 
+                        font.pixelSize: 13
                     }
                 }
             }
@@ -428,8 +458,7 @@ Item {
                 readonly property int rowIndex: Math.floor(finalIndex / profileRow.maxColumns)
                 readonly property int colIndex: finalIndex % profileRow.maxColumns
                 readonly property int itemsInThisRow: profileRow.totalCount - (rowIndex * profileRow.maxColumns)
-                readonly property real rowWidth: (itemsInThisRow * profileRow.itemWidth)
-                    + ((itemsInThisRow - 1) * profileRow.itemSpacing)
+                readonly property real rowWidth: (itemsInThisRow * profileRow.itemWidth) + ((itemsInThisRow - 1) * profileRow.itemSpacing)
                 readonly property real startX: (profileRow.width - rowWidth) / 2
                 readonly property real targetX: startX + (colIndex * (profileRow.itemWidth + profileRow.itemSpacing))
                 readonly property real baseTargetY: rowIndex * (profileRow.itemHeight + profileRow.itemSpacing)
@@ -445,18 +474,18 @@ Item {
                     repeat: false
                     interval: profileRow.introPlayed ? 0 : (addProfileDelegate.finalIndex * profileRow.entryStaggerMs)
                     onTriggered: {
-                        addProfileDelegate.entryTriggered = true
-                        profileRow.rippleGen++
-                        addProfileDelegate.myRippleGen = profileRow.rippleGen
-                        profileRow.setRipple(addProfileDelegate.rowIndex, addProfileDelegate.colIndex, true)
+                        addProfileDelegate.entryTriggered = true;
+                        profileRow.rippleGen++;
+                        addProfileDelegate.myRippleGen = profileRow.rippleGen;
+                        profileRow.setRipple(addProfileDelegate.rowIndex, addProfileDelegate.colIndex, true);
                     }
                 }
 
                 x: targetX
                 y: entryTriggered ? baseTargetY : (baseTargetY + profileRow.entrySlide)
 
-opacity: (entryTriggered && centerCard.editMode) ? 1 : 0
-transformOrigin: Item.Center
+                opacity: (entryTriggered && centerCard.editMode) ? 1 : 0
+                transformOrigin: Item.Center
 
                 transform: Translate {
                     x: addProfileDelegate.localBounceOffsetX
@@ -464,14 +493,29 @@ transformOrigin: Item.Center
                 }
 
                 Behavior on localBounceOffsetX {
-                    CielSpring { damping: 1.5; spring: 8.4; mass: 1.8; epsilon: 0.002 }
+                    CielSpring {
+                        damping: 1.5
+                        spring: 8.4
+                        mass: 1.8
+                        epsilon: 0.002
+                    }
                 }
                 Behavior on localBounceOffsetY {
-                    CielSpring { damping: 1.5; spring: 8.4; mass: 1.8; epsilon: 0.002 }
+                    CielSpring {
+                        damping: 1.5
+                        spring: 8.4
+                        mass: 1.8
+                        epsilon: 0.002
+                    }
                 }
                 Behavior on x {
                     enabled: addProfileDelegate.entryTriggered
-                    CielSpring { damping: 0.5; spring: 8.4; mass: 1.8; epsilon: 0.002 }
+                    CielSpring {
+                        damping: 0.5
+                        spring: 8.4
+                        mass: 1.8
+                        epsilon: 0.002
+                    }
                 }
                 Behavior on y {
                     CielSpring {
@@ -481,15 +525,20 @@ transformOrigin: Item.Center
                         epsilon: 0.002
                         onRunningChanged: {
                             if (running || !addProfileDelegate.entryTriggered || addProfileDelegate.hasSettled)
-                                return
-                            addProfileDelegate.hasSettled = true
+                                return;
+                            addProfileDelegate.hasSettled = true;
                             if (addProfileDelegate.myRippleGen === profileRow.rippleGen)
-                                profileRow.setRipple(addProfileDelegate.rowIndex, addProfileDelegate.colIndex, false)
+                                profileRow.setRipple(addProfileDelegate.rowIndex, addProfileDelegate.colIndex, false);
                         }
                     }
                 }
                 Behavior on opacity {
-                    CielSpring { damping: 0.85; spring: 8.4; mass: 4.0; epsilon: 0.002 }
+                    CielSpring {
+                        damping: 0.85
+                        spring: 8.4
+                        mass: 4.0
+                        epsilon: 0.002
+                    }
                 }
 
                 Rectangle {
@@ -517,134 +566,133 @@ transformOrigin: Item.Center
                 }
             }
         }
-
     }
 
-Item {
-    id: editModeButton
-    width: 46 + editTextContainer.width
-    height: 46
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
-    anchors.rightMargin: 24
-    anchors.bottomMargin: 24
-    z: 20
+    Item {
+        id: editModeButton
+        width: 46 + editTextContainer.width
+        height: 46
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 24
+        anchors.bottomMargin: 24
+        z: 20
 
-    Behavior on width {
-        CielSpring {
-            damping: 0.62
-            spring: 10.0
-            mass: 2.8
-            epsilon: 0.002
-        }
-    }
-
-    Rectangle {
-        anchors.fill: parent
-        radius: 23 
-        color: Theme.surface
-        border.width: 1
-        border.color: Theme.border
-        clip: true
-
-        Item {
-            anchors.fill: parent
-
-            CielIcon {
-                anchors.centerIn: parent
-                icon: "pencil"
-                size: Theme.MEDIUM
-                color: Theme.textPrimary
-
-                opacity: centerCard.editMode ? 0 : 1
-                scale: centerCard.editMode ? 0.65 : 1
-
-                Behavior on opacity {
-                    CielSpring {
-                        damping: 0.42
-                        spring: 18.0
-                        mass: 2.2
-                        epsilon: 0.002
-                    }
-                }
-
-                Behavior on scale {
-                    CielSpring {
-                        damping: 0.42
-                        spring: 18.0
-                        mass: 2.2
-                        epsilon: 0.002
-                    }
-                }
+        Behavior on width {
+            CielSpring {
+                damping: 0.62
+                spring: 10.0
+                mass: 2.8
+                epsilon: 0.002
             }
+        }
 
-            RowLayout {
-                anchors.left: parent.left
-                anchors.leftMargin: 12
-                anchors.verticalCenter: parent.verticalCenter
-                spacing: 6
+        Rectangle {
+            anchors.fill: parent
+            radius: 23
+            color: Theme.surface
+            border.width: 1
+            border.color: Theme.border
+            clip: true
 
-                Item {
-                    Layout.preferredWidth: 24
-                    Layout.preferredHeight: 24
-                    Layout.alignment: Qt.AlignVCenter
+            Item {
+                anchors.fill: parent
 
-                    CielIcon {
-                        anchors.centerIn: parent
-                        icon: "x"
-                        size: Theme.MEDIUM
-                        color: Theme.textPrimary
+                CielIcon {
+                    anchors.centerIn: parent
+                    icon: "pencil"
+                    size: Theme.MEDIUM
+                    color: Theme.textPrimary
 
-                        opacity: centerCard.editMode ? 1 : 0
-                        scale: centerCard.editMode ? 1 : 0.65
+                    opacity: centerCard.editMode ? 0 : 1
+                    scale: centerCard.editMode ? 0.65 : 1
 
-                        Behavior on opacity {
-                            CielSpring {
-                                damping: 0.42
-                                spring: 18.0
-                                mass: 2.2
-                                epsilon: 0.002
-                            }
+                    Behavior on opacity {
+                        CielSpring {
+                            damping: 0.42
+                            spring: 18.0
+                            mass: 2.2
+                            epsilon: 0.002
                         }
+                    }
 
-                        Behavior on scale {
-                            CielSpring {
-                                damping: 0.42
-                                spring: 18.0
-                                mass: 2.2
-                                epsilon: 0.002
-                            }
+                    Behavior on scale {
+                        CielSpring {
+                            damping: 0.42
+                            spring: 18.0
+                            mass: 2.2
+                            epsilon: 0.002
                         }
                     }
                 }
 
-                Item {
-                    id: editTextContainer
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.preferredWidth: centerCard.editMode ? (editText.implicitWidth + 12) : 0 
-                    Layout.preferredHeight: editText.implicitHeight 
-                    clip: true
+                RowLayout {
+                    anchors.left: parent.left
+                    anchors.leftMargin: 12
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 6
 
-                    Text {
-                        id: editText
-                        text: "Exit"
-                        color: Theme.textPrimary
-                        font.pixelSize: 14
-                        anchors.left: parent.left
-                        anchors.verticalCenter: parent.verticalCenter 
+                    Item {
+                        Layout.preferredWidth: 24
+                        Layout.preferredHeight: 24
+                        Layout.alignment: Qt.AlignVCenter
+
+                        CielIcon {
+                            anchors.centerIn: parent
+                            icon: "x"
+                            size: Theme.MEDIUM
+                            color: Theme.textPrimary
+
+                            opacity: centerCard.editMode ? 1 : 0
+                            scale: centerCard.editMode ? 1 : 0.65
+
+                            Behavior on opacity {
+                                CielSpring {
+                                    damping: 0.42
+                                    spring: 18.0
+                                    mass: 2.2
+                                    epsilon: 0.002
+                                }
+                            }
+
+                            Behavior on scale {
+                                CielSpring {
+                                    damping: 0.42
+                                    spring: 18.0
+                                    mass: 2.2
+                                    epsilon: 0.002
+                                }
+                            }
+                        }
+                    }
+
+                    Item {
+                        id: editTextContainer
+                        Layout.alignment: Qt.AlignVCenter
+                        Layout.preferredWidth: centerCard.editMode ? (editText.implicitWidth + 12) : 0
+                        Layout.preferredHeight: editText.implicitHeight
+                        clip: true
+
+                        Text {
+                            id: editText
+                            text: "Exit"
+                            color: Theme.textPrimary
+                            font.pixelSize: 14
+                            anchors.left: parent.left
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                     }
                 }
             }
-        }
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: centerCard.editMode = !centerCard.editMode
+            MouseArea {
+                anchors.fill: parent
+                onClicked: centerCard.editMode = !centerCard.editMode
+            }
         }
     }
-}
 
-ProfileMutateDialog {
-    id: profileDialog
-}
+    ProfileMutateDialog {
+        id: profileDialog
+    }
 }
