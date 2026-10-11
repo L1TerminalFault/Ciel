@@ -53,7 +53,6 @@ private:
   QString keyFor(const QString &id) const;
 };
 
-// One instance per WebEngineView, registered on that view's web channel.
 class PasswordBridge : public QObject {
   Q_OBJECT
   QML_ELEMENT
@@ -64,7 +63,7 @@ public:
   Q_INVOKABLE void acceptPending();
   Q_INVOKABLE void discardPending();
 
-public slots: // called from the injected page script
+public slots: 
   void submitted(const QString &origin, const QString &username,
                  const QString &password);
   void requestFill(const QString &origin);
