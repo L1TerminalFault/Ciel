@@ -396,17 +396,15 @@ void TabModel::persistCurrentTab() {
   if (m_workspaceId.isEmpty() || m_currentIndex < 0 ||
       m_currentIndex >= m_tabs.size())
     return;
-  ProfileManager::instance()->setStateValue(
-      QStringLiteral("active_tab:") + m_workspaceId,
-      m_tabs.at(m_currentIndex).id);
+  ProfileManager::instance()->setStateValue(QStringLiteral("active_tab:") +
+                                                m_workspaceId,
+                                            m_tabs.at(m_currentIndex).id);
 }
 
 void TabModel::closeOtherTabs(int keepIndex) {
   const int originalCount = m_tabs.size();
 
-  if (originalCount <= 1 ||
-      keepIndex < 0 ||
-      keepIndex >= originalCount) {
+  if (originalCount <= 1 || keepIndex < 0 || keepIndex >= originalCount) {
     return;
   }
 
@@ -418,9 +416,8 @@ void TabModel::closeOtherTabs(int keepIndex) {
   if (!m_workspaceId.isEmpty()) {
     Database *db = ProfileManager::instance()->database();
     db->execute(
-        QStringLiteral(
-            "DELETE FROM tabs "
-            "WHERE workspace_id = :ws_id AND id != :keep_id;"),
+        QStringLiteral("DELETE FROM tabs "
+                       "WHERE workspace_id = :ws_id AND id != :keep_id;"),
         {{QStringLiteral(":ws_id"), m_workspaceId},
          {QStringLiteral(":keep_id"), keepId}});
   }
@@ -464,9 +461,7 @@ void TabModel::closeOtherTabs(int keepIndex) {
 void TabModel::closeTabsToBottom(int index) {
   const int originalCount = m_tabs.size();
 
-  if (originalCount <= 1 ||
-      index < 0 ||
-      index >= originalCount - 1) {
+  if (originalCount <= 1 || index < 0 || index >= originalCount - 1) {
     return;
   }
 
@@ -485,8 +480,7 @@ void TabModel::closeTabsToBottom(int index) {
     QStringList placeholders;
 
     for (int i = 0; i < idsToDelete.size(); ++i) {
-      const QString placeholder =
-          QStringLiteral(":id%1").arg(i);
+      const QString placeholder = QStringLiteral(":id%1").arg(i);
 
       placeholders.append(placeholder);
       params.insert(placeholder, idsToDelete.at(i));
@@ -496,9 +490,8 @@ void TabModel::closeTabsToBottom(int index) {
       rememberClosedTab(i);
 
     const QString sql =
-        QStringLiteral(
-            "DELETE FROM tabs "
-            "WHERE workspace_id = :ws_id AND id IN (%1);")
+        QStringLiteral("DELETE FROM tabs "
+                       "WHERE workspace_id = :ws_id AND id IN (%1);")
             .arg(placeholders.join(QStringLiteral(", ")));
 
     db->execute(sql, params);
@@ -535,7 +528,7 @@ void TabModel::rememberClosedTab(int index) {
   const auto &tab = m_tabs.at(index);
   const QString u = tab.url.toString();
   if (u.isEmpty() || u == QStringLiteral("about:blank"))
-    return; 
+    return;
 
   m_closedTabs.append({tab.url, tab.title, tab.isPinned, index});
   while (m_closedTabs.size() > kMaxClosedTabs)
@@ -555,7 +548,6 @@ void TabModel::restoreClosedTab() {
     if (t.isPinned)
       ++pinnedCount;
 
-  
   const int pos = closed.isPinned
                       ? qBound(0, closed.index, pinnedCount)
                       : qBound(pinnedCount, closed.index, int(m_tabs.size()));
@@ -588,7 +580,7 @@ void TabModel::restoreClosedTab() {
   emit countChanged();
   emit closedTabsChanged();
 
-  persistOrder(); 
+  persistOrder();
 
   m_currentIndex = pos;
   persistCurrentTab();
