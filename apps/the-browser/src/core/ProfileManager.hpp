@@ -19,7 +19,8 @@ class ProfileManager : public QObject {
       QString activeProfileId READ activeProfileId NOTIFY activeProfileChanged)
   Q_PROPERTY(QString currentSessionId READ currentSessionId CONSTANT)
   Q_PROPERTY(QString profilePath READ profilePath NOTIFY activeProfileChanged)
-  Q_PROPERTY(QString webEngineStoragePath READ webEngineStoragePath NOTIFY activeProfileChanged)
+  Q_PROPERTY(QString webEngineStoragePath READ webEngineStoragePath NOTIFY
+                 activeProfileChanged)
 
 public:
   static ProfileManager *create(QQmlEngine *qmlEngine, QJSEngine *jsEngine);
@@ -51,12 +52,14 @@ public:
   Q_INVOKABLE QString createProfile(const QString &displayName,
                                     const QString &color = QString(),
                                     const QString &profileImage = QString());
-  Q_INVOKABLE bool updateProfile(const QString &id,
-                                const QString &displayName,
-                                const QString &color = QString(),
-                                const QString &profileImage = QString());
+  Q_INVOKABLE bool updateProfile(const QString &id, const QString &displayName,
+                                 const QString &color = QString(),
+                                 const QString &profileImage = QString());
   Q_INVOKABLE bool deleteProfile(const QString &id);
   Q_INVOKABLE QVariantMap profileInfo(const QString &id) const;
+  Q_INVOKABLE QVariantList fetchBookmarks(const QString &search = QString());
+  Q_INVOKABLE void deleteBookmark(const QString &id);
+  Q_INVOKABLE QString completeUrl(const QString &input);
   QString stateValue(const QString &key, const QString &fallback = QString());
   void setStateValue(const QString &key, const QString &value);
   void removeStateValue(const QString &key);

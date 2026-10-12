@@ -14,6 +14,7 @@ Item {
     property var preContent: null
     property var postContent: null
     property bool showIcons: true
+    property bool showBorder: true
 
     signal accepted(string query)
 
@@ -50,7 +51,7 @@ Item {
         id: focusHighlight
         anchors.fill: parent
         color: "transparent"
-        borderWidth: 1
+        borderWidth: root.showBorder ? 1 : 0
         borderColor: Theme.accent
         opacity: inputField.activeFocus ? 1.0 : 0.0
 

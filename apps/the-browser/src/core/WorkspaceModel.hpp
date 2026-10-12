@@ -25,6 +25,12 @@ class WorkspaceModel : public QAbstractListModel {
   Q_PROPERTY(int count READ count NOTIFY countChanged)
   Q_PROPERTY(QString currentWorkspaceId READ currentWorkspaceId NOTIFY
                  currentIndexChanged)
+  Q_PROPERTY(
+      bool ephemeral READ ephemeral WRITE setEphemeral NOTIFY ephemeralChanged)
+  Q_PROPERTY(
+      bool incognito READ incognito WRITE setIncognito NOTIFY incognitoChanged)
+  Q_PROPERTY(
+      QUrl startUrl READ startUrl WRITE setStartUrl NOTIFY startUrlChanged)
 
 public:
   enum Roles {
@@ -57,9 +63,29 @@ public:
   Q_INVOKABLE void saveAsPreset(int index, const QString &presetName);
   Q_INVOKABLE void loadWorkspaces();
 
+  bool ephemeral() const { return m_ephemeral; }
+  void setEphemeral(bool on);
+  bool incognito() const { return m_incognito; }
+  void setIncognito(bool on) {
+    if (m_incognito != on) {
+      m_incognito = on;
+      emit incognitoChanged();
+    }
+  }
+  QUrl startUrl() const { return m_startUrl; }
+  void setStartUrl(const QUrl &u) {
+    if (m_startUrl != u) {
+      m_startUrl = u;
+      emit startUrlChanged();
+    }
+  }
+
 signals:
   void countChanged();
   void currentIndexChanged();
+  void ephemeralChanged();
+  void incognitoChanged();
+  void startUrlChanged();
 
 private:
   void unloadWorkspaces();
@@ -72,6 +98,11 @@ private:
   QString uniqueName(const QString &requested) const;
   void persistWorkspaceOrder();
   void persistCurrentWorkspace();
+
+  void loadEphemeralWorkspaces();
+  bool m_ephemeral = false;
+  bool m_incognito = false;
+  QUrl m_startUrl;
 
   QList<WorkspaceItem> m_workspaces;
   QHash<QString, TabModel *> m_tabModels;

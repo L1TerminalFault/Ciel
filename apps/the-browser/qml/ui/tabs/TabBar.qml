@@ -12,6 +12,7 @@ Item {
     property WorkspaceModel workspaceModel: null
     property var getWorkspaceViews: null
     property BrowserConfig config: null
+    property var browserSettings: null
     property var activeView: null
     property bool collapsed: false
     property real tabHeight: 36
@@ -22,6 +23,7 @@ Item {
     property int unpinningIndex: -1
     property bool dragOverPinZone: false
     property bool pinDropCommitted: false
+    property bool isPrivate: false
 
     property int currentPinnedCount: 0
     property real currentPinSlotWidth: width - 16
@@ -74,6 +76,8 @@ Item {
     signal findInPageRequested
     signal settingsRequested
     signal profilesRequested
+    signal extensionsRequested
+    signal sitePermissionsRequested
 
     readonly property real collapsedWidth: 56
     readonly property real expandedWidth: 200
@@ -82,70 +86,62 @@ Item {
     implicitWidth: targetWidth
     implicitHeight: parent.height
 
-property real horizontalScrollAccumulator: 0.0
-property bool horizontalGestureTriggered: false
+    property real horizontalScrollAccumulator: 0.0
+    property bool horizontalGestureTriggered: false
 
-Timer {
-    id: horizontalGestureEndTimer
+    Timer {
+        id: horizontalGestureEndTimer
 
-    interval: 180
+        interval: 180
 
-    onTriggered: {
-        root.horizontalScrollAccumulator = 0
-        root.horizontalGestureTriggered = false
-    }
-}
-
-WheelHandler {
-    id: horizontalWheelHandler
-
-    target: null
-    orientation: Qt.Horizontal
-    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
-
-    onWheel: event => {
-        if (!root.workspaceModel)
-            return
-
-        var dx = event.pixelDelta.x
-
-        if (dx === 0)
-            dx = event.angleDelta.x
-
-        if (dx === 0)
-            return
-
-        event.accepted = true
-
-        horizontalGestureEndTimer.restart()
-
-        if (root.horizontalGestureTriggered)
-            return
-
-        root.horizontalScrollAccumulator += dx
-
-        var threshold = event.pixelDelta.x !== 0 ? 45 : 60
-
-        if (Math.abs(root.horizontalScrollAccumulator) < threshold)
-            return
-
-        root.horizontalGestureTriggered = true
-
-        var direction =
-                root.horizontalScrollAccumulator < 0 ? 1 : -1
-
-        root.horizontalScrollAccumulator = 0
-
-        var nextIndex =
-                root.workspaceModel.currentIndex + direction
-
-        if (nextIndex >= 0 &&
-            nextIndex < root.workspaceModel.count) {
-
-            root.workspaceModel.currentIndex = nextIndex
+        onTriggered: {
+            root.horizontalScrollAccumulator = 0;
+            root.horizontalGestureTriggered = false;
         }
     }
-}
+
+    WheelHandler {
+        id: horizontalWheelHandler
+
+        target: null
+        orientation: Qt.Horizontal
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+
+        onWheel: event => {
+            if (!root.workspaceModel)
+                return;
+            var dx = event.pixelDelta.x;
+
+            if (dx === 0)
+                dx = event.angleDelta.x;
+
+            if (dx === 0)
+                return;
+            event.accepted = true;
+
+            horizontalGestureEndTimer.restart();
+
+            if (root.horizontalGestureTriggered)
+                return;
+            root.horizontalScrollAccumulator += dx;
+
+            var threshold = event.pixelDelta.x !== 0 ? 45 : 60;
+
+            if (Math.abs(root.horizontalScrollAccumulator) < threshold)
+                return;
+            root.horizontalGestureTriggered = true;
+
+            var direction = root.horizontalScrollAccumulator < 0 ? 1 : -1;
+
+            root.horizontalScrollAccumulator = 0;
+
+            var nextIndex = root.workspaceModel.currentIndex + direction;
+
+            if (nextIndex >= 0 && nextIndex < root.workspaceModel.count) {
+                root.workspaceModel.currentIndex = nextIndex;
+            }
+        }
+    }
 
     Behavior on implicitWidth {
         CielSpring {
@@ -173,7 +169,10 @@ WheelHandler {
             collapsed: root.collapsed
             activeView: root.activeView
             config: root.config
+            browserSettings: root.browserSettings
             onCollapseToggled: root.collapsed = !root.collapsed
+            isPrivate: root.isPrivate
+            onSitePermissionsRequested: root.sitePermissionsRequested()
         }
 
         Item {
@@ -865,10 +864,7 @@ WheelHandler {
                                     anchors.centerIn: parent
                                     icon: "plus"
                                     size: Theme.XSMALL
-                                    onClicked: {
-                                        if (wsVerticalPane.wsTabModel)
-                                            wsVerticalPane.wsTabModel.addTab();
-                                    }
+                                    onClicked: root.newTabRequested()
                                 }
                             }
                         }
@@ -877,422 +873,442 @@ WheelHandler {
             }
         }
 
-Item {
-    id: sidebarFooter
-    Layout.fillWidth: true
-    Layout.preferredHeight: root.collapsed ? (btnSize * numberOfButtonsWhenCollapsed + margin * 2) : (btnSize * numberOfButtonsWhenExpanded + margin * 2 + 14)
-    z: 25
-    clip: true
-
-    property real collapseProgress: root.collapsed ? 1.0 : 0.0
-
-    readonly property real btnSize: 36
-    readonly property real margin: 8
-
-    readonly property int numberOfButtonsWhenCollapsed: 3
-    readonly property int numberOfButtonsWhenExpanded: 2
-
-    Behavior on Layout.preferredHeight {
-        CielSpring {
-            damping: 3.0
-            spring: 10.2
-            mass: 3.2
-            epsilon: 0.002
-        }
-    }
-    Behavior on collapseProgress {
-        CielSpring {
-            damping: 3.0
-            spring: 10.2
-            mass: 3.2
-            epsilon: 0.002
-        }
-    }
-
-    Rectangle {
-        anchors.fill: parent
-        color: Theme.background
-        z: -1
-    }
-
-    Item {
-        id: profileTrigger
-        width: sidebarFooter.btnSize
-        height: sidebarFooter.btnSize
-
-        readonly property real expX: sidebarFooter.margin
-        readonly property real expY: Math.round(sidebarFooter.height - height - sidebarFooter.margin) - sidebarFooter.btnSize
-        readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
-        readonly property real colY: sidebarFooter.margin
-
-        x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
-        y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
-
-        property var profiles: ProfileManager.listProfiles()
-        readonly property bool hasExtraProfiles: profiles.length > 1
-
-        Connections {
-            target: ProfileManager
-            function onActiveProfileChanged() {
-                profileTrigger.profiles = ProfileManager.listProfiles()
-            }
-        }
-
-        CielIconButton {
-            id: addProfileBtn
-            anchors.fill: parent
-            size: Theme.SMALL
-            icon: "user"
-            visible: !profileTrigger.hasExtraProfiles
-            onClicked: root.profilesRequested()
-        }
-
-
         Item {
-            id: avatarStack
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            width: sidebarFooter.btnSize
-            height: sidebarFooter.btnSize
-            visible: profileTrigger.hasExtraProfiles
-            clip: false
+            id: sidebarFooter
+            Layout.fillWidth: true
+            Layout.preferredHeight: root.collapsed ? (btnSize * numberOfButtonsWhenCollapsed + margin * 2) : (btnSize * numberOfButtonsWhenExpanded + margin * 2 + 14)
+            z: 25
+            clip: true
 
-            property var heldIds: []
+            property real collapseProgress: root.collapsed ? 1.0 : 0.0
 
-            readonly property var shown: {
-                var list = profileTrigger.profiles || []
-                var map = ({})
-                for (var i = 0; i < list.length; ++i)
-                    map[list[i].id] = list[i]
-                var out = []
-                for (var i = 0; i < heldIds.length; ++i) {
-                    if (map[heldIds[i]])
-                        out.push(map[heldIds[i]])
+            readonly property real btnSize: 36
+            readonly property real margin: 8
+
+            readonly property int numberOfButtonsWhenCollapsed: 3
+            readonly property int numberOfButtonsWhenExpanded: 2
+
+            Behavior on Layout.preferredHeight {
+                CielSpring {
+                    damping: 3.0
+                    spring: 10.2
+                    mass: 3.2
+                    epsilon: 0.002
                 }
-                return out
             }
-
-            readonly property int stackCount: shown.length
-            property int foldedCount: 0
-            property bool folding: false
-            property real bounceScale: 1.0
-
-            function ensureSlotIds() {
-                var list = profileTrigger.profiles || []
-                var byId = ({})
-                var activeId = ""
-                for (var i = 0; i < list.length; ++i) {
-                    byId[list[i].id] = list[i]
-                    if (list[i].isActive)
-                        activeId = list[i].id
-                }
-
-                var ids = []
-                for (var i = 0; i < heldIds.length; ++i) {
-                    if (byId[heldIds[i]])
-                        ids.push(heldIds[i])
-                }
-                if (activeId && ids.indexOf(activeId) < 0) {
-                    if (ids.length < 3)
-                        ids.push(activeId)
-                    else
-                        ids[ids.length - 1] = activeId
-                }
-                for (var i = 0; i < list.length && ids.length < 3; ++i) {
-                    if (ids.indexOf(list[i].id) < 0)
-                        ids.push(list[i].id)
-                }
-                var same = ids.length === heldIds.length
-                if (same) {
-                    for (var i = 0; i < ids.length; ++i) {
-                        if (ids[i] !== heldIds[i])
-                            same = false
-                    }
-                }
-                if (!same)
-                    heldIds = ids
-            }
-
-            function syncAllSlots() {
-                for (var i = 0; i < stackRepeater.count; ++i) {
-                    var it = stackRepeater.itemAt(i)
-                    if (it && it.syncSlot)
-                        it.syncSlot()
+            Behavior on collapseProgress {
+                CielSpring {
+                    damping: 3.0
+                    spring: 10.2
+                    mass: 3.2
+                    epsilon: 0.002
                 }
             }
 
-            function sizeAt(fromBottom) {
-                return 22 + Math.max(0, stackCount - 1 - fromBottom) * 4
-            }
-            function restY(fromBottom) {
-                return (height - sizeAt(0)) - fromBottom * 8
-            }
-            function coverY(fromBottom) {
-                return (height - sizeAt(0)) + (sizeAt(0) - sizeAt(fromBottom)) / 2
-            }
-
-            function punchBounce() {
-                bounceScale = 1.18
-                bounceReset.restart()
-            }
-
-            function expand() {
-                foldTimer.stop()
-                openTimer.stop()
-                bounceReset.stop()
-                if (foldedCount <= 0) {
-                    folding = false
-                    bounceScale = 1.0
-                    return
-                }
-                folding = true
-                unfoldTimer.restart()
-            }
-
-            function playFold() {
-                if (folding || stackCount < 2)
-                    return
-                unfoldTimer.stop()
-                expandDelay.stop()
-                openTimer.stop()
-                folding = true
-                foldedCount = 0
-                foldTimer.restart()
-            }
-
-            Component.onCompleted: {
-                avatarStack.ensureSlotIds()
-                if (stackCount > 1) {
-                    foldedCount = Math.max(0, stackCount - 1)
-                    folding = true
-                    unfoldTimer.restart()
-                }
-                Qt.callLater(syncAllSlots)
-            }
-
-            Connections {
-                target: ProfileManager
-                function onActiveProfileChanged() {
-                    profileTrigger.profiles = ProfileManager.listProfiles()
-                    avatarStack.ensureSlotIds()
-                    Qt.callLater(function () {
-                        avatarStack.syncAllSlots()
-                        avatarStack.punchBounce()
-                    })
-                }
-                function onProfilesChanged() {
-                    profileTrigger.profiles = ProfileManager.listProfiles()
-                    avatarStack.ensureSlotIds()
-                    Qt.callLater(avatarStack.syncAllSlots)
-                }
-            }
-
-            Behavior on bounceScale {
-                CielSpring { damping: 1.0; spring: 20.2; mass: 3.2; epsilon: 0.002 }
-            }
-
-            Timer {
-                id: bounceReset
-                interval: 70
-                onTriggered: avatarStack.bounceScale = 1.0
-            }
-            Timer {
-                id: unfoldTimer
-                interval: 165
-                repeat: true
-                triggeredOnStart: true
-                onTriggered: {
-                    if (avatarStack.foldedCount > 0) {
-                        if (avatarStack.foldedCount === avatarStack.stackCount - 1)
-                            avatarStack.punchBounce()
-                        avatarStack.foldedCount--
-                    } else {
-                        stop()
-                        avatarStack.folding = false
-                    }
-                }
-            }
-            Timer {
-                id: foldTimer
-                interval: 165
-                repeat: true
-                triggeredOnStart: true
-                onTriggered: {
-                    if (avatarStack.foldedCount < avatarStack.stackCount - 1) {
-                        if (avatarStack.foldedCount === 0)
-                            avatarStack.punchBounce()
-                        avatarStack.foldedCount++
-                    } else {
-                        stop()
-                        openTimer.restart()
-                    }
-                }
-            }
-            Timer {
-                id: openTimer
-                interval: 280
-                onTriggered: {
-                    root.profilesRequested()
-                    expandDelay.restart()
-                }
-            }
-            Timer {
-                id: expandDelay
-                interval: 650
-                onTriggered: avatarStack.expand()
-            }
-
-            Repeater {
-                id: stackRepeater
-                model: 3
-
-                Rectangle {
-                    id: circle
-
-            layer.enabled: true
-            layer.effect: MultiEffect {
-                shadowEnabled: true
-                shadowColor: "#90000000"
-                shadowBlur: 0.5
-                shadowVerticalOffset: 0
-                shadowHorizontalOffset: 0
-            }
-
-                    readonly property string profileId: index < avatarStack.heldIds.length
-                                                        ? avatarStack.heldIds[index] : ""
-                    readonly property var currentData: {
-                        var list = avatarStack.shown
-                        for (var i = 0; i < list.length; ++i) {
-                            if (list[i].id === profileId)
-                                return list[i]
-                        }
-                        return null
-                    }
-
-                    visible: currentData !== null
-                    property real stackSlot: 0
-
-                    function syncSlot() {
-                        if (!currentData) {
-                            stackSlot = 0
-                            return
-                        }
-                        if (currentData.isActive) {
-                            stackSlot = 0
-                            return
-                        }
-                        var rank = 1
-                        for (var i = 0; i < avatarStack.heldIds.length; ++i) {
-                            var d = null
-                            for (var j = 0; j < avatarStack.shown.length; ++j) {
-                                if (avatarStack.shown[j].id === avatarStack.heldIds[i])
-                                    d = avatarStack.shown[j]
-                            }
-                            if (!d || d.isActive)
-                                continue
-                            if (d.id === currentData.id) {
-                                stackSlot = rank
-                                return
-                            }
-                            rank++
-                        }
-                        stackSlot = rank
-                    }
-
-                    readonly property bool isSelected: currentData ? currentData.isActive : false
-                    readonly property bool folded: stackSlot > 0
-                        && stackSlot >= (avatarStack.stackCount - avatarStack.foldedCount)
-
-                    width: avatarStack.sizeAt(stackSlot)
-                    height: avatarStack.sizeAt(stackSlot)
-                    radius: width / 2
-                    x: Math.round((avatarStack.width - width) / 2)
-                    y: folded ? avatarStack.coverY(stackSlot) : avatarStack.restY(stackSlot)
-
-                    z: Math.round((avatarStack.stackCount - stackSlot) * 10)
-
-                    color: (currentData && currentData.color) ? currentData.color : Theme.surface
-                    clip: true
-                    scale: isSelected ? avatarStack.bounceScale : 1.0
-                    transformOrigin: Item.Center
-
-                    Behavior on stackSlot {
-                        CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
-                    }
-                    Behavior on y {
-                        CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
-                    }
-                    Behavior on width {
-                        CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
-                    }
-                    Behavior on height {
-                        CielSpring { damping: 0.55; spring: 14; mass: 2.4; epsilon: 0.002 }
-                    }
-
-                    Component.onCompleted: syncSlot()
-
-                    Image {
-                        id: stackImg
-                        anchors.fill: parent
-                        source: circle.currentData ? circle.currentData.profileImage : ""
-                        fillMode: Image.PreserveAspectCrop
-                        visible: false
-                        asynchronous: true
-                    }
-
-                    Rectangle {
-                        id: stackMaskSource
-                        anchors.fill: parent
-                        anchors.margins: circle.border.width
-                        radius: width / 2
-                        visible: false
-                        layer.enabled: true
-                    }
-
-                    MultiEffect {
-                        anchors.fill: stackMaskSource
-                        source: stackImg
-                        maskEnabled: true
-                        maskSource: stackMaskSource
-                        visible: circle.currentData && circle.currentData.profileImage !== ""
-                    }
-                    Label {
-                        anchors.centerIn: parent
-                        text: (circle.currentData && circle.currentData.displayName)
-                              ? circle.currentData.displayName.charAt(0).toUpperCase() : ""
-                        font.pixelSize: Math.max(9, circle.width * 0.4)
-                        font.bold: true
-                        color: "black"
-                        visible: circle.currentData && circle.currentData.profileImage === ""
-                    }
-                }
-            }
-
-            MouseArea {
+            Rectangle {
                 anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                enabled: !avatarStack.folding
-                onClicked: avatarStack.playFold()
+                color: Theme.background
+                z: -1
             }
-        }
-    }
 
-    CielIconButton {
-        id: settingsTrigger
-        width: sidebarFooter.btnSize
-        height: sidebarFooter.btnSize
-        size: Theme.SMALL
-        icon: "gear-six"
+            Item {
+                id: profileTrigger
+                width: sidebarFooter.btnSize
+                height: sidebarFooter.btnSize
 
-        readonly property real expX: sidebarFooter.margin
-        readonly property real expY: Math.round(sidebarFooter.height - height - sidebarFooter.margin)        
-        readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
-        readonly property real colY: 80
+                readonly property real expX: sidebarFooter.margin
+                readonly property real expY: Math.round(sidebarFooter.height - height - sidebarFooter.margin) - sidebarFooter.btnSize
+                readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
+                readonly property real colY: sidebarFooter.margin
 
-        x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
-        y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
-    }
+                x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
+                y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
 
+                property var profiles: ProfileManager.listProfiles()
+                readonly property bool hasExtraProfiles: profiles.length > 1
+
+                Connections {
+                    target: ProfileManager
+                    function onActiveProfileChanged() {
+                        profileTrigger.profiles = ProfileManager.listProfiles();
+                    }
+                }
+
+                CielIconButton {
+                    id: addProfileBtn
+                    anchors.fill: parent
+                    size: Theme.SMALL
+                    icon: "user"
+                    visible: !profileTrigger.hasExtraProfiles
+                    onClicked: root.profilesRequested()
+                }
+
+                Item {
+                    id: avatarStack
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    width: sidebarFooter.btnSize
+                    height: sidebarFooter.btnSize
+                    visible: profileTrigger.hasExtraProfiles
+                    clip: false
+
+                    property var heldIds: []
+
+                    readonly property var shown: {
+                        var list = profileTrigger.profiles || [];
+                        var map = ({});
+                        for (var i = 0; i < list.length; ++i)
+                            map[list[i].id] = list[i];
+                        var out = [];
+                        for (var i = 0; i < heldIds.length; ++i) {
+                            if (map[heldIds[i]])
+                                out.push(map[heldIds[i]]);
+                        }
+                        return out;
+                    }
+
+                    readonly property int stackCount: shown.length
+                    property int foldedCount: 0
+                    property bool folding: false
+                    property real bounceScale: 1.0
+
+                    function ensureSlotIds() {
+                        var list = profileTrigger.profiles || [];
+                        var byId = ({});
+                        var activeId = "";
+                        for (var i = 0; i < list.length; ++i) {
+                            byId[list[i].id] = list[i];
+                            if (list[i].isActive)
+                                activeId = list[i].id;
+                        }
+
+                        var ids = [];
+                        for (var i = 0; i < heldIds.length; ++i) {
+                            if (byId[heldIds[i]])
+                                ids.push(heldIds[i]);
+                        }
+                        if (activeId && ids.indexOf(activeId) < 0) {
+                            if (ids.length < 3)
+                                ids.push(activeId);
+                            else
+                                ids[ids.length - 1] = activeId;
+                        }
+                        for (var i = 0; i < list.length && ids.length < 3; ++i) {
+                            if (ids.indexOf(list[i].id) < 0)
+                                ids.push(list[i].id);
+                        }
+                        var same = ids.length === heldIds.length;
+                        if (same) {
+                            for (var i = 0; i < ids.length; ++i) {
+                                if (ids[i] !== heldIds[i])
+                                    same = false;
+                            }
+                        }
+                        if (!same)
+                            heldIds = ids;
+                    }
+
+                    function syncAllSlots() {
+                        for (var i = 0; i < stackRepeater.count; ++i) {
+                            var it = stackRepeater.itemAt(i);
+                            if (it && it.syncSlot)
+                                it.syncSlot();
+                        }
+                    }
+
+                    function sizeAt(fromBottom) {
+                        return 22 + Math.max(0, stackCount - 1 - fromBottom) * 4;
+                    }
+                    function restY(fromBottom) {
+                        return (height - sizeAt(0)) - fromBottom * 8;
+                    }
+                    function coverY(fromBottom) {
+                        return (height - sizeAt(0)) + (sizeAt(0) - sizeAt(fromBottom)) / 2;
+                    }
+
+                    function punchBounce() {
+                        bounceScale = 1.18;
+                        bounceReset.restart();
+                    }
+
+                    function expand() {
+                        foldTimer.stop();
+                        openTimer.stop();
+                        bounceReset.stop();
+                        if (foldedCount <= 0) {
+                            folding = false;
+                            bounceScale = 1.0;
+                            return;
+                        }
+                        folding = true;
+                        unfoldTimer.restart();
+                    }
+
+                    function playFold() {
+                        if (folding || stackCount < 2)
+                            return;
+                        unfoldTimer.stop();
+                        expandDelay.stop();
+                        openTimer.stop();
+                        folding = true;
+                        foldedCount = 0;
+                        foldTimer.restart();
+                    }
+
+                    Component.onCompleted: {
+                        avatarStack.ensureSlotIds();
+                        if (stackCount > 1) {
+                            foldedCount = Math.max(0, stackCount - 1);
+                            folding = true;
+                            unfoldTimer.restart();
+                        }
+                        Qt.callLater(syncAllSlots);
+                    }
+
+                    Connections {
+                        target: ProfileManager
+                        function onActiveProfileChanged() {
+                            profileTrigger.profiles = ProfileManager.listProfiles();
+                            avatarStack.ensureSlotIds();
+                            Qt.callLater(function () {
+                                avatarStack.syncAllSlots();
+                                avatarStack.punchBounce();
+                            });
+                        }
+                        function onProfilesChanged() {
+                            profileTrigger.profiles = ProfileManager.listProfiles();
+                            avatarStack.ensureSlotIds();
+                            Qt.callLater(avatarStack.syncAllSlots);
+                        }
+                    }
+
+                    Behavior on bounceScale {
+                        CielSpring {
+                            damping: 1.0
+                            spring: 20.2
+                            mass: 3.2
+                            epsilon: 0.002
+                        }
+                    }
+
+                    Timer {
+                        id: bounceReset
+                        interval: 70
+                        onTriggered: avatarStack.bounceScale = 1.0
+                    }
+                    Timer {
+                        id: unfoldTimer
+                        interval: 165
+                        repeat: true
+                        triggeredOnStart: true
+                        onTriggered: {
+                            if (avatarStack.foldedCount > 0) {
+                                if (avatarStack.foldedCount === avatarStack.stackCount - 1)
+                                    avatarStack.punchBounce();
+                                avatarStack.foldedCount--;
+                            } else {
+                                stop();
+                                avatarStack.folding = false;
+                            }
+                        }
+                    }
+                    Timer {
+                        id: foldTimer
+                        interval: 165
+                        repeat: true
+                        triggeredOnStart: true
+                        onTriggered: {
+                            if (avatarStack.foldedCount < avatarStack.stackCount - 1) {
+                                if (avatarStack.foldedCount === 0)
+                                    avatarStack.punchBounce();
+                                avatarStack.foldedCount++;
+                            } else {
+                                stop();
+                                openTimer.restart();
+                            }
+                        }
+                    }
+                    Timer {
+                        id: openTimer
+                        interval: 280
+                        onTriggered: {
+                            root.profilesRequested();
+                            expandDelay.restart();
+                        }
+                    }
+                    Timer {
+                        id: expandDelay
+                        interval: 650
+                        onTriggered: avatarStack.expand()
+                    }
+
+                    Repeater {
+                        id: stackRepeater
+                        model: 3
+
+                        Rectangle {
+                            id: circle
+
+                            layer.enabled: true
+                            layer.effect: MultiEffect {
+                                shadowEnabled: true
+                                shadowColor: "#90000000"
+                                shadowBlur: 0.5
+                                shadowVerticalOffset: 0
+                                shadowHorizontalOffset: 0
+                            }
+
+                            readonly property string profileId: index < avatarStack.heldIds.length ? avatarStack.heldIds[index] : ""
+                            readonly property var currentData: {
+                                var list = avatarStack.shown;
+                                for (var i = 0; i < list.length; ++i) {
+                                    if (list[i].id === profileId)
+                                        return list[i];
+                                }
+                                return null;
+                            }
+
+                            visible: currentData !== null
+                            property real stackSlot: 0
+
+                            function syncSlot() {
+                                if (!currentData) {
+                                    stackSlot = 0;
+                                    return;
+                                }
+                                if (currentData.isActive) {
+                                    stackSlot = 0;
+                                    return;
+                                }
+                                var rank = 1;
+                                for (var i = 0; i < avatarStack.heldIds.length; ++i) {
+                                    var d = null;
+                                    for (var j = 0; j < avatarStack.shown.length; ++j) {
+                                        if (avatarStack.shown[j].id === avatarStack.heldIds[i])
+                                            d = avatarStack.shown[j];
+                                    }
+                                    if (!d || d.isActive)
+                                        continue;
+                                    if (d.id === currentData.id) {
+                                        stackSlot = rank;
+                                        return;
+                                    }
+                                    rank++;
+                                }
+                                stackSlot = rank;
+                            }
+
+                            readonly property bool isSelected: currentData ? currentData.isActive : false
+                            readonly property bool folded: stackSlot > 0 && stackSlot >= (avatarStack.stackCount - avatarStack.foldedCount)
+
+                            width: avatarStack.sizeAt(stackSlot)
+                            height: avatarStack.sizeAt(stackSlot)
+                            radius: width / 2
+                            x: Math.round((avatarStack.width - width) / 2)
+                            y: folded ? avatarStack.coverY(stackSlot) : avatarStack.restY(stackSlot)
+
+                            z: Math.round((avatarStack.stackCount - stackSlot) * 10)
+
+                            color: (currentData && currentData.color) ? currentData.color : Theme.surface
+                            clip: true
+                            scale: isSelected ? avatarStack.bounceScale : 1.0
+                            transformOrigin: Item.Center
+
+                            Behavior on stackSlot {
+                                CielSpring {
+                                    damping: 0.55
+                                    spring: 14
+                                    mass: 2.4
+                                    epsilon: 0.002
+                                }
+                            }
+                            Behavior on y {
+                                CielSpring {
+                                    damping: 0.55
+                                    spring: 14
+                                    mass: 2.4
+                                    epsilon: 0.002
+                                }
+                            }
+                            Behavior on width {
+                                CielSpring {
+                                    damping: 0.55
+                                    spring: 14
+                                    mass: 2.4
+                                    epsilon: 0.002
+                                }
+                            }
+                            Behavior on height {
+                                CielSpring {
+                                    damping: 0.55
+                                    spring: 14
+                                    mass: 2.4
+                                    epsilon: 0.002
+                                }
+                            }
+
+                            Component.onCompleted: syncSlot()
+
+                            Image {
+                                id: stackImg
+                                anchors.fill: parent
+                                source: circle.currentData ? circle.currentData.profileImage : ""
+                                fillMode: Image.PreserveAspectCrop
+                                visible: false
+                                asynchronous: true
+                            }
+
+                            Rectangle {
+                                id: stackMaskSource
+                                anchors.fill: parent
+                                anchors.margins: circle.border.width
+                                radius: width / 2
+                                visible: false
+                                layer.enabled: true
+                            }
+
+                            MultiEffect {
+                                anchors.fill: stackMaskSource
+                                source: stackImg
+                                maskEnabled: true
+                                maskSource: stackMaskSource
+                                visible: circle.currentData && circle.currentData.profileImage !== ""
+                            }
+                            Label {
+                                anchors.centerIn: parent
+                                text: (circle.currentData && circle.currentData.displayName) ? circle.currentData.displayName.charAt(0).toUpperCase() : ""
+                                font.pixelSize: Math.max(9, circle.width * 0.4)
+                                font.bold: true
+                                color: "black"
+                                visible: circle.currentData && circle.currentData.profileImage === ""
+                            }
+                        }
+                    }
+
+                    MouseArea {
+                        anchors.fill: parent
+                        cursorShape: Qt.PointingHandCursor
+                        enabled: !avatarStack.folding
+                        onClicked: avatarStack.playFold()
+                    }
+                }
+            }
+
+            CielIconButton {
+                id: settingsTrigger
+                width: sidebarFooter.btnSize
+                height: sidebarFooter.btnSize
+                size: Theme.SMALL
+                icon: "gear-six"
+
+                readonly property real expX: sidebarFooter.margin
+                readonly property real expY: Math.round(sidebarFooter.height - height - sidebarFooter.margin)
+                readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
+                readonly property real colY: 80
+
+                x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
+                y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
+            }
 
             Row {
                 id: workspaceDots
@@ -1302,62 +1318,60 @@ Item {
                 opacity: 1.0 - sidebarFooter.collapseProgress
                 visible: opacity > 0.01
 
-Repeater {
-    model: root.workspaceModel
+                Repeater {
+                    model: root.workspaceModel
 
-    Item {
-        id: dotWrapper
-        readonly property bool isActive: root.workspaceModel ? root.workspaceModel.currentIndex === index : false
+                    Item {
+                        id: dotWrapper
+                        readonly property bool isActive: root.workspaceModel ? root.workspaceModel.currentIndex === index : false
 
-        // Color stored in the workspace's database row (fallback: accent)
-        readonly property color wsColor: model.color ? model.color : Theme.accent
+                        readonly property color wsColor: model.color ? model.color : Theme.accent
 
-        width: isActive ? 18 : 6
-        height: 6
+                        width: isActive ? 18 : 6
+                        height: 6
 
-        Behavior on width {
-            CielSpring {
-                damping: 0.32
-                spring: 5.2
-                mass: 1.0
-                epsilon: 0.001
-            }
-        }
+                        Behavior on width {
+                            CielSpring {
+                                damping: 0.32
+                                spring: 5.2
+                                mass: 1.0
+                                epsilon: 0.001
+                            }
+                        }
 
-        Rectangle {
-            anchors.fill: parent
-            radius: 3
-            // Active: full workspace color. Inactive: same hue, dimmed.
-            color: dotWrapper.isActive ? dotWrapper.wsColor : Qt.alpha(dotWrapper.wsColor, 0.4)
-            scale: dotWrapper.isActive ? 1.0 : 0.85
+                        Rectangle {
+                            anchors.fill: parent
+                            radius: 3
+                            color: dotWrapper.isActive ? dotWrapper.wsColor : Qt.alpha(dotWrapper.wsColor, 0.4)
+                            scale: dotWrapper.isActive ? 1.0 : 0.85
 
-            Behavior on scale {
-                CielSpring {
-                    damping: 0.30
-                    spring: 5.4
-                    mass: 0.9
-                    epsilon: 0.001
+                            Behavior on scale {
+                                CielSpring {
+                                    damping: 0.30
+                                    spring: 5.4
+                                    mass: 0.9
+                                    epsilon: 0.001
+                                }
+                            }
+
+                            Behavior on color {
+                                ColorAnimation {
+                                    duration: 150
+                                }
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            anchors.margins: -6
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                if (root.workspaceModel)
+                                    root.workspaceModel.currentIndex = index;
+                            }
+                        }
+                    }
                 }
-            }
-
-            Behavior on color {
-                ColorAnimation {
-                    duration: 150
-                }
-            }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            anchors.margins: -6
-            cursorShape: Qt.PointingHandCursor
-            onClicked: {
-                if (root.workspaceModel)
-                    root.workspaceModel.currentIndex = index;
-            }
-        }
-    }
-}
             }
 
             CielIconButton {
@@ -1368,9 +1382,9 @@ Repeater {
                 icon: "download-simple"
 
                 readonly property real expX: Math.round(sidebarFooter.width - width - 8)
-                readonly property real expY: Math.round(sidebarFooter.height - height - 8) // - 36   
+                readonly property real expY: Math.round(sidebarFooter.height - height - 8)
                 readonly property real colX: Math.round((sidebarFooter.width - width) / 2)
-                readonly property real colY: 44                                                   
+                readonly property real colY: 44
 
                 x: Math.round(expX + (colX - expX) * sidebarFooter.collapseProgress)
                 y: Math.round(expY + (colY - expY) * sidebarFooter.collapseProgress)
@@ -1396,6 +1410,8 @@ Repeater {
                 onTranslateRequested: root.translateRequested()
                 onFindInPageRequested: root.findInPageRequested()
                 onSettingsRequested: root.settingsRequested()
+                onExtensionsRequested: root.extensionsRequested()
+                onSitePermissionsRequested: root.sitePermissionsRequested()
             }
 
             BrowserDownloadsPopup {

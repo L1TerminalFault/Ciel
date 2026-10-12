@@ -21,33 +21,47 @@ CielDropDown {
     signal translateRequested
     signal findInPageRequested
     signal settingsRequested
+    signal extensionsRequested
+    signal sitePermissionsRequested
 
     CielMenuItem {
         text: "New Tab"
         icon: "plus"
         shortcut: "Ctrl+T"
-        onTriggered: root.newTabRequested()
+        onTriggered: {
+            root.close();
+            root.newTabRequested();
+        }
     }
 
     CielMenuItem {
         text: "New Window"
         icon: "browsers"
         shortcut: "Ctrl+N"
-        onTriggered: root.newWindowRequested()
+        onTriggered: {
+            root.close();
+            root.newWindowRequested();
+        }
     }
 
     CielMenuItem {
         text: "New Private Window"
         icon: "detective"
         shortcut: "Ctrl+Shift+N"
-        onTriggered: root.newPrivateWindowRequested()
+        onTriggered: {
+            root.close();
+            root.newPrivateWindowRequested();
+        }
     }
 
     CielMenuItem {
         text: "Restore Closed Tab"
         icon: "arrow-counter-clockwise"
         shortcut: "Ctrl+Shift+T"
-        onTriggered: root.restoreTabRequested()
+        onTriggered: {
+            root.close();
+            root.restoreTabRequested();
+        }
     }
 
     CielMenuSeparator {}
@@ -56,27 +70,29 @@ CielDropDown {
         text: "History"
         icon: "clock-counter-clockwise"
         shortcut: "Ctrl+H"
-        onTriggered: root.historyRequested()
-    }
-
-    CielMenuItem {
-        text: "Downloads"
-        icon: "download-simple"
-        shortcut: "Ctrl+J"
-        onTriggered: root.downloadsRequested()
+        onTriggered: {
+            root.close();
+            root.historyRequested();
+        }
     }
 
     CielMenuItem {
         text: "Passwords"
         icon: "key"
-        onTriggered: root.passwordsRequested()
+        onTriggered: {
+            root.close();
+            root.passwordsRequested();
+        }
     }
 
     CielMenuItem {
         text: "Bookmarks"
         icon: "bookmark-simple"
         shortcut: "Ctrl+Shift+O"
-        onTriggered: root.bookmarksRequested()
+        onTriggered: {
+            root.close();
+            root.bookmarksRequested();
+        }
     }
 
     CielMenuSeparator {}
@@ -85,36 +101,62 @@ CielDropDown {
         text: "Print…"
         icon: "printer"
         shortcut: "Ctrl+P"
-        onTriggered: root.printRequested()
+        onTriggered: {
+            root.close();
+            root.printRequested();
+        }
     }
 
     CielMenuItem {
         text: "Save Page As…"
         icon: "floppy-disk"
         shortcut: "Ctrl+S"
-        onTriggered: root.savePageRequested()
+        onTriggered: {
+            root.close();
+            root.savePageRequested();
+        }
     }
 
     CielMenuItem {
         text: "Translate Page…"
         icon: "translate"
-        onTriggered: root.translateRequested()
+        onTriggered: {
+            root.close();
+            root.translateRequested();
+        }
     }
 
     CielMenuItem {
         text: "Find in Page"
         icon: "magnifying-glass"
         shortcut: "Ctrl+F"
-        onTriggered: root.findInPageRequested()
+        onTriggered: {
+            root.close();
+            root.findInPageRequested();
+        }
     }
 
     CielMenuSeparator {}
 
     CielMenuItem {
+        text: "Extensions"
+        icon: "puzzle-piece"
+        onTriggered: root.extensionsRequested()
+    }
+
+    CielMenuItem {
+        text: "Site Permissions"
+        icon: "shield-check"
+        onTriggered: root.sitePermissionsRequested()
+    }
+    CielMenuItem {
         text: "Settings"
         icon: "gear-six"
         shortcut: "Ctrl+,"
-        onTriggered: root.settingsRequested()
+        onTriggered: {
+            root.close();
+            root.settingsRequested();
+        }
     }
 
     CielMenuItem {
@@ -122,6 +164,9 @@ CielDropDown {
         icon: "power"
         shortcut: "Ctrl+Q"
         destructive: true
-        onTriggered: Qt.quit()
+        onTriggered: {
+            root.close();
+            Qt.quit();
+        }
     }
 }

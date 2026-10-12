@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Ciel.Ui
 import Ciel.Browser 1.0
+import "../window"
 
 Item {
     id: root
@@ -9,12 +10,94 @@ Item {
     property bool collapsed: false
     property var activeView: null
     required property BrowserConfig config
+    property var browserSettings: null
     signal collapseToggled
 
     clip: true
     implicitHeight: collapsed ? 116 : 94
 
     property real bloomProgress: collapsed ? 1.0 : 0.0
+
+    property bool isPrivate: false
+    signal sitePermissionsRequested
+
+    readonly property string siteOrigin: {
+        var u = (root.activeView && root.activeView.url) ? root.activeView.url.toString() : "";
+        return /^https?:\/\//.test(u) ? SitePermissionManager.originOf(root.activeView.url) : "";
+    }
+    readonly property bool permissionsAvailable: siteOrigin !== "" && !isPrivate
+
+    property int permRevision: 0
+    property bool permChanged: false
+    property var shownKeys: []
+
+    readonly property var permFeatures: [
+        {
+            key: "microphone",
+            name: "Microphone",
+            icon: "microphone"
+        },
+        {
+            key: "camera",
+            name: "Camera",
+            icon: "camera"
+        },
+        {
+            key: "location",
+            name: "Location",
+            icon: "map-pin"
+        },
+        {
+            key: "notifications",
+            name: "Notifications",
+            icon: "bell"
+        }
+    ]
+
+    function permState(key) {
+        root.permRevision;
+        return root.siteOrigin !== "" ? SitePermissionManager.permissionState(root.siteOrigin, key) : "";
+    }
+
+    function setPerm(key, state) {
+        if (root.siteOrigin === "")
+            return;
+        SitePermissionManager.setPermission(root.siteOrigin, key, state);
+        root.permChanged = true;
+    }
+
+    function openSiteControls(btn) {
+        var wasOpen = permissionsMenu.isOpen;
+
+        root.permChanged = false;
+
+        var keys = [];
+        for (var i = 0; i < root.permFeatures.length; ++i) {
+            var k = root.permFeatures[i].key;
+            if (SitePermissionManager.permissionState(root.siteOrigin, k) !== "")
+                keys.push(k);
+        }
+
+        root.shownKeys = keys;
+
+        permissionsMenu.trigger = null;
+
+        Qt.callLater(function () {
+            permissionsMenu.trigger = btn;
+
+            if (wasOpen)
+                permissionsMenu.close();
+            else
+                permissionsMenu.open();
+        });
+    }
+
+    Connections {
+        target: SitePermissionManager
+        function onPermissionsChanged() {
+            root.permRevision++;
+        }
+    }
 
     function cleanDisplayUrl(raw) {
         if (!raw || raw === "about:blank" || raw === "")
@@ -134,10 +217,12 @@ Item {
 
                 onAccepted: query => {
                     if (root.activeView) {
-                        root.activeView.url = root.config.resolveQueryOrUrl(query);
+                        root.activeView.url = root.config.resolveQueryOrUrl(omniGhost.completed(query));
                         omniboxVertical.inputField.focus = false;
                     }
                 }
+
+                Keys.onPressed: event => omniGhost.handleKey(event)
 
                 preContent: CielIconButton {
                     id: linkBtnVertical
@@ -168,7 +253,14 @@ Item {
 
                     CielIconButton {
                         id: starBtn
-                        property bool bookmarked: (root.activeView && root.activeView.url) ? ProfileManager.isBookmarked(root.activeView.url.toString()) : false
+
+                        property int revision: 0
+
+                        readonly property bool bookmarked: {
+                            starBtn.revision;
+                            return (root.activeView && root.activeView.url) ? ProfileManager.isBookmarked(root.activeView.url.toString()) : false;
+                        }
+
                         icon: bookmarked ? "star-fill" : "star"
                         size: Theme.XSMALL
                         iconColor: bookmarked ? Theme.accent : Theme.textSecondary
@@ -176,9 +268,7 @@ Item {
                         Connections {
                             target: ProfileManager
                             function onBookmarksChanged() {
-                                if (root.activeView && root.activeView.url) {
-                                    starBtn.bookmarked = ProfileManager.isBookmarked(root.activeView.url.toString());
-                                }
+                                starBtn.revision++;
                             }
                         }
 
@@ -186,17 +276,28 @@ Item {
                             if (root.activeView && root.activeView.url) {
                                 var u = root.activeView.url.toString();
                                 var t = root.activeView.title ? root.activeView.title : u;
-                                starBtn.bookmarked = ProfileManager.toggleBookmark(u, t);
+                                ProfileManager.toggleBookmark(u, t);
                             }
                         }
                     }
 
                     CielIconButton {
+                        id: siteControlsBtn
                         icon: "faders-horizontal"
                         size: Theme.XSMALL
+                        enabled: root.permissionsAvailable
+                        opacity: enabled ? 1.0 : 0.35
+                        iconColor: permissionsMenu.opened ? Theme.accent : Theme.textSecondary
+                        onClicked: root.openSiteControls(siteControlsBtn)
                     }
                 }
             }
+        }
+
+        UrlGhostText {
+            id: omniGhost
+            target: omniboxVertical
+            active: omniboxVertical.isInputActive
         }
     }
 
@@ -239,6 +340,99 @@ Item {
                         root.activeView.stop();
                     else
                         root.activeView.reload();
+                }
+            }
+        }
+    }
+
+    CielDropDown {
+        id: permissionsMenu
+        placement: "bottom"
+
+        Item {
+            implicitWidth: permCol.implicitWidth
+            implicitHeight: permCol.implicitHeight + 24
+
+            ColumnLayout {
+                id: permCol
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 12
+                spacing: 8
+
+                Text {
+                    text: "Site permissions"
+                    font.pixelSize: 11
+                    font.weight: Font.Medium
+                    color: Theme.textSecondary
+                }
+
+                Text {
+                    text: root.siteOrigin.replace(/^https?:\/\//, "")
+                    font.pixelSize: 14
+                    font.weight: Font.DemiBold
+                    color: Theme.textPrimary
+                    elide: Text.ElideRight
+                    Layout.fillWidth: true
+                }
+
+                Repeater {
+                    model: root.permFeatures.filter(function (f) {
+                        return root.shownKeys.indexOf(f.key) >= 0;
+                    })
+
+                    delegate: RowLayout {
+                        id: permRow
+                        Layout.fillWidth: true
+                        spacing: 8
+
+                        readonly property string st: root.permState(modelData.key)
+
+                        CielIcon {
+                            icon: modelData.icon
+                            size: Theme.XSMALL
+                            color: permRow.st === "granted" ? Theme.accent : (permRow.st === "denied" ? "#EF4444" : Theme.textSecondary)
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        Text {
+                            text: modelData.name
+                            font.pixelSize: 13
+                            color: Theme.textPrimary
+                            Layout.fillWidth: true
+                            Layout.alignment: Qt.AlignVCenter
+                        }
+
+                        Item {
+                            width: 30
+                        }
+
+                        CielButton {
+                            text: "Ask"
+                            primary: permRow.st === "ask" || permRow.st === ""
+                            onClicked: root.setPerm(modelData.key, "ask")
+                        }
+                        CielButton {
+                            text: "Allow"
+                            primary: permRow.st === "granted"
+                            onClicked: root.setPerm(modelData.key, "granted")
+                        }
+                        CielButton {
+                            text: "Block"
+                            primary: permRow.st === "denied"
+                            onClicked: root.setPerm(modelData.key, "denied")
+                        }
+                    }
+                }
+
+                Text {
+                    visible: root.shownKeys.length === 0
+                    text: "This site hasn't asked for any permissions yet."
+                    font.pixelSize: 12
+                    color: Theme.textSecondary
+                    wrapMode: Text.Wrap
+                    Layout.fillWidth: true
                 }
             }
         }

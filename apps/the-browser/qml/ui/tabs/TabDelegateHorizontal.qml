@@ -202,6 +202,11 @@ Item {
         closeAnimationH.restart();
     }
 
+    Shortcut {
+        sequence: "Ctrl+W"
+        onActivated: tabDelegateH.requestClose()
+    }
+
     ParallelAnimation {
         id: closeAnimationH
 

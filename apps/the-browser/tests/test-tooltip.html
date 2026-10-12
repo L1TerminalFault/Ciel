@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pure Native Engine Tooltip Test</title>
+  </head>
+  <body>
+    <!-- This triggers your browser engine's built-in C++ tooltip handler -->
+    <p
+      title="This popup is generated natively by the browser engine. this is not working as expected at all so fix it right now god damn it bullshit"
+    >
+      Hover here to trigger the browser's native tooltip.
+    </p>
+
+    <br />
+
+    <!-- Test multi-line rendering in the native system box -->
+    <a href="https://example.com" title="Line 1&#10;Line 2&#10;Line 3">
+      Hover over this link for a multi-line native tooltip.
+    </a>
+  </body>
+</html>
