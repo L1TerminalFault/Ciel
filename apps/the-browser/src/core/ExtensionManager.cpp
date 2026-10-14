@@ -334,7 +334,6 @@ connect(mgr, &QWebEngineExtensionManager::loadFinished, this,
             rows.first().toMap()
                 .value(QStringLiteral("enabled")).toInt() == 1;
 
-        // Don't enable an extension belonging to an inactive profile.
 if (ProfileManager::instance()->activeProfileId() == profileId && shouldEnable) {
     const QString extPath = pathFor(id);
     QTimer::singleShot(0, this, [this, profileId, extPath]() {
@@ -429,7 +428,6 @@ QVariantList ExtensionManager::list()
         e.insert(QStringLiteral("id"), id);
         e.insert(QStringLiteral("enabled"), databaseEnabled);
 
-        // Actual Qt extension runtime state.
         e.insert(QStringLiteral("isLoaded"),
                  info.has_value() && info->isLoaded());
 
@@ -489,10 +487,6 @@ QVariantList ExtensionManager::list()
         e.insert(QStringLiteral("runsOn"), runsOn);
         e.insert(QStringLiteral("iconUrl"), bestIconUrl(dir, m));
 
-        // IMPORTANT:
-        // Use Qt's extension popup URL, not popupPageUrl().
-        // Do not fall back to a local file:// URL, because that
-        // loads the HTML as an ordinary web page.
         QString popupUrl;
 
         if (info && info->isLoaded()) {
@@ -686,7 +680,6 @@ void ExtensionManager::extractZip(QSharedPointer<QTemporaryDir> tmp, const QStri
   });
   connect(p, &QProcess::finished, this, [=, this](int code, QProcess::ExitStatus st) {
     p->deleteLater();
-    // unzip exits 1 for harmless warnings (e.g. the CRX header bytes).
     const bool ok = st == QProcess::NormalExit && (code == 0 || (tool == 1 && code == 1));
     if (!ok) {
       extractZip(tmp, zip, out, tool + 1);
@@ -761,7 +754,7 @@ void ExtensionManager::remove(const QString &id) {
     QWebEngineExtensionManager *mgr = active();
     const auto info = findInfo(mgr, path);
     if (info) {
-      m_pendingDelete.insert(path);       // deleted in unloadFinished
+      m_pendingDelete.insert(path);
       mgr->unloadExtension(*info);
     } else {
       QDir(path).removeRecursively();
