@@ -633,6 +633,7 @@ ApplicationWindow {
                                 settings.hyperlinkAuditingEnabled: browserSettings.hyperlinkAuditingEnabled
                                 settings.pdfViewerEnabled: browserSettings.pdfViewerEnabled
                                 settings.scrollAnimatorEnabled: browserSettings.smoothScrolling
+                                settings.forceDarkMode: Theme.isDark
 
                                 Component.onCompleted: zoomFactor = browserSettings.zoomFactor
                                 Connections {
