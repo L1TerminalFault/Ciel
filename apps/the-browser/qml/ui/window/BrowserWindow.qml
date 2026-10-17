@@ -634,6 +634,8 @@ ApplicationWindow {
                                 settings.pdfViewerEnabled: browserSettings.pdfViewerEnabled
                                 settings.scrollAnimatorEnabled: browserSettings.smoothScrolling
                                 settings.forceDarkMode: Theme.isDark
+                                settings.javascriptCanAccessClipboard: true
+                                settings.javascriptCanPaste: false
 
                                 Component.onCompleted: zoomFactor = browserSettings.zoomFactor
                                 Connections {
