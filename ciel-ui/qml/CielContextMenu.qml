@@ -93,7 +93,7 @@ Item {
 
         Item {
             id: menuCard
-            width: Math.max(200, menuColumn.implicitWidth + 12)
+            width: Math.max(240, menuColumn.implicitWidth + 12)
             height: menuColumn.implicitHeight + 12
             scale: 0.94 + (overlayArea.openProgress * 0.06)
             opacity: Math.min(1.0, overlayArea.openProgress * 1.8)
