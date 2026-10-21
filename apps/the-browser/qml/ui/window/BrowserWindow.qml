@@ -645,6 +645,8 @@ ApplicationWindow {
                                 settings.hyperlinkAuditingEnabled: browserSettings.hyperlinkAuditingEnabled
                                 settings.pdfViewerEnabled: browserSettings.pdfViewerEnabled
                                 settings.scrollAnimatorEnabled: browserSettings.smoothScrolling
+                                settings.javascriptCanAccessClipboard: true
+                                settings.javascriptCanPaste: false
 
                                 Component.onCompleted: zoomFactor = browserSettings.zoomFactor
                                 Connections {
@@ -688,19 +690,16 @@ ApplicationWindow {
                                     id: customToolTip
                                 }
 
-                                onContextMenuRequested: request => {
-                                    request.accepted = true;
-
-                                    webContextMenu.contextRequest = request;
-
-                                    const rawX = request.position ? request.position.x : (request.x !== undefined ? request.x : 0);
-                                    const rawY = request.position ? request.position.y : (request.y !== undefined ? request.y : 0);
-
-                                    const targetParent = webContextMenu.parent || window.contentItem;
-                                    const mappedPos = engineView.mapToItem(targetParent, rawX, rawY);
-
-                                    webContextMenu.popup(rawX, rawY, this);
-                                }
+onContextMenuRequested: request => {
+    request.accepted = true;
+    webContextMenu.tabModel = workspaceContainer.wsTabModel;
+    webContextMenu.prepareContextMenu(engineView, request);
+    webContextMenu.popup(
+        request.position.x,
+        request.position.y,
+        engineView
+    );
+}
 
                                 onJavaScriptDialogRequested: request => {
                                     request.accepted = true;
@@ -1357,14 +1356,12 @@ ApplicationWindow {
             anchors.margins: 8
             spacing: 6
 
-            CielSearch {
+            CielInput {
                 id: findInput
                 Layout.fillWidth: true
                 Layout.preferredHeight: 32
                 placeholder: "Find in page"
                 showBorder: false
-                preContent: Item {}
-                postContent: Item {}
                 onTextChanged: findBar.run(false)
                 onAccepted: query => findBar.run(false)
             }
@@ -1584,14 +1581,6 @@ ApplicationWindow {
                     placeholder: "Search or enter URL"
                     showBorder: false
                     Keys.onPressed: event => urlGhost.handleKey(event)
-                    preContent: CielIconButton {
-                        icon: "magnifying-glass"
-                        size: Theme.XSMALL
-                        onClicked: {
-                            if (locationInput.inputField)
-                                locationInput.inputField.forceActiveFocus();
-                        }
-                    }
 
                     postContent: CielIconButton {
                         icon: "arrow-right"
@@ -1707,160 +1696,524 @@ ApplicationWindow {
         }
     }
 
-    CielContextMenu {
-        id: webContextMenu
+CielContextMenu {
+    id: webContextMenu
 
-        property var contextRequest: null
+    property var contextRequest: null
+    property var contextView: null
+    property var tabModel: null
 
-        CielMenuItem {
-            text: "Back"
-            icon: "arrow-left"
-            visible: webContainer.currentActiveView ? webContainer.currentActiveView.canGoBack : false
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.goBack();
-                }
-                webContextMenu.close();
-            }
+    property var navigationActions: []
+    property var linkActions: []
+    property var imageActions: []
+    property var mediaActions: []
+    property var editActions: []
+    property var richTextActions: []
+    property var directionActions: []
+    property var pageActions: []
+    property var spellSuggestions: []
+
+function hasUrl(value) {
+    return value !== undefined
+        && value !== null
+        && String(value).length > 0;
+}
+
+function hasEditFlag(flag) {
+    return contextRequest
+        && (Number(contextRequest.editFlags) & Number(flag)) !== 0;
+}
+
+function hasMediaFlag(flag) {
+    return contextRequest
+        && (Number(contextRequest.mediaFlags) & Number(flag)) !== 0;
+}
+
+function hasSelectedText() {
+    return contextRequest
+        && String(contextRequest.selectedText || "").trim().length > 0;
+}
+
+function isImageContext() {
+    return contextRequest
+        && contextRequest.mediaType === ContextMenuRequest.MediaTypeImage;
+}
+
+function isVideoOrAudioContext() {
+    if (!contextRequest)
+        return false;
+
+    return contextRequest.mediaType === ContextMenuRequest.MediaTypeVideo
+        || contextRequest.mediaType === ContextMenuRequest.MediaTypeAudio;
+}
+
+function isEditableContext() {
+    if (!contextRequest)
+        return false;
+
+    return contextRequest.isContentEditable
+        || hasEditFlag(ContextMenuRequest.CanUndo)
+        || hasEditFlag(ContextMenuRequest.CanRedo)
+        || hasEditFlag(ContextMenuRequest.CanCut)
+        || hasEditFlag(ContextMenuRequest.CanPaste)
+        || hasEditFlag(ContextMenuRequest.CanDelete);
+}
+
+function canDelete() {
+    return hasEditFlag(ContextMenuRequest.CanDelete);
+}
+
+function isPageContext() {
+    if (!contextRequest)
+        return false;
+
+    return !hasUrl(contextRequest.linkUrl)
+        && contextRequest.mediaType === ContextMenuRequest.MediaTypeNone
+        && !hasSelectedText()
+        && !isEditableContext()
+        && !String(contextRequest.misspelledWord || "").length;
+}
+
+function availableContextActions(actionIds, contextMatches) {
+    if (!contextView || !contextMatches)
+        return [];
+
+    return actionIds.filter(function(actionId) {
+        return contextView.action(actionId).enabled;
+    });
+}
+
+function prepareContextMenu(view, request) {
+    contextView = view;
+    contextRequest = request;
+
+    const link = hasUrl(request.linkUrl);
+    const image =
+        request.mediaType === ContextMenuRequest.MediaTypeImage;
+    const video =
+        request.mediaType === ContextMenuRequest.MediaTypeVideo;
+    const audio =
+        request.mediaType === ContextMenuRequest.MediaTypeAudio;
+    const media = video || audio;
+    const editable = isEditableContext();
+    const page = isPageContext();
+    const selected = hasSelectedText();
+
+    navigationActions = availableContextActions([
+        WebEngineView.Back,
+        WebEngineView.Forward,
+        WebEngineView.Stop,
+        WebEngineView.Reload,
+        WebEngineView.ReloadAndBypassCache
+    ], page);
+
+    linkActions = availableContextActions([
+        WebEngineView.OpenLinkInThisWindow,
+        WebEngineView.OpenLinkInNewTab,
+        WebEngineView.OpenLinkInNewWindow,
+        WebEngineView.CopyLinkToClipboard,
+        WebEngineView.DownloadLinkToDisk
+    ], link);
+
+    imageActions = availableContextActions([
+        WebEngineView.CopyImageToClipboard,
+        WebEngineView.CopyImageUrlToClipboard,
+        WebEngineView.DownloadImageToDisk
+    ], image);
+
+    var mediaIds = [];
+
+    if (media && !hasMediaFlag(ContextMenuRequest.MediaInError))
+        mediaIds.push(WebEngineView.ToggleMediaPlayPause);
+
+    if (media && hasMediaFlag(ContextMenuRequest.MediaHasAudio))
+        mediaIds.push(WebEngineView.ToggleMediaMute);
+
+    if (media)
+        mediaIds.push(WebEngineView.ToggleMediaLoop);
+
+    if (media && hasMediaFlag(ContextMenuRequest.MediaCanToggleControls))
+        mediaIds.push(WebEngineView.ToggleMediaControls);
+
+    if (media && hasUrl(request.mediaUrl))
+        mediaIds.push(WebEngineView.CopyMediaUrlToClipboard);
+
+    if (media && hasMediaFlag(ContextMenuRequest.MediaCanSave))
+        mediaIds.push(WebEngineView.DownloadMediaToDisk);
+
+    mediaActions = availableContextActions(mediaIds, media);
+
+    var editIds = [];
+
+    if (editable && hasEditFlag(ContextMenuRequest.CanUndo))
+        editIds.push(WebEngineView.Undo);
+
+    if (editable && hasEditFlag(ContextMenuRequest.CanRedo))
+        editIds.push(WebEngineView.Redo);
+
+    if (editable && hasEditFlag(ContextMenuRequest.CanCut))
+        editIds.push(WebEngineView.Cut);
+
+    if (hasEditFlag(ContextMenuRequest.CanCopy)
+            && (selected || editable)) {
+        editIds.push(WebEngineView.Copy);
+    }
+
+    if (editable && hasEditFlag(ContextMenuRequest.CanPaste)) {
+        editIds.push(WebEngineView.Paste);
+        editIds.push(WebEngineView.PasteAndMatchStyle);
+    }
+
+    if (editable && hasEditFlag(ContextMenuRequest.CanSelectAll))
+        editIds.push(WebEngineView.SelectAll);
+
+    editActions = availableContextActions(editIds, true);
+
+    richTextActions = availableContextActions([
+        WebEngineView.ToggleBold,
+        WebEngineView.ToggleItalic,
+        WebEngineView.ToggleUnderline,
+        WebEngineView.ToggleStrikethrough,
+        WebEngineView.AlignLeft,
+        WebEngineView.AlignCenter,
+        WebEngineView.AlignRight,
+        WebEngineView.AlignJustified,
+        WebEngineView.Indent,
+        WebEngineView.Outdent,
+        WebEngineView.InsertOrderedList,
+        WebEngineView.InsertUnorderedList
+    ], hasEditFlag(ContextMenuRequest.CanEditRichly));
+
+    directionActions = availableContextActions([
+        WebEngineView.ChangeTextDirectionLTR,
+        WebEngineView.ChangeTextDirectionRTL
+    ], !!request.isContentEditable);
+
+    spellSuggestions = String(request.misspelledWord || "").length
+        ? (request.spellCheckerSuggestions || [])
+        : [];
+
+    var pageIds = [];
+
+    if (page) {
+        pageIds.push(WebEngineView.SavePage);
+        pageIds.push(WebEngineView.ViewSource);
+    }
+
+    if (view.devToolsView)
+        pageIds.push(WebEngineView.InspectElement);
+
+    if (view.isFullScreen)
+        pageIds.push(WebEngineView.ExitFullScreen);
+
+    pageActions = availableContextActions(pageIds, true);
+}
+
+    function triggerContextAction(actionId) {
+        if (!contextView)
+            return;
+
+        contextView.action(actionId).trigger();
+        close();
+    }
+
+function groupHasItems(groupIndex) {
+    switch (groupIndex) {
+    case 0:
+        return navigationActions.length > 0;
+    case 1:
+        return hasSelectedText();
+    case 2:
+        return spellSuggestions.length > 0;
+    case 3:
+        return linkActions.length > 0;
+    case 4:
+        return isImageContext();
+    case 5:
+        return isVideoOrAudioContext();
+    case 6:
+        return editActions.length > 0 || canDelete();
+    case 7:
+        return richTextActions.length > 0;
+    case 8:
+        return directionActions.length > 0;
+    case 9:
+        return pageActions.length > 0;
+    default:
+        return false;
+    }
+}
+
+property var actionIconOverrides: ({
+    [WebEngineView.Back]: "arrow-left",
+    [WebEngineView.Forward]: "arrow-right",
+    [WebEngineView.Reload]: "arrow-clockwise",
+    [WebEngineView.Stop]: "x",
+    [WebEngineView.Copy]: "copy",
+    [WebEngineView.Cut]: "scissors",
+    [WebEngineView.Paste]: "clipboard",
+    [WebEngineView.SelectAll]: "select-all",
+    [WebEngineView.Undo]: "arrow-undo",
+    [WebEngineView.Redo]: "arrow-redo",
+    [WebEngineView.OpenLinkInNewTab]: "plus-square",
+    [WebEngineView.CopyLinkToClipboard]: "link",
+    [WebEngineView.DownloadLinkToDisk]: "download",
+    [WebEngineView.CopyImageToClipboard]: "image",
+    [WebEngineView.CopyImageUrlToClipboard]: "link",
+    [WebEngineView.DownloadImageToDisk]: "download",
+    [WebEngineView.SavePage]: "save",
+    [WebEngineView.ViewSource]: "code"
+})
+
+function actionIcon(actionId) {
+    const customIcon = actionIconOverrides[actionId];
+
+    return customIcon !== undefined
+        ? customIcon
+        : contextView.action(actionId).iconName;
+}
+
+function separatorBefore(groupIndex) {
+    if (!groupHasItems(groupIndex))
+        return false;
+
+    for (var i = 0; i < groupIndex; ++i) {
+        if (groupHasItems(i))
+            return true;
+    }
+
+    return false;
+}
+
+    component EngineActionItem: CielMenuItem {
+        required property int actionId
+
+        text: webContextMenu.contextView
+              ? webContextMenu.contextView.action(actionId).text
+              : ""
+
+        icon: webContextMenu.actionIcon(actionId) // the built in icon name => webContextMenu.contextView.action(actionId).iconName
+              ?? ""
+
+        enabled: webContextMenu.contextView
+                 ? webContextMenu.contextView.action(actionId).enabled
+                 : false
+
+        onTriggered: webContextMenu.triggerContextAction(actionId)
+    }
+
+    Repeater {
+        model: webContextMenu.navigationActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
         }
-        CielMenuItem {
-            text: "Forward"
-            icon: "arrow-right"
-            visible: webContainer.currentActiveView ? webContainer.currentActiveView.canGoForward : false
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.goForward();
-                }
-                webContextMenu.close();
-            }
-        }
-        CielMenuItem {
-            text: "Reload"
-            icon: "arrow-clockwise"
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.reload();
-                }
-                webContextMenu.close();
-            }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(1)
+    }
+
+    CielMenuItem {
+        text: {
+            const selected = String(
+                webContextMenu.contextRequest?.selectedText || ""
+            ).trim();
+
+            const snippet = selected.substring(0, 24);
+
+            return "Search " + browserSettings.engineLabel()
+                + " for \"" + snippet
+                + (selected.length > 24 ? "..." : "") + "\"";
         }
 
-        CielMenuSeparator {
-            visible: (webContextMenu.contextRequest?.selectedText !== "")
-        }
+        icon: "magnifying-glass"
+        visible: webContextMenu.hasSelectedText()
 
-        CielMenuItem {
-            text: {
-                const txt = webContextMenu.contextRequest?.selectedText || "";
-                return "Search " + browserSettings.engineLabel() + " for \"" + txt.substring(0, 8) + (txt.length > 8 ? "..." : "") + "\"";
-            }
-            icon: "magnifying-glass"
-            visible: webContextMenu.contextRequest?.selectedText !== ""
-            onTriggered: {
-                if (workspaceContainer.wsTabModel && webContextMenu.contextRequest?.selectedText) {
-                    workspaceContainer.wsTabModel.addTab(browserSettings.searchUrl(webContextMenu.contextRequest.selectedText));
-                }
-                webContextMenu.close();
-            }
-        }
+onTriggered: {
+    const selected = String(
+        webContextMenu.contextRequest?.selectedText || ""
+    ).trim();
 
-        CielMenuSeparator {
-            visible: (webContextMenu.contextRequest?.linkUrl !== "") || (webContextMenu.contextRequest?.selectedText !== "")
-        }
+    if (selected && webContextMenu.tabModel) {
+        webContextMenu.tabModel.addTab(
+            browserSettings.searchUrl(selected)
+        );
+    }
 
-        CielMenuItem {
-            text: "Open link in new tab"
-            icon: ""
-            visible: webContextMenu.contextRequest?.linkUrl !== ""
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.OpenLinkInNewTab);
-                }
-                webContextMenu.close();
-            }
-        }
-        CielMenuItem {
-            text: "Copy link address"
-            icon: ""
-            visible: webContextMenu.contextRequest?.linkUrl !== ""
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.CopyLinkToClipboard);
-                }
-                webContextMenu.close();
-            }
-        }
+    webContextMenu.close();
+}
+    }
 
-        CielMenuSeparator {
-            visible: webContextMenu.contextRequest?.mediaType === 2
-        }
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(2)
+    }
 
-        CielMenuItem {
-            text: "Copy image"
-            visible: webContextMenu.contextRequest?.mediaType === 2
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.CopyImageToClipboard);
-                }
-                webContextMenu.close();
-            }
-        }
-        CielMenuItem {
-            text: "Copy image address"
-            visible: webContextMenu.contextRequest?.mediaType === 2
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.CopyImageUrlToClipboard);
-                }
-                webContextMenu.close();
-            }
-        }
+    Repeater {
+        model: webContextMenu.spellSuggestions
 
-        CielMenuItem {
-            text: "Copy"
-            visible: webContextMenu.contextRequest?.editFlags?.canCopy ?? false
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.Copy);
-                }
-                webContextMenu.close();
-            }
-        }
-        CielMenuItem {
-            text: "Paste"
-            visible: webContextMenu.contextRequest?.editFlags?.canPaste ?? false
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.Paste);
-                }
-                webContextMenu.close();
-            }
-        }
-        CielMenuItem {
-            text: "Select All"
-            visible: webContextMenu.contextRequest?.editFlags?.canSelectAll ?? false
-            onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.SelectAll);
-                }
-                webContextMenu.close();
-            }
-        }
+        delegate: CielMenuItem {
+            required property string modelData
 
-        CielMenuSeparator {
-            visible: webContextMenu.contextRequest?.selectedText !== ""
-        }
+            text: modelData
 
-        CielMenuItem {
-            text: "View page source"
             onTriggered: {
-                if (webContainer.currentActiveView) {
-                    webContainer.currentActiveView.triggerWebAction(WebEngineView.ViewSource);
+                if (webContextMenu.contextView) {
+                    webContextMenu.contextView.replaceMisspelledWord(
+                        modelData
+                    );
                 }
+
                 webContextMenu.close();
             }
         }
     }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(3)
+    }
+
+    Repeater {
+        model: webContextMenu.linkActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(4)
+    }
+
+    CielMenuItem {
+        text: "Open image in new tab"
+        icon: "image"
+        visible: webContextMenu.isImageContext()
+
+        onTriggered: {
+            const request = webContextMenu.contextRequest;
+
+            if (request && request.mediaUrl && webContextMenu.tabModel) {
+                webContextMenu.tabModel.addTab(request.mediaUrl);
+            }
+
+            webContextMenu.close();
+        }
+    }
+
+    Repeater {
+        model: webContextMenu.imageActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(5)
+    }
+
+    CielMenuItem {
+        text: webContextMenu.contextRequest?.mediaType
+              === ContextMenuRequest.MediaTypeVideo
+              ? "Open video in new tab"
+              : "Open audio in new tab"
+
+        icon: "play"
+        visible: webContextMenu.isVideoOrAudioContext()
+
+        onTriggered: {
+            const request = webContextMenu.contextRequest;
+
+            if (request && request.mediaUrl
+                    && workspaceContainer.wsTabModel) {
+                workspaceContainer.wsTabModel.addTab(request.mediaUrl);
+            }
+
+            webContextMenu.close();
+        }
+    }
+
+    Repeater {
+        model: webContextMenu.mediaActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(6)
+    }
+
+    CielMenuItem {
+        text: "Delete"
+        icon: "trash"
+        visible: webContextMenu.canDelete()
+
+        onTriggered: {
+            if (webContextMenu.contextView) {
+                webContextMenu.contextView.runJavaScript(
+                    "document.execCommand('delete')"
+                );
+            }
+
+            webContextMenu.close();
+        }
+    }
+
+    Repeater {
+        model: webContextMenu.editActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(7)
+    }
+
+    Repeater {
+        model: webContextMenu.richTextActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(8)
+    }
+
+    Repeater {
+        model: webContextMenu.directionActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+
+    CielMenuSeparator {
+        visible: webContextMenu.separatorBefore(9)
+    }
+
+    Repeater {
+        model: webContextMenu.pageActions
+
+        delegate: EngineActionItem {
+            required property int modelData
+            actionId: modelData
+        }
+    }
+}
 
     CielPopup {
         id: jsDialogPopup
@@ -1908,16 +2261,13 @@ ApplicationWindow {
                 Layout.maximumHeight: 200
             }
 
-            CielSearch {
+            CielInput {
                 id: promptInput
                 visible: jsDialogPopup.dialogType === 2
                 text: jsDialogPopup.dialogDefaultText
                 Layout.fillWidth: true
                 Layout.preferredHeight: 36
                 placeholder: "Enter text..."
-
-                preContent: Item {}
-                postContent: Item {}
 
                 onVisibleChanged: {
                     if (visible) {

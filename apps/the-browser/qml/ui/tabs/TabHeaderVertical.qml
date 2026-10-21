@@ -243,7 +243,7 @@ Item {
                 }
             }
 
-            CielSearch {
+            CielInput {
                 id: omniboxVertical
                 Layout.fillWidth: true
                 Layout.preferredHeight: 32
